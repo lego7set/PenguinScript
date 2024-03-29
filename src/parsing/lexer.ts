@@ -9,6 +9,8 @@ export enum TokenType {
   EQUALS,
   BINARY_OPERATOR,
 
+  SEMICOLON,
+
   OPEN_PAREN, // Grouping
   CLOSE_PAREN,
   OPEN_BRACE, // Block scope
@@ -103,6 +105,11 @@ export default class Lexer {
         }
         case "=": {
           const token = new Token(TokenType.EQUALS, src.shift());
+          yield* this.yieldToken(token);
+          break;
+        }
+        case ";": {
+          const token = new Token(TokenType.SEMICOLON, src.shift());
           yield* this.yieldToken(token);
           break;
         }
