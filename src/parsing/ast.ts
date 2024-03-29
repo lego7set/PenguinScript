@@ -3,7 +3,8 @@ export enum NodeType {
   VariableDeclaration,
   AssignmentExpr,
   Identifier,
-  PrimitiveLiteral
+  PrimitiveLiteral,
+  BinaryExpr
 }
 
 export enum OutputType { // going to be unused
@@ -40,6 +41,13 @@ export interface AssignmentExpr extends Expr {
   kind: NodeType.AssignmentExpr;
   assigne: Expr;
   value: Expr;
+}
+
+export interface BinaryExpr extends Expr {
+  kind: NodeType.BinaryExpr;
+  left: Expr;
+  right: Expr;
+  operator: string;
 }
 
 export interface Identifer extends Expr {
