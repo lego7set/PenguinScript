@@ -90,6 +90,21 @@ export default class Lexer {
           yield token;
           break;
         }
+        case "+":
+        case "-":
+        case "*":
+        case "/":
+        case "%":
+        case "^": {
+          const token = new Token(TokenType.BINARY_OPERATOR, src.shift());
+          yield* this.yieldToken(token);
+          break;
+        }
+        case "=": {
+          const token = new Token(TokenType.EQUALS, src.shift());
+          yield* this.yieldToken(token);
+          break;
+        }
         default: {
           // Handle other multi character things here
           if (/^[_a-zA-Z]$/.test(src[0])) {
