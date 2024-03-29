@@ -99,7 +99,7 @@ export default class Parser {
   }
   
   protected parse_expr(): Expr {
-    return this.parse_not_expr();
+    return this.parse_assignment_expr();
   }
 
   protected parse_not_expr(): UnaryExpr | Expr {
@@ -150,11 +150,11 @@ export default class Parser {
   }
 
   protected parse_or_expr(): BinaryExpr | Expr {
-    let left = this.parse_assignment_expr();
+    let left = this.parse_additive_expr();
 
     while (this.at().raw === "or") {
       const operator = this.eat().raw;
-      const right = this.parse_assignment_expr();
+      const right = this.parse_additive_expr();
       left = {
         kind: NodeType.BinaryExpr,
         left,
@@ -167,7 +167,7 @@ export default class Parser {
   }
 
   protected parse_assignment_expr(): AssignmentExpr | Expr {
-    const left = this.parse_additive_expr();
+    const left = this.parse_not_expr();
 
     if (this.at().type === TokenType.EQUALS) {
       this.eat();
