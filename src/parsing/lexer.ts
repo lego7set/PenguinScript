@@ -13,7 +13,9 @@ export enum TokenType {
   OPEN_BRACE, // Block scope
   CLOSE_BRACE,
   OPEN_BRACKET, // Objects. [key -> value, key -> value...]
-  CLOSE_BRACKET
+  CLOSE_BRACKET,
+
+  EOF
 }
 
 export type TokenList = Token[];
@@ -26,7 +28,7 @@ export interface TokenizeOutput {
 export class Token {
   public type: TokenType;
   public raw: string;
-  public constructor(type: TokenType, raw: string = "") {
+  public constructor(type: TokenType = TokenType.EOF, raw: string = "") {
     this.type = type;
     this.raw = raw;
   }
@@ -227,6 +229,7 @@ export default class Lexer {
         }
       }
     }
+    yield* this.yieldToken(new Token())
   }
   public tokenizeNonGen(): TokenizeOutput {
     this.tokens = ([] as TokenList);
