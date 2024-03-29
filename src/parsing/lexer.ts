@@ -8,6 +8,7 @@ export enum TokenType {
 
   EQUALS,
   BINARY_OPERATOR,
+  UNARY_OPERATOR,
 
   SEMICOLON,
 
@@ -45,7 +46,8 @@ export default class Lexer {
     const: TokenType.CONST,
     and: TokenType.BINARY_OPERATOR,
     or: TokenType.BINARY_OPERATOR,
-    xor: TokenType.BINARY_OPERATOR
+    xor: TokenType.BINARY_OPERATOR,
+    not: TokenType.UNARY_OPERATOR
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
