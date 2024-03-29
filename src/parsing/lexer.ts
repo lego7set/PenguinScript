@@ -4,6 +4,7 @@ export enum TokenType {
   IDENTIFIER,
 
   LET,
+  CONST,
 
   EQUALS,
   BINARY_OPERATOR,
@@ -39,7 +40,7 @@ export default class Lexer {
   public TokenType: typeof TokenType = TokenType;
   public Keywords: Record<string, TokenType> = {
     let: TokenType.LET,
-    
+    const: TokenType.CONST
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
