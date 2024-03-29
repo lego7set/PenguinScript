@@ -1,4 +1,6 @@
-import Lexer, {type TokenType, type TokenList, Token} from "./parsing/lexer.ts";
+import type { TokenType, TokenList } from "./parsing/lexer.ts";
+
+import Lexer, { Token } from "./parsing/lexer";
 
 console.log(Lexer, Token)
 
