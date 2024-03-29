@@ -1,6 +1,6 @@
-import type { TokenType, TokenList } from "./parsing/lexer.ts";
+import Parser from "./parsing/parser";
 
-import Lexer, { Token } from "./parsing/lexer";
+console.log(new Parser("let x = 5; x = x xor 5 and 3 or not 7").produceAST())
 
 class PenguinScript {
   
@@ -16,6 +16,7 @@ console.log(Lexer, Token)
 module.exports = {
   e: ()=>Lexer,
   PenguinScript,
+  Parser,
   default: function transpile(src): string | Function {
     //
     return src;
