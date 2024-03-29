@@ -44,6 +44,7 @@ export interface AssignmentExpr extends Expr {
 
 export interface Identifer extends Expr {
   kind: NodeType.Identifier;
+  symbol: string;
 }
 
 export interface PrimitiveLiteral {
