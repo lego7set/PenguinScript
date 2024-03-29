@@ -198,6 +198,7 @@ export default class Lexer {
                   }
                   case "S":
                   case "a": {
+                    // Sparkles / Shiny / Awesome emoji (sixth emoji escape sequence)
                     str += "\u{2728}"
                     break;
                   }
