@@ -42,7 +42,10 @@ export default class Lexer {
   public TokenType: typeof TokenType = TokenType;
   public Keywords: Record<string, TokenType> = {
     let: TokenType.LET,
-    const: TokenType.CONST
+    const: TokenType.CONST,
+    and: TokenType.BINARY_OPERATOR,
+    or: TokenType.BINARY_OPERATOR,
+    xor: TokenType.BINARY_OPERATOR
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
