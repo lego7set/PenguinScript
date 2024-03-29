@@ -4,7 +4,8 @@ export enum NodeType {
   AssignmentExpr,
   Identifier,
   PrimitiveLiteral,
-  BinaryExpr
+  BinaryExpr,
+  UnaryExpr
 }
 
 export enum OutputType { // going to be unused
@@ -41,6 +42,12 @@ export interface AssignmentExpr extends Expr {
   kind: NodeType.AssignmentExpr;
   assigne: Expr;
   value: Expr;
+}
+
+export interface UnaryExpr extends Expr {
+  kind: NodeType.UnaryExpr;
+  operand: Expr;
+  operator: string;
 }
 
 export interface BinaryExpr extends Expr {
