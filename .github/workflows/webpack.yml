@@ -2,6 +2,16 @@ name: NodeJS with Webpack
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Webpack Mode'
+        required: true
+        default: 'development'
+        type: choice
+        options:
+          - development
+          - production
+          - none
   # push: we dont need this anymore
   #  branches: [ "main" ]
   # pull_request:
@@ -30,7 +40,7 @@ jobs:
     - name: Build
       run: |
         sudo npm install
-        sudo npx webpack --mode development
+        sudo npx webpack --mode ${{ inputs.mode }}
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
