@@ -252,7 +252,8 @@ export default class Lexer {
             if (src.shift() !== '"') throw new SyntaxError("Expected closing quotes, got <EOF> instead."); // consume the closing quote and throw if not present.
             yield* this.yieldToken(new Token(TokenType.STRING, str))
           } else if (/^[ \n\r]+$/.test(src[0])) {
-            // skip, do nothing.
+            // skip, consume the whitespace
+            src.shift();
           }
         }
       }
