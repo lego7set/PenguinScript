@@ -6,6 +6,7 @@ export enum TokenType {
   LET,
   CONST,
   IF,
+  ELSE,
 
   EQUALS,
   BINARY_OPERATOR,
@@ -52,7 +53,8 @@ export default class Lexer {
     or: TokenType.BINARY_OPERATOR,
     xor: TokenType.BINARY_OPERATOR,
     not: TokenType.UNARY_OPERATOR,
-    if: TokenType.IF
+    if: TokenType.IF,
+    else: TokenType.ELSE
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
