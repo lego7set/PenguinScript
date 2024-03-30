@@ -11,9 +11,6 @@ if (typeof Scratch === "object" && Scratch && window && typeof window === "objec
   // Logic here
 }
 
-
-console.log(Lexer, Token)
-
 module.exports = {
   PenguinScript,
   Parser,
