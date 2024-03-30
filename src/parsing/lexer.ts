@@ -254,6 +254,7 @@ export default class Lexer {
           } else if (/^[ \n\r]+$/.test(src[0])) {
             // skip, consume the whitespace
             src.shift();
+            debugger;
           }
         }
       }
