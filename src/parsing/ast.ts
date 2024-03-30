@@ -1,3 +1,5 @@
+import type { Token } from "./lexer.ts";
+
 export enum NodeType {
   Program,
   VariableDeclaration,
@@ -16,6 +18,27 @@ export enum OutputType { // going to be unused
   List,
   VariableReference,
   Userdata
+}
+
+export enum Precedence {
+  //NONE, // lowest
+  ASSIGNMENT, // lowest
+  NOT,
+  AND,
+  XOR,
+  OR,
+  ADDITIVE,
+  MULTIPLICATIVE,
+  EXPONENTIAL,
+  PRIMARY_EXPR // highest
+}
+
+export const PrecendenceRules = {
+  // do this for later
+}
+
+export function TokenToPrecedence(token: Token): Precedence {
+  
 }
 
 export interface Stmt {
