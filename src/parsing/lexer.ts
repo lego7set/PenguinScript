@@ -54,7 +54,7 @@ export default class Lexer {
     this.srcArr = sourceCode.split("");
     this.tokens = ([] as TokenList)
   }
-  public *yieldToken(token) {
+  public *yieldToken(token: Token) {
     this.tokens.push(token);
     yield token;
   }
@@ -174,7 +174,7 @@ export default class Lexer {
                     const letter = src.shift();
                     // who cares if we throw an error from the lexer
                     if ((!letter) || (!/^[a-zA-Z]$/.test(letter))) throw new SyntaxError(`Expected letter after escape sequence \\c, got ${letter || '<EOF>'} instead`);
-                    str += String.fromCodePoint(letter.codePointAt() % 32);
+                    str += String.fromCodePoint(letter.codePointAt(0) || 0 % 32);
                     break;
                   }
                   case "x": {
@@ -183,7 +183,7 @@ export default class Lexer {
                     let char1;
                     let char2;
                     if (/^[0-9a-fA-F]+$/.test((char1 = src[0]) + (char2 = src[1]))) str += String.fromCodePoint(Number("0x" + src.shift() + src.shift()));
-                    else throw new SyntaxError(`Expected two hexadecimal digits after escape sequence \\x, got ${char1 || "<EOF>"}${char1 ? char2 || " and <EOF>" : ""} instead`;
+                    else throw new SyntaxError(`Expected two hexadecimal digits after escape sequence \\x, got ${char1 || "<EOF>"}${char1 ? char2 || " and <EOF>" : ""} instead`);
                     break;
                   }
                   case "u": {
@@ -246,7 +246,7 @@ export default class Lexer {
                     break;
                   }
                 }
-              };
+              }
               else str += char;
             }
             if (src.shift() !== '"') throw new SyntaxError("Expected closing quotes, got <EOF> instead."); // consume the closing quote and throw if not present.
