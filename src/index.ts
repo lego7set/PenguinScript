@@ -17,9 +17,9 @@ class PenguinScript {
     return Parser
   }
 }
-
+let Scratch;
 // @ts-ignore
-if (typeof Scratch === "object" && Scratch && typeof window === "object" && window && typeof window.document === "object") {
+if (typeof window === "object" && window && typeof window.document === "object" && typeof (Scratch = window.Scratch) === "object" && Scratch) {
   // Logic here
   if (!Scratch.extensions.isPenguinMod) throw "Please load PenguinScript in PenguinMod";
 
