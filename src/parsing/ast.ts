@@ -38,7 +38,7 @@ export const PrecendenceRules = {
 }
 
 export function TokenToPrecedence(token: Token): Precedence {
-  
+  return Precedence.ASSIGNMENT
 }
 
 export interface Stmt {
