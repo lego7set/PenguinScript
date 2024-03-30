@@ -5,12 +5,14 @@ export enum TokenType {
 
   LET,
   CONST,
+  IF,
 
   EQUALS,
   BINARY_OPERATOR,
   UNARY_OPERATOR,
 
-  SEMICOLON,
+  SEMICOLON, // separate stmts
+  COMMA, // separate args
 
   OPEN_PAREN, // Grouping
   CLOSE_PAREN,
@@ -18,6 +20,8 @@ export enum TokenType {
   CLOSE_BRACE,
   OPEN_BRACKET, // Objects. [key -> value, key -> value...]
   CLOSE_BRACKET,
+  OPEN_ANGLE, // function invocation, so that its not confusing like js
+  CLOSE_ANGLE,
 
   EOF
 }
@@ -47,7 +51,8 @@ export default class Lexer {
     and: TokenType.BINARY_OPERATOR,
     or: TokenType.BINARY_OPERATOR,
     xor: TokenType.BINARY_OPERATOR,
-    not: TokenType.UNARY_OPERATOR
+    not: TokenType.UNARY_OPERATOR,
+    if: TokenType.IF
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
@@ -68,9 +73,18 @@ export default class Lexer {
           src.shift(); // skip over whitespace, for some reason, typescript or webpack doesnt like me
           break;
         }
+        case "<": {
+          const token = new Token(TokenType.OPEN_ANGLE, src.shift())
+          yield* this.yieldToken(token);
+          break;
+        }
+        case ">": {
+          const token = new Token(TokenType.CLOSE_ANGLE, src.shift())
+          yield* this.yieldToken(token);
+          break;
+        }
         case "(": {
           const token = new Token(TokenType.OPEN_PAREN, src.shift())
-          console.log("open paren")
           this.tokens.push(token);
           yield token;
           break;
@@ -122,6 +136,11 @@ export default class Lexer {
         }
         case ";": {
           const token = new Token(TokenType.SEMICOLON, src.shift());
+          yield* this.yieldToken(token);
+          break;
+        }
+        case ",": {
+          const token = new Token(TokenType.COMMA, src.shift());
           yield* this.yieldToken(token);
           break;
         }
@@ -193,7 +212,7 @@ export default class Lexer {
                   }
                   case "U": {
                     // larger unicode escape sequence.
-                    // expects sisx hex digits ahead
+                    // expects sis hex digits ahead
                     if (/^[0-9a-fA-F]+$/.test(src.slice(0,6).join(""))) str += String.fromCodePoint(Number("0x" + src.shift() + src.shift() + src.shift() + src.shift() + src.shift() + src.shift()));
                     else throw new SyntaxError("Invalid Unicode escape sequence, expected 6 hexadecimal digits. ");
                     break;
@@ -260,12 +279,12 @@ export default class Lexer {
             }
             console.log(TokenType.NUMBER, num)
             yield* this.yieldToken(new Token(TokenType.NUMBER, num));
-          } else if (/^[\s]+$/.test(src[0])) {
+          } /*else if (/^[\s]+$/.test(src[0])) {
             console.log("Consume whitespace");
             // skip, consume the whitespace
             src.shift();
             debugger;
-          }
+          }*/
         }
       }
     }
