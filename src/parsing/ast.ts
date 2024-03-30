@@ -9,7 +9,8 @@ export enum NodeType {
   BinaryExpr,
   UnaryExpr,
   StmtBlock,
-  IfStatement
+  IfStatement,
+  NoOp
 }
 
 export enum OutputType { // going to be unused
@@ -45,6 +46,10 @@ export function TokenToPrecedence(token: Token): Precedence {
 
 export interface Stmt {
   kind: NodeType;
+}
+
+export interface NoOp extends Stmt {
+  kind: NodeType.NoOp; // its an empty statement
 }
 
 export type StmtBody = Stmt[];
