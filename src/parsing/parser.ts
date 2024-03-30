@@ -2,9 +2,9 @@ import { NodeType } from "./ast";
 
 import Lexer, { Token, TokenType } from "./lexer";
 
-import type { TokenType, TokenList, TokenizeOutput, Token } from "./lexer.ts";
+import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { NodeType, Stmt, StmtBody, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, NumericLiteral, StringLiteral } from "./ast.ts";
+import type { Stmt, StmtBody, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, NumericLiteral, StringLiteral } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -215,11 +215,11 @@ export default class Parser {
   }
 
   protected parse_exponential_expr(): BinaryExpr | Expr {
-    let left = this.parse_literal();
+    let left = this.parse_primary_expr();
 
     while (this.at().raw === "^") {
       const operator = this.eat().raw;
-      const right = this.parse_literal();
+      const right = this.parse_primary_expr();
       left = {
         kind: NodeType.BinaryExpr,
         left,
