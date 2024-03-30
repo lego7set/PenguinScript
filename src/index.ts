@@ -2,20 +2,28 @@ import Parser from "./parsing/parser";
 
 import Lexer from "./parsing/lexer";
 
-const xyz = new Lexer("abcdefg").tokenizeNonGen()
-console.log(xyz);
-
-debugger;
-
-console.log(new Parser(xyz.tokens).produceAST())
-
 class PenguinScript {
-  
+  getInfo() {
+    return {
+      id: "vgspenguinscript",
+      name: "PenguinScript",
+      blocks: []
+    }
+  }
+  getLexer() {
+    return Lexer;
+  }
+  getParser() {
+    return Parser
+  }
 }
 
 // @ts-ignore
-if (typeof Scratch === "object" && Scratch && window && typeof window === "object" && typeof window.document === "object") {
+if (typeof Scratch === "object" && Scratch && typeof window === "object" && window && typeof window.document === "object") {
   // Logic here
+  if (!Scratch.extensions.isPenguinMod) throw "Please load PenguinScript in PenguinMod";
+
+  Scratch.extensions.register(new PenguinScript());
 }
 
 module.exports = {
