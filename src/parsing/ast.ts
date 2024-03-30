@@ -10,7 +10,8 @@ export enum NodeType {
   UnaryExpr,
   StmtBlock,
   IfStatement,
-  NoOp
+  NoOp,
+  ElseStatement
 }
 
 export enum OutputType { // going to be unused
@@ -68,6 +69,12 @@ export interface IfStatement extends Stmt {
   kind: NodeType.IfStatement;
   body: Stmt;
   condition: Expr;
+  else?: ElseStatement;
+}
+
+export interface ElseStatement extends Stmt {
+  kind: NodeType.ElseStatement;
+  body: Stmt;
 }
 
 export interface VariableDeclaration extends Stmt {
