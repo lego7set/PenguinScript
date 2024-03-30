@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, NumericLiteral, StringLiteral } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, NumericLiteral, StringLiteral } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -63,9 +63,48 @@ export default class Parser {
       case TokenType.CONST: {
         return this.parse_variable_declaration();
       }
-      default: {
-        return this.parse_expr();
+      case TokenType.OPEN_BRACE: { // parenthesis for stmts, allows for multiple statements where one is expected.
+        // consume brace
+        this.eat();
+        const stmts = [] as StmtBody;
+        while (this.at().type !== TokenType.CLOSE_BRACE && this.not_eof()) {
+          const stmt = this.parse_stmt();
+          stmts.push(stmt);
+        }
+        this.expect(TokenType.CLOSE_BRACE);
+        if (this.at().type === TokenType.SEMICOLON) { // you dont really need a semicolon after braces
+          this.eat();
+        }
+        return {
+          kind: NodeType.StmtBlock,
+          body: stmts
+        } as StmtBody;
       }
+      case TokenType.IF: {
+        return this.parse_if();
+      }
+      case TokenType.SEMICOLON: {
+        this.eat();
+        return {
+          kind: NodeType.NoOp
+        } as NoOp // an empty statement.
+      }
+      default: {
+        const expr = this.parse_expr();
+        this.expect(TokenType.SEMICOLON); // expect a semicolon on every statement (except some)
+        return expr;
+      }
+    }
+  }
+
+  protected parse_if() {
+    this.eat(); // consume if
+    const expr = this.parse_expr(); // for the condition
+    const stmt = this.parse_stmt(); // for the body 
+    return {
+      kind: NodeType.IfStatement,
+      body: stmt,
+      condition: expr
     }
   }
 
