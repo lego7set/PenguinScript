@@ -69,6 +69,7 @@ export default class Lexer {
         }
         case "(": {
           const token = new Token(TokenType.OPEN_PAREN, src.shift())
+          console.log("open paren")
           this.tokens.push(token);
           yield token;
           break;
@@ -129,8 +130,9 @@ export default class Lexer {
             // This is an identifier / keyword
             let str = ""
             for (; typeof src[0] === "string" && /^[_a-zA-Z]+[_a-zA-Z0-9]*$/.test(str + src[0]) && src.length > 0; str += src.shift());
-            let tokenType: TokenType;
-            if (tokenType = this.Keywords[str]) yield* this.yieldToken(new Token(tokenType, str));
+            let reserved = this.Keywords[str];
+            console.log(reserved, " ", str, TokenType.IDENTIFIER);
+            if (reserved) yield* this.yieldToken(new Token(reserved, str));
             else yield* this.yieldToken(new Token(TokenType.IDENTIFIER, str));
           } else if (/^[0-9]$.test(src[0])/) {
             // This is a number
@@ -141,6 +143,7 @@ export default class Lexer {
               num += src.shift();
               for (;typeof src[0] === "string" && /^[0-9]+\.[0-9]+$/.test(num + src[0]) && src.length > 0; num += src.shift());
             }
+            console.log(TokenType.NUMBER, num)
             yield* this.yieldToken(new Token(TokenType.NUMBER, num));
           } else if (src[0] === '"') {
             // do not actually include the opening and closing quotes.
