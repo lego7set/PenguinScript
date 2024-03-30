@@ -175,7 +175,7 @@ export default class Parser {
       return {
         kind: NodeType.AssignmentExpr,
         value,
-        assignee: left
+        assigne: left
       } as AssignmentExpr
     }
 
