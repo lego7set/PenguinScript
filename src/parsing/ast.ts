@@ -57,7 +57,7 @@ export interface BinaryExpr extends Expr {
   operator: string;
 }
 
-export interface Identifer extends Expr {
+export interface Identifier extends Expr {
   kind: NodeType.Identifier;
   symbol: string;
 }
