@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, NumericLiteral, StringLiteral } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, NumericLiteral, StringLiteral } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -83,6 +83,10 @@ export default class Parser {
       case TokenType.IF: {
         return this.parse_if();
       }
+      case TokenType.ELSE: {
+        throw new SyntaxError("Unexpected else statement.")
+      }
+      case TokenType.ELSE
       case TokenType.SEMICOLON: {
         this.eat();
         return {
@@ -101,6 +105,21 @@ export default class Parser {
     this.eat(); // consume if
     const expr = this.parse_expr(); // for the condition
     const stmt = this.parse_stmt(); // for the body 
+    let elseStmt;
+    if (this.at().type === TokenType.ELSE) {
+      this.eat();
+      const elseBody = this.parse_stmt();
+      elseStmt = {
+        kind: NodeType.ElseStatement,
+        body: elseBody
+      } as ElseStatement
+      return {
+        kind: NodeType.IfStatement,
+        body: stmt,
+        condition: expr,
+        else: elseStmt
+      }
+    }
     return {
       kind: NodeType.IfStatement,
       body: stmt,
