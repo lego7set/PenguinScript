@@ -105,7 +105,7 @@ export default class Parser {
   protected parse_not_expr(): UnaryExpr | Expr {
     if (this.at().raw === "not") {
       this.eat(); // consume the not
-      const operand = this.parse_and_expr();
+      const operand = this.parse_not_expr();
       return {
         kind: NodeType.UnaryExpr,
         operand,
