@@ -2,12 +2,12 @@ import Parser from "./parsing/parser";
 
 import Lexer from "./parsing/lexer";
 
-const xyz = new Lexer("let x = 5; x = x or 5 and 3 or not 7").tokenizeNonGen()
+const xyz = new Lexer("abcdefg").tokenizeNonGen()
 console.log(xyz);
 
 debugger;
 
-console.log(new Parser("let x = 5; x = x xor 5 and 3 or not 7").produceAST())
+console.log(new Parser(xyz.tokens).produceAST())
 
 class PenguinScript {
   
