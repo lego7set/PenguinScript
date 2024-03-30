@@ -62,6 +62,11 @@ export default class Lexer {
     const src = this.srcArr;
     while (src.length > 0) {
       switch (src[0]) {
+        case " ": 
+        case "\n":
+        case "\r": {
+          src.shift(); // skip over whitespace, for some reason, typescript or webpack doesnt like me
+        }
         case "(": {
           const token = new Token(TokenType.OPEN_PAREN, src.shift())
           this.tokens.push(token);
