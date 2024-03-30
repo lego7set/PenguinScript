@@ -44,6 +44,8 @@ export default class Parser {
     };
 
     while (this.not_eof()) {
+      globalThis.parserProgram = program;
+      debugger;
       program.body.push(this.parse_stmt())
     }
 
