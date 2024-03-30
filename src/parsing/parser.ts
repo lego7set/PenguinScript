@@ -8,7 +8,7 @@ import type { Stmt, StmtBody, Program, VariableDeclaration, Expr, BinaryExpr, Un
 
 export default class Parser {
   public constructor(src: string | TokenList) {
-    if (Array.isArray(TokenList)) this.tokens = src;
+    if (Array.isArray(src)) this.tokens = src;
     else {
       const tokens = new Lexer(src).tokenizeNonGen();
       if (tokens.error) throw tokens.error;
