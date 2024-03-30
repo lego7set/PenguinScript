@@ -6,6 +6,7 @@ class PenguinScript {
   
 }
 
+// @ts-ignore
 if (typeof Scratch === "object" && Scratch && window && typeof window === "object" && typeof window.document === "object") {
   // Logic here
 }
@@ -14,7 +15,6 @@ if (typeof Scratch === "object" && Scratch && window && typeof window === "objec
 console.log(Lexer, Token)
 
 module.exports = {
-  e: ()=>Lexer,
   PenguinScript,
   Parser,
   default: function transpile(src): string | Function {
