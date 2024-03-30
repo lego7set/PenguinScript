@@ -7,7 +7,9 @@ export enum NodeType {
   Identifier,
   PrimitiveLiteral,
   BinaryExpr,
-  UnaryExpr
+  UnaryExpr,
+  StmtBlock,
+  IfStatement
 }
 
 export enum OutputType { // going to be unused
@@ -50,6 +52,17 @@ export type StmtBody = Stmt[];
 export interface Program extends Stmt {
   kind: NodeType.Program;
   body: StmtBody;
+}
+
+export interface StmtBlock extends Stmt {
+  kind: NodeType.StmtBlock;
+  body: StmtBody;
+}
+
+export interface IfStatement extends Stmt {
+  kind: NodeType.IfStatement;
+  body: Stmt;
+  condition: Expr;
 }
 
 export interface VariableDeclaration extends Stmt {
