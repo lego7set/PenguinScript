@@ -135,17 +135,6 @@ export default class Lexer {
             console.log(reserved, " ", str, TokenType.IDENTIFIER);
             if (reserved) yield* this.yieldToken(new Token(reserved, str));
             else yield* this.yieldToken(new Token(TokenType.IDENTIFIER, str));
-          } else if (/^[0-9]$.test(src[0])/) {
-            // This is a number
-            let num = "";
-            for (;typeof src[0] === "string" && /^[0-9]+$/.test(num + src[0]) && src.length > 0; num += src.shift());
-            if (src[0] === "." && /^[0-9]$/.test(String(src[1]))) {
-              num += src.shift();
-              num += src.shift();
-              for (;typeof src[0] === "string" && /^[0-9]+\.[0-9]+$/.test(num + src[0]) && src.length > 0; num += src.shift());
-            }
-            console.log(TokenType.NUMBER, num)
-            yield* this.yieldToken(new Token(TokenType.NUMBER, num));
           } else if (src[0] === '"') {
             // do not actually include the opening and closing quotes.
             src.shift();
@@ -260,6 +249,17 @@ export default class Lexer {
             }
             if (src.shift() !== '"') throw new SyntaxError("Expected closing quotes, got <EOF> instead."); // consume the closing quote and throw if not present.
             yield* this.yieldToken(new Token(TokenType.STRING, str))
+          } else if (/^[0-9]$.test(src[0])/) {
+            // This is a number
+            let num = "";
+            for (;typeof src[0] === "string" && /^[0-9]+$/.test(num + src[0]) && src.length > 0; num += src.shift());
+            if (src[0] === "." && /^[0-9]$/.test(String(src[1]))) {
+              num += src.shift();
+              num += src.shift();
+              for (;typeof src[0] === "string" && /^[0-9]+\.[0-9]+$/.test(num + src[0]) && src.length > 0; num += src.shift());
+            }
+            console.log(TokenType.NUMBER, num)
+            yield* this.yieldToken(new Token(TokenType.NUMBER, num));
           } else if (/^[\s]+$/.test(src[0])) {
             console.log("Consume whitespace");
             // skip, consume the whitespace
