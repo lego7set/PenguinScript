@@ -414,7 +414,7 @@ export default class JSGenerator {
           for (const arg of node2.args) {
             args.push(this.descendExpr(arg).asUnknown());
           }
-          return new TypedInput(`(yield* ${func}(${args.join(",")}))`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`((yield* ${func}(${args.join(",")})) ?? null)`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Target: {
           return new TypedInput(`(\$target)`, OutputType.TYPE_UNKNOWN)
