@@ -177,6 +177,115 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get direction of non-sprite");
     return target.direction;
   }
+  
+  function* say(target: any, text: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot make a non-sprite say something");
+    const msg = String(text);
+    Scratch.vm.runtime.emit("SAY", target, 'say', msg);
+    return null;
+  }
+  function* think(target: any, text: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot make a non-sprite think something");
+    const msg = String(text);
+    Scratch.vm.runtime.emit("SAY", target, 'think', msg);
+    return null;
+  }
+  function* setSize(target: any, size: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot set size of non-sprite");
+    const newSize = Math.max((Number(size) || 0), 0);
+    target.setSize(newSize);
+    return null;
+  }
+  function* setVisible(target: any, visible: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot set visibility of non-sprite");
+    const visibility = (visible ?? false) === false;
+    target.setVisible(visibility);
+    return null;
+  }
+  function* getSize(target: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get size of non-sprite");
+    return target.size
+  }
+  function* getVisible(target: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get visibility of non-sprite");
+    return target.visible;
+  }
+  function* setXStretch(target: any, x: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set x stretch of non-sprite to " + Number(x));
+    const pos = Number(x) || 0;
+    target.setStretch(pos, target.stretch[1]);
+    return null;
+  }
+  function* setYStretch(target: any, y: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set y stretch of non-sprite to " + Number(y));
+    const pos = Number(y) || 0;
+    target.setStretch(target.stretch[0], pos);
+    return null;
+  }
+  function* setXYStretch(target: any, x: any, y: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set x and y stretch of non-sprite to " + Number(x) + "and " + Number(y) + " respectively");
+    const xPos = Number(x) || 0;
+    const yPos = Number(y) || 0;
+    target.setStretch(xPos, yPos);
+    return null;
+  }
+  function* changeXStretch(target: any, x: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change x stretch of non-sprite by " + Number(x));
+    const pos = Number(x) || 0;
+    target.setXY(target.stretch[0] + pos, target.stretch[1]);
+    return null;
+  }
+  function* changeYStretch(target: any, y: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change y stretch of non-sprite by " + Number(y));
+    const pos = Number(y) || 0;
+    target.setXY(target.stretch[0], target.stretch[1] + pos);
+    return null;
+  }
+  function* changeXYStretch(target: any, x: any, y: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change x and y stretch of non-sprite by " + Number(x) + "and " + Number(y) + " respectively");
+    const xPos = Number(x) || 0;
+    const yPos = Number(y) || 0;
+    target.setXY(target.stretch[0] + xPos, target.stretch[1] + yPos);
+    return null;
+  }
+  
+  // Looks-related global functions.
+  _globalEnv.__env.set("say", {
+    get value() {return say}
+  })
+  _globalEnv.__env.set("think", {
+    get value() {return think}
+  })
+  _globalEnv.__env.set("setSize", {
+    get value() {return setSize}
+  })
+  _globalEnv.__env.set("setVisible", {
+    get value() {return setVisible}
+  })
+  _globalEnv.__env.set("getSize", {
+    get value() {return getSize}
+  })
+  _globalEnv.__env.set("getVisible", {
+    get value() {return getVisible}
+  })
+  _globalEnv.__env.set("setXStretch", {
+    get value() {return setXStretch}
+  })
+  _globalEnv.__env.set("setYStretch", {
+    get value() {return setYStretch}
+  })
+  _globalEnv.__env.set("setXYStretch", {
+    get value() {return setXYStretch}
+  })
+  _globalEnv.__env.set("changeXStretch", {
+    get value() {return changeXStretch}
+  })
+  _globalEnv.__env.set("changeYStretch", {
+    get value() {return changeYStretch}
+  })
+  _globalEnv.__env.set("changeXYStretch", {
+    get value() {return changeXYStretch}
+  })
   // Scratch-related global functions.
   _globalEnv.__env.set("getSprite", {
     get value() {return getSprite}
