@@ -157,7 +157,7 @@ const GeneratorFunction = function*(){}.constructor as unknown as GeneratorFunct
 
 export default class JSGenerator {
   protected program;
-  protected src: string = "let _;let _2;let _3;let _4"; // add some variables so we can use them inside expressions
+  protected src: string = "let _;let _2;let _3;let _4;"; // add some variables so we can use them inside expressions
   protected scriptName: string;
   protected _variablePool: Generator<string>;
   protected _cachedVariables: Record<string, string>;
