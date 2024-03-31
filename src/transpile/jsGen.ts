@@ -1,4 +1,4 @@
-import type {Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline } from "../parsing/ast.ts";
+import type { Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline, Target } from "../parsing/ast.ts";
 import { NodeType } from "../parsing/ast";
 
 export enum OutputType {
@@ -406,6 +406,9 @@ export default class JSGenerator {
             args.push(this.descendExpr(arg).asUnknown());
           }
           return new TypedInput(`(yield* ${func}(${args.join(",")}))`, OutputType.TYPE_UNKNOWN)
+        }
+        case NodeType.Target: {
+          return new TypedInput(`(\$target)`, OutputType.TYPE_UNKNOWN)
         }
       }
     }
