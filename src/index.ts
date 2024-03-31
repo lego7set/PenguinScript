@@ -144,7 +144,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     return null;
   }
   function* moveUpSteps(target: any, steps: any, direction?: any) {
-    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot move up non-sprite by " + Number(steps) " steps");
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot move up non-sprite by " + Number(steps) + " steps");
     let dir = direction ?? target.direction;
     dir = Number(dir) || 0
     const numOfSteps = Number(steps) || 0
@@ -155,7 +155,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     return null;
   }
   function* moveDownSteps(target: any, steps: any, direction?: any) {
-    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot move down non-sprite by " + Number(steps) " steps");
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot move down non-sprite by " + Number(steps) + " steps");
     let dir = direction ?? target.direction;
     dir = Number(dir) || 0
     const numOfSteps = Number(steps) || 0
@@ -268,7 +268,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
         // Try to cast the string to a number (and treat it as a costume index)
         // Pure whitespace should not be treated as a number
         // Note: isNaN will cast the string to a number before checking if it's NaN
-        }*/ else if (!(isNaN(requestedCostume) || Scratch.Cast.isWhiteSpace(requestedCostume))) {
+        }*/ else if (!(isNaN(Number(requestedCostume)) || Scratch.Cast.isWhiteSpace(requestedCostume))) {
             target.setCostume(Number(requestedCostume) - 1);
         }
     }
@@ -305,7 +305,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
         // Try to cast the string to a number (and treat it as a costume index)
         // Pure whitespace should not be treated as a number
         // Note: isNaN will cast the string to a number before checking if it's NaN
-        }*/ else if (!(isNaN(requestedCostume) || Scratch.Cast.isWhiteSpace(requestedCostume))) {
+        }*/ else if (!(isNaN(Number(requestedCostume)) || Scratch.Cast.isWhiteSpace(requestedCostume))) {
             target.setCostume(Number(requestedCostume) - 1);
         }
     }
