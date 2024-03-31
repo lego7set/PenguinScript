@@ -10,6 +10,9 @@ export enum TokenType {
   CONST,
   IF,
   ELSE,
+  WHILE,
+  FUNCTION,
+  INLINE,
 
   EQUALS,
   BINARY_OPERATOR,
@@ -60,7 +63,12 @@ export default class Lexer {
     else: TokenType.ELSE,
     false: TokenType.FALSE,
     true: TokenType.TRUE,
-    null: TokenType.NULL
+    null: TokenType.NULL,
+    while: TokenType.WHILE,
+    repeatUntil: TokenType.WHILE,
+    forever: TokenType.WHILE,
+    fn: TokenType.FUNCTION,
+    inline: TokenType.INLINE,
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
