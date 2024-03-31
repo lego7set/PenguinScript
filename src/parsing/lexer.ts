@@ -1,4 +1,4 @@
-import { isPenguinMod } from "../pmUtils/PenguinModDetector";
+// import { IsPenguinMod } from "../pmUtils/PenguinModDetector";
 
 export enum TokenType {
   NUMBER, // Literal types
