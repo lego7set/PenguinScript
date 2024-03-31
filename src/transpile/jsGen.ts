@@ -182,11 +182,10 @@ export default class JSGenerator {
       case "func": {
         return new Function("$globalEnv", "$target", this.src) as TranspiledFunction;
       }
-      case "generator: {
+      case "generator": {
         return new GeneratorFunction("$globalEnv", "$target", this.src) as TranspiledGenerator;
       }
     }
-  }
 
   protected yielded() {
     if (!this.yields) throw new Error("Script yielded but is not marked as yielding")
