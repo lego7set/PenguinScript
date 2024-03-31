@@ -51,7 +51,7 @@ class TypedInput implements Input {
   }
 
   public asUnknown() {
-    return this.src;
+    return `(${this.src} ?? null)`;
   }
   
   public constructor(src: string, type: OutputType) {
@@ -365,7 +365,7 @@ export default class JSGenerator {
         case NodeType.Identifier: {
           const node2 = node as unknown as Identifier;
           const ident = this.getVariable(node2.symbol);
-          return new TypedInput(`(${ident})`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`(${ident} ?? null)`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Inline: {
           const node2 = node as unknown as Inline;
