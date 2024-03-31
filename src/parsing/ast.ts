@@ -122,3 +122,19 @@ export interface NumericLiteral extends PrimitiveLiteral {
 export interface StringLiteral extends PrimitiveLiteral {
   value: string;
 }
+
+export interface BooleanLiteral extends PrimitiveLiteral {
+  value: boolean;
+}
+
+export interface True extends BooleanLiteral {
+  value: true;
+}
+
+export interface False extends BooleanLiteral {
+  value: false;
+}
+
+export interface Null extends PrimitiveLiteral {
+  value: null;
+}
