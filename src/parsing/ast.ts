@@ -161,7 +161,7 @@ export interface ReturnStatement extends Stmt {
 }
 
 export interface Function extends Expr {
-  kind: NodeType.While;
+  kind: NodeType.Function;
   args: ArgsList;
   body: Stmt;
 }
