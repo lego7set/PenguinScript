@@ -32,7 +32,11 @@ if (typeof window === "object" && window && typeof window.document === "object" 
           evalStack: (generator, block) => (generator.script.yields = true, {
             kind: "stack",
             code: generator.descendInputOfBlock("code", block)
-          })
+          }),
+          evalReporter: (generator, block) => (generator.script.yields = true, {
+            kind: "input",
+            code: generator.descendInputOfBlock("code", block)
+          }),
         },
         js: {
           evalStack: (node, compiler, imports) => {
@@ -41,9 +45,22 @@ if (typeof window === "object" && window && typeof window.document === "object" 
             try {
               const tryCompile = JSON.parse(code.asString());
               preCompiled = preCompile(tryCompile, compiler.warpTimer, compiler.isWarp); // transpile at compile time to make it fast.
-              compiler.src += preCompiled + ";"
+              compiler.source += preCompiled + ";"
             } catch(e) {
-              compiler.src += `(yield* transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})());`
+              compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})());`
+            }
+          },
+          evalReporter: (node, compiler, imports) => {
+            const code = compiler.descendInput(node.code);
+            let preCompiled;
+            try {
+              const tryCompile = JSON.parse(code.asString());
+              preCompiled = preCompile(tryCompile, compiler.warpTimer, compiler.isWarp); // transpile at compile time to make it fast.
+              // compiler.src += preCompiled + ";"
+              return new (imports.TypedInput)(`(${preCompiled})`, imports.TYPE_UNKNOWN)
+            } catch(e) {
+              return new (imports.TypedInput)(`(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})())`, imports.TYPE_UNKNOWN)
+              // compiler.src += `(yield* transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})());`
             }
           }
         }
@@ -66,6 +83,19 @@ if (typeof window === "object" && window && typeof window.document === "object" 
               }
             }
           },
+          {
+            opcode: "evalReporter",
+            allowDropAnywhere: true,
+            blockType: Scratch.BlockType.REPORTER,
+            text: "evaluate [code]",
+            func: "noComp",
+            arguments: {
+              code: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "return 69;"
+              }
+            }
+          }
         ]
       }
     }
