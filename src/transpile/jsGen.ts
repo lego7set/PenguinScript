@@ -16,6 +16,7 @@ export interface Input {
   asString: () => string;
   asBoolean: () => string;
   asUnknown: () => string;
+  asIdent: () => string;
   isAlwaysNumber: () => boolean;
   isAlwaysString: () => boolean;
 }
@@ -52,6 +53,10 @@ class TypedInput implements Input {
 
   public asUnknown() {
     return `(${this.src} ?? null)`;
+  }
+
+  public asIdent() {
+    return `(${this.src})`;
   }
   
   public constructor(src: string, type: OutputType) {
@@ -100,6 +105,9 @@ class ConstantInput implements Input {
       case "object": if (!this.constantValue) return "null"; else throw new Error("Unexpected Object.")
       default: return this.asString();
     }
+  }
+  public asIdent() {
+    return "(null)";
   }
 }
 
@@ -238,7 +246,8 @@ export default class JSGenerator {
         const node2 = node as unknown as ReturnStatement;
         this.src += "return(";
         this.src += this.descendExpr(node2.value).asUnknown();
-        this.src += ");"
+        this.src += ")"
+        this.src += "?? null;"
         break;
       }
       case NodeType.IfStatement: {
@@ -299,7 +308,7 @@ export default class JSGenerator {
           if (node2.assigne.kind !== NodeType.Identifier && node2.assigne.kind !== NodeType.Global) throw new SyntaxError("Invalid left-hand in assignment")// add for member assignment later
           const assigne = this.descendExpr(node2.assigne);
           const value = this.descendExpr(node2.value);
-          return new TypedInput(`((${assigne.asUnknown()}) = (${value.asUnknown()}))`, OutputType.TYPE_UNKNOWN);
+          return new TypedInput(`((${assigne.asIdent()}) = (${value.asUnknown()}))`, OutputType.TYPE_UNKNOWN);
         }
         case NodeType.UnaryExpr: {
           const node2 = node as unknown as UnaryExpr;
@@ -365,7 +374,7 @@ export default class JSGenerator {
         case NodeType.Identifier: {
           const node2 = node as unknown as Identifier;
           const ident = this.getVariable(node2.symbol);
-          return new TypedInput(`(${ident} ?? null)`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`(${ident})`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Inline: {
           const node2 = node as unknown as Inline;
