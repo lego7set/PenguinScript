@@ -9,7 +9,7 @@ export enum OutputType {
   // introduce other types later
 }
 
-export type TranspiledFunction = ($globalEnv: GlobalEnv, $runtimeLibrary) => any
+
 
 export interface Input {
   asNumber: () => string;
@@ -97,6 +97,7 @@ class ConstantInput implements Input {
     switch (typeof this.constantValue) {
       case "number": return this.asNumber();
       case "boolean": return this.asBoolean();
+      case "object": if (!this.constantValue) return "null"; else throw new Error("Unexpected Object.")
       default: return this.asString();
     }
   }
@@ -109,20 +110,58 @@ export function* VariablePool(prefix: string) {
 
 const ScriptPool = VariablePool("s");
 
-export const _runtimeVariable = {
-  
+export interface GlobalEnv {
+  get: (key: any) => any;
+  set: <T>(key: any, value: T) => T;
+  remove: (key: any) => boolean;
+  readOnly: (key: any) => boolean;
+  makeReadOnly: (key: any) => void;
+  __env: Map<any, any>;
+  __readonly: <any, boolean>;
+}
+
+export const _runtimeVariables = {
+  __proto__: null, // make it null prototype
 };
+
+export const _globlEnv: GlobalEnv = {
+  __env: new Map<any, any>(),
+  __readonly: new Map<any, boolean>(),
+  makeReadOnly: function MAKE_READ_ONLY(k) {
+    return this.__readonly.set(k, true);
+  },
+  readOnly: function READ_ONLY(k) {
+    return this.__readonly.get(k);
+  },
+  set: function SET(k, v){
+    if (this.__readonly.get(k)) throw new TypeError("Attempted to overwrite read-only global");
+    this.__env.set(k, v);
+    return v;
+  },
+  remove: function REMOVE(k) {
+    if (this.__readonly.get(k)) throw new TypeError("Attempted to remove read-only global");
+    return this.__env.delete(k);
+  },
+  get: function GET(k) {
+    return this.__env.get(k) ?? null;
+  }
+}
+
+export type TranspiledFunction = ($globalEnv, $target) => any
 
 export default class JSGenerator {
   protected program;
   protected src: string = "let _;let _2;let _3;let _4"; // add some variables so we can use them inside expressions
+  protected scriptName: string;
   public constructor(program) {
     this.program = program;
+    this.scriptName = ScriptPool.next();
     this._variablePool = VariablePool("v");
     this._cachedVariables = {
       
     };
     this._runtimeVariables = _runtimeVariables;
+    this._globalEnv = _globalEnv;
   }
 
   public transpile(asFunc: boolean): string | Function {
@@ -183,7 +222,7 @@ export default class JSGenerator {
           if (node.assigne.kind !== NodeType.Identifier) throw new SyntaxError("Invalid left-hand in assignment")// add for member assignment later
           const assigne = this.descendExpr(node.assigne);
           const value = this.descendExpr(node.value);
-          return new TypedInput(`(${assigne.asUnknown()}) = ${value.asUnknown()}`);
+          return new TypedInput(`((${assigne.asUnknown()}) = (${value.asUnknown()}))`);
         }
         case NodeType.UnaryExpr: {
           const operand = this.descendExpr(node.operand);
@@ -207,7 +246,41 @@ export default class JSGenerator {
               const right = this.descendExpr(node.right);
               return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _ : _2)`)
             }
+            case "+": {
+              const left = this.descendExpr(node.left);
+              const right = this.descendExpr(node.right);
+              return new TypedInput(`(${left.asNumber()} + ${right.asNumber()})`) // dont be like js, be more like pm (which is awesome!!!).
+            }
+            case "-": {
+              const left = this.descendExpr(node.left);
+              const right = this.descendExpr(node.right);
+              return new TypedInput(`(${left.asNumber()} - ${right.asNumber()})`)
+            }
+            case "*": {
+              const left = this.descendExpr(node.left);
+              const right = this.descendExpr(node.right);
+              return new TypedInput(`(${left.asNumber()} * ${right.asNumber()})`)
+            }
+            case "/": {
+              const left = this.descendExpr(node.left);
+              const right = this.descendExpr(node.right);
+              return new TypedInput(`(${left.asNumber()} / ${right.asNumber()})`)
+            }
+            case "%": {
+              const left = this.descendExpr(node.left);
+              const right = this.descendExpr(node.right);
+              return new TypedInput(`(${left.asNumber()} % ${right.asNumber()})`)
+            }
+            case "^": {
+              const left = this.descendExpr(node.left);
+              const right = this.descendExpr(node.right);
+              return new TypedInput(`(${left.asNumber()} ** ${right.asNumber()})`)
+            }
           }
+        }
+        case NodeType.PrimitiveLiteral: {
+          const value = node.value;
+          return new ConstantInput(value);
         }
       }
     }
