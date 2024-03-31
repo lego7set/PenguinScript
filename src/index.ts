@@ -248,8 +248,100 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     target.setXY(target.stretch[0] + xPos, target.stretch[1] + yPos);
     return null;
   }
-  
+  function* setCostume(target: any, index: any) {
+    if (typeof index !== "string" && typeof index !== "number") throw new TypeError("Expected costume index to be a string or number");
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set costume of a non-sprite");
+    const requestedCostume = index;
+     if (typeof requestedCostume === 'number') { // i love copy paste
+        // Numbers should be treated as costume indices, always
+        target.setCostume(requestedCostume - 1);
+      } else {
+        // Strings should be treated as costume names, where possible
+        const costumeIndex = target.getCostumeIndexByName(requestedCostume.toString());
+
+        if (costumeIndex !== -1) {
+           target.setCostume(costumeIndex);
+        } /*else if (requestedCostume === 'next costume') {
+            target.setCostume(target.currentCostume + 1);
+        } else if (requestedCostume === 'previous costume') {
+            target.setCostume(target.currentCostume - 1);
+        // Try to cast the string to a number (and treat it as a costume index)
+        // Pure whitespace should not be treated as a number
+        // Note: isNaN will cast the string to a number before checking if it's NaN
+        }*/ else if (!(isNaN(requestedCostume) || Scratch.Cast.isWhiteSpace(requestedCostume))) {
+            target.setCostume(Number(requestedCostume) - 1);
+        }
+    }
+    return null;
+  }
+  function* nextCostume(target: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set costume of a non-sprite");
+    target.setCostume(target.currentCostume + 1);
+    return null;
+  }
+  function* previousCostume(target: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set costume of a non-sprite");
+    target.setCostume(target.currentCostume - 1);
+    return null;
+  }
+  function* setBackdrop(index: any) {
+    const target = Scratch.vm.runtime.getTargetForStage();
+    if (typeof index !== "string" && typeof index !== "number") throw new TypeError("Expected costume index to be a string or number");
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set costume of a non-sprite");
+    const requestedCostume = index;
+     if (typeof requestedCostume === 'number') { // i love copy paste
+        // Numbers should be treated as costume indices, always
+        target.setCostume(requestedCostume - 1);
+      } else {
+        // Strings should be treated as costume names, where possible
+        const costumeIndex = target.getCostumeIndexByName(requestedCostume.toString());
+
+        if (costumeIndex !== -1) {
+           target.setCostume(costumeIndex);
+        } /*else if (requestedCostume === 'next costume') {
+            target.setCostume(target.currentCostume + 1);
+        } else if (requestedCostume === 'previous costume') {
+            target.setCostume(target.currentCostume - 1);
+        // Try to cast the string to a number (and treat it as a costume index)
+        // Pure whitespace should not be treated as a number
+        // Note: isNaN will cast the string to a number before checking if it's NaN
+        }*/ else if (!(isNaN(requestedCostume) || Scratch.Cast.isWhiteSpace(requestedCostume))) {
+            target.setCostume(Number(requestedCostume) - 1);
+        }
+    }
+    return null;
+  }
+  function* nextBackdrop() {
+    const target = Scratch.vm.runtime.getTargetForStage();
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set costume of a non-sprite");
+    target.setCostume(target.currentCostume + 1);
+    return null;
+  }
+  function* previousBackdrop() {
+    const target = Scratch.vm.runtime.getTargetForStage();
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set costume of a non-sprite");
+    target.setCostume(target.currentCostume - 1);
+    return null;
+  }
   // Looks-related global functions.
+  _globalEnv.__env.set("setCostume", {
+    get value() {return setCostume}
+  })
+  _globalEnv.__env.set("nextCostume", {
+    get value() {return nextCostume}
+  })
+  _globalEnv.__env.set("previousCostume", {
+    get value() {return previousCostume}
+  })
+  _globalEnv.__env.set("setBackdrop", {
+    get value() {return setBackdrop}
+  })
+  _globalEnv.__env.set("nextBackdrop", {
+    get value() {return nextBackdrop}
+  })
+  _globalEnv.__env.set("previousBackdrop", {
+    get value() {return previousBackdrop}
+  })
   _globalEnv.__env.set("say", {
     get value() {return say}
   })
