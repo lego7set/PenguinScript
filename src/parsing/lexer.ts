@@ -1,3 +1,5 @@
+import { isPenguinMod } from "../pmUtils/PenguinModDetector";
+
 export enum TokenType {
   NUMBER, // Literal types
   STRING,
@@ -16,6 +18,8 @@ export enum TokenType {
   INLINE,
   GLOBAL,
   TARGET,
+
+  WAIT, // wait milliseconds, only available in pm
 
   EQUALS,
   BINARY_OPERATOR,
@@ -74,12 +78,13 @@ export default class Lexer {
     return: TokenType.RETURN,
     inline: TokenType.INLINE,
     global: TokenType.GLOBAL,
-    target: TokenType.TARGET
+    target: TokenType.TARGET,
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
     this.srcArr = sourceCode.split("");
-    this.tokens = ([] as TokenList)
+    this.tokens = ([] as TokenList);
+    if (isPenguinMod) this.Keywords.wait = TokenType.WAIT;
   }
   public *yieldToken(token: Token) {
     this.tokens.push(token);
