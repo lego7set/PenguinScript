@@ -1,4 +1,4 @@
-import type {Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline } from "../parsing/ast.ts";
+import type {Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline } from "../parsing/ast.ts";
 import { NodeType } from "../parsing/ast";
 
 export enum OutputType {
@@ -110,36 +110,43 @@ export function* VariablePool(prefix: string) {
 
 const ScriptPool = VariablePool("s");
 
+export interface GlobalValue {
+  value: any;
+}
+
 export interface GlobalEnv {
   get: (key: any) => any;
   set: <T>(key: any, value: T) => T;
   remove: (key: any) => boolean;
   readOnly: (key: any) => boolean;
   makeReadOnly: (key: any) => void;
-  __env: Map<any, any>;
+  __env: Map<any, GlobalValue>;
   __readonly: Map<any, boolean>;
 }
 
 export const _globalEnv: GlobalEnv = {
-  __env: new Map<any, any>(),
+  __env: new Map<any, GlobalValue>(),
   __readonly: new Map<any, boolean>(),
   makeReadOnly: function MAKE_READ_ONLY(k) {
+    
     return this.__readonly.set(k, true);
   },
   readOnly: function READ_ONLY(k) {
     return this.__readonly.get(k);
   },
   set: function SET(k, v){
+    //throw new Error("deprecated");
     if (this.__readonly.get(k)) throw new TypeError("Attempted to overwrite read-only global");
     this.__env.set(k, v);
     return v;
   },
   remove: function REMOVE(k) {
+    //throw new Error("deprecated")
     if (this.__readonly.get(k)) throw new TypeError("Attempted to remove read-only global");
     return this.__env.delete(k);
   },
   get: function GET(k) {
-    return this.__env.get(k) ?? null;
+    return this.__env.get(k) ?? (this.__env.set(k, {value: null} as GlobalValue), this.__env.get(k));
   }
 }
 
@@ -283,9 +290,13 @@ export default class JSGenerator {
 
     protected descendExpr(node: Stmt): Input {
       switch (node.kind) {
+        case NodeType.Global: {
+          const node2 = node as unknown as Global;
+          return new TypedInput(`($globalEnv.get(${JSON.stringify(node2.symbol)}).value)`)
+        }
         case NodeType.AssignmentExpr: {
           const node2 = node as unknown as AssignmentExpr;
-          if (node2.assigne.kind !== NodeType.Identifier) throw new SyntaxError("Invalid left-hand in assignment")// add for member assignment later
+          if (node2.assigne.kind !== NodeType.Identifier && node2.assigne.kind !== NodeType.Global) throw new SyntaxError("Invalid left-hand in assignment")// add for member assignment later
           const assigne = this.descendExpr(node2.assigne);
           const value = this.descendExpr(node2.value);
           return new TypedInput(`((${assigne.asUnknown()}) = (${value.asUnknown()}))`, OutputType.TYPE_UNKNOWN);
