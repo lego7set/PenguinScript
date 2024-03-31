@@ -1,4 +1,4 @@
-import type {Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, UnaryExpr, Identifier, PrimitiveLiteral, NumberLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline } from "../parsing/ast.ts";
+import type {Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline } from "../parsing/ast.ts";
 import { NodeType } from "../parsing/ast";
 
 export enum OutputType {
@@ -146,8 +146,6 @@ export const _globalEnv: GlobalEnv = {
 export type TranspiledFunction = ($globalEnv, $target) => any;
 export type TranspiledGenerator = ($globalEnv, $target) => Generator<any>;
 
-type GeneratorFunctionConstructor = new () => typeof function*(){};
-
 const GeneratorFunction = function*(){}.constructor as unknown as GeneratorFunctionConstructor;
 
 export default class JSGenerator {
@@ -212,7 +210,7 @@ export default class JSGenerator {
   }
 
   protected getVariable(symbol: string): string {
-    if (this._cachedVariables[symbol]) return this.cachedVariables[symbol];
+    if (this._cachedVariables[symbol]) return this._cachedVariables[symbol];
     const next = this._variablePool.next().value;
     return (this._cachedVariables[symbol] = next);
   }
@@ -271,7 +269,7 @@ export default class JSGenerator {
         this.src += this.descendExpr(node2.condition).asBoolean();
         this.src += "){"; // luckily, variables cannot be defined in a single statement.
         if (node2.body.kind === NodeType.VariableDeclaration) throw new SyntaxError("Cannot declare a variable in a single-statement context")
-        this.descendNode();
+        this.descendNode(node2.body);
         this.yieldLoop();
         this.src == "};"
       }
