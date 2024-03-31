@@ -59,6 +59,10 @@ let Scratch: any;
 if (typeof window === "object" && window && typeof window.document === "object" && typeof (Scratch = window.Scratch) === "object" && Scratch) {
   // Logic here
   if (!Scratch.extensions.isPenguinMod) throw "Please load PenguinScript in PenguinMod"; // i dnot need to explain tis
+  function* getSprite(name: any) {
+    if (typeof name !== "string") throw new TypeError("Attempted to get sprite with name, but name is not a string");
+    return Scratch.vm.runtime.getSpriteTargetByName(name);
+  }
   function* setX(target: any, x: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set x position of non-sprite to " + Number(x));
     const pos = Number(x) || 0;
@@ -140,6 +144,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     return null;
   }
   function* moveUpSteps(target: any, steps: any, direction?: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot move up non-sprite by " + Number(steps) " steps");
     let dir = direction ?? target.direction;
     dir = Number(dir) || 0
     const numOfSteps = Number(steps) || 0
@@ -150,6 +155,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     return null;
   }
   function* moveDownSteps(target: any, steps: any, direction?: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot move down non-sprite by " + Number(steps) " steps");
     let dir = direction ?? target.direction;
     dir = Number(dir) || 0
     const numOfSteps = Number(steps) || 0
@@ -159,7 +165,32 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     target.setDirection(oldDir);
     return null;
   }
+  function* getX(target: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get x position of non-sprite");
+    return target.x;
+  }
+  function* getY(target: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get y position of non-sprite");
+    return target.y;
+  }
+  function* getDirection(target: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get direction of non-sprite");
+    return target.direction;
+  }
+  // Scratch-related global functions.
+  _globalEnv.__env.set("getSprite", {
+    get value() {return getSprite}
+  })
   // Motion-related global functions.
+  _globalEnv.__env.set("getX", {
+    get value() {return getX}
+  })
+  _globalEnv.__env.set("getY", {
+    get value() {return getY}
+  })
+  _globalEnv.__env.set("getDirection", {
+    get value() {return getDirection}
+  })
   _globalEnv.__env.set("setX", {
     get value() {return setX}
   })
