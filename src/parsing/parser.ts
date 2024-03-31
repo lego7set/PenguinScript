@@ -456,7 +456,7 @@ export default class Parser {
         return this.parse_function();
       }
       default: {
-        throw new SyntaxError(`Invalid token ${TokenType[token]}.`)
+        throw new SyntaxError(`Invalid or unexpected token ${TokenType[token]}.`)
       }
     }
   }
