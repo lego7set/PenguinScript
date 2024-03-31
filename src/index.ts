@@ -17,15 +17,15 @@ function preCompile(code: string, warpTimer: boolean, isWarp: boolean): any {
 }
 
 _globalEnv.__env.set("print", {
-  get value() {return console.log};
+  get value() {return console.log}
 })
 
 _globalEnv.__env.set("warn", {
-  get value() {return console.warn};
+  get value() {return console.warn}
 })
 
 _globalEnv.__env.set("error", {
-  get value() {return console.error};
+  get value() {return console.error}
 })
 
 import { SupportsExtensions, IsPenguinMod } from "./pmUtils/PenguinModDetector";
