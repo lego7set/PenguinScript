@@ -421,7 +421,7 @@ export default class Parser {
       }
       case TokenType.GLOBAL: {
         this.eat();
-        if (!this.at().type === TokenType.IDENTIFIER) throw new SyntaxError("Expected identifier after keyword global");
+        if (this.at().type !== TokenType.IDENTIFIER) throw new SyntaxError("Expected identifier after keyword global");
         return { kind: NodeType.Global, symbol: this.eat().raw } as Global
       }
       case TokenType.NUMBER: {
