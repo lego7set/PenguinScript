@@ -19,7 +19,7 @@ export enum TokenType {
   GLOBAL,
   TARGET,
 
-  WAIT, // wait milliseconds, only available in pm
+  // WAIT, // wait milliseconds, only available in pm (not yet)
 
   EQUALS,
   BINARY_OPERATOR,
@@ -84,7 +84,7 @@ export default class Lexer {
     this.src = sourceCode;
     this.srcArr = sourceCode.split("");
     this.tokens = ([] as TokenList);
-    if (isPenguinMod) this.Keywords.wait = TokenType.WAIT;
+    // if (isPenguinMod) this.Keywords.wait = TokenType.WAIT; (cant yet)
   }
   public *yieldToken(token: Token) {
     this.tokens.push(token);
