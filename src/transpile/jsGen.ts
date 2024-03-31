@@ -396,7 +396,7 @@ export default class JSGenerator {
             list += this.getVariable(ident.symbol);
             list += ","
           }
-          return new TypedInput(`(function(${list}){${stackSrc}})`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`(function*(${list}){${stackSrc}})`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.FunctionCall: {
           const node2 = node as unknown as FunctionCall;
@@ -405,7 +405,7 @@ export default class JSGenerator {
           for (const arg of node2.args) {
             args.push(this.descendExpr(arg).asUnknown());
           }
-          return new TypedInput(`(${func}(${args.join(",")}))`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`(yield* ${func}(${args.join(",")}))`, OutputType.TYPE_UNKNOWN)
         }
       }
     }
