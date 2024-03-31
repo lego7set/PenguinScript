@@ -160,7 +160,7 @@ export default class JSGenerator {
   public yields: boolean;
   public constructor(program) {
     this.program = program;
-    this.scriptName = ScriptPool.next().value;
+    this.scriptName = ScriptPool.next().value as unknown as string;
     this._variablePool = VariablePool("v");
     this._cachedVariables = {
       __proto__: null
@@ -394,7 +394,7 @@ export default class JSGenerator {
           for (const arg of node2.args) {
             args.push(this.descendExpr(arg).asUnknown());
           }
-          return new TypedInput(`(${func}(${args.join(",")}))`)
+          return new TypedInput(`(${func}(${args.join(",")}))`, OutputType.TYPE_UNKNOWN)
         }
       }
     }
