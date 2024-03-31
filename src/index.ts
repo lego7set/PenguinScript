@@ -40,6 +40,16 @@ _globalEnv.__env.set("error", {
   get value() {return error}
 })
 
+function supportsNullishCoalescing() {
+  try {
+    return eval("true ?? 0")
+  } catch(e) {
+    return false
+  }
+}
+
+const canNullish = supportsNullishCoalescing();
+
 import { SupportsExtensions, IsPenguinMod } from "./pmUtils/PenguinModDetector";
 let Scratch;
 // @ts-ignore
@@ -83,9 +93,11 @@ if (typeof window === "object" && window && typeof window.document === "object" 
               const tryCompile = JSON.parse(code.asString());
               preCompiled = preCompile(tryCompile, compiler.warpTimer, compiler.isWarp); // transpile at compile time to make it fast.
               // compiler.src += preCompiled + ";"
-              return new (imports.TypedInput)(`(${preCompiled})`, imports.TYPE_UNKNOWN)
+              if (canNullish) return new (imports.TypedInput)(`(${preCompiled}) ?? { toReporterContent() {return "null"} }`);
+              return new (imports.TypedInput)(`nullish((${preCompiled}),{ toReporterContent() {return "null"} })`, imports.TYPE_UNKNOWN);
             } catch(e) {
-              return new (imports.TypedInput)(`(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})())`, imports.TYPE_UNKNOWN)
+              if (canNullish) return new (imports.TypedInput)(`(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})())  ?? { toReporterContent() {return "null"} }`, imports.TYPE_UNKNOWN);
+              return new (imports.TypedInput)(`nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})()),{ toReporterContent() {return "null"} })`, imports.TYPE_UNKNOWN);
               // compiler.src += `(yield* transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target));`
             }
           }
