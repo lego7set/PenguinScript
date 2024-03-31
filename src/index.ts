@@ -45,11 +45,11 @@ if (typeof window === "object" && window && typeof window.document === "object" 
         ir: {
           evalStack: (generator, block) => (generator.script.yields = true, {
             kind: "stack",
-            code: generator.descendInputOfBlock("code", block)
+            code: generator.descendInputOfBlock(block, "code")
           }),
           evalReporter: (generator, block) => (generator.script.yields = true, {
             kind: "input",
-            code: generator.descendInputOfBlock("code", block)
+            code: generator.descendInputOfBlock(block, "code")
           }),
         },
         js: {
