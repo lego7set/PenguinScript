@@ -53,7 +53,6 @@ function supportsNullishCoalescing() {
 
 const canNullish = supportsNullishCoalescing();
 
-import { SupportsExtensions, IsPenguinMod } from "./pmUtils/PenguinModDetector";
 let Scratch: any;
 // @ts-ignore
 if (typeof window === "object" && window && typeof window.document === "object" && typeof (Scratch = window.Scratch) === "object" && Scratch) {
@@ -532,8 +531,14 @@ if (typeof window === "object" && window && typeof window.document === "object" 
       return _globalEnv
     }
   }
-  // Scratch.extensions.register(new PenguinScript());
+  Scratch.extensions.register(new PenguinScript());
 }
 
-module.exports = PenguinScript
+module.exports = {
+  Lexer,
+  Parser,
+  JSGenerator,
+  transpile,
+  default: transpile
+}
           
