@@ -17,7 +17,8 @@ export enum NodeType {
   Inline,
   ReturnStatement,
   ArgsList,
-  FunctionCall
+  FunctionCall,
+  Global
 }
 
 export enum OutputType { // going to be unused
@@ -113,6 +114,11 @@ export interface BinaryExpr extends Expr {
 
 export interface Identifier extends Expr {
   kind: NodeType.Identifier;
+  symbol: string;
+}
+
+export interface Global extends Expr {
+  kind: NodeType.Global;
   symbol: string;
 }
 
