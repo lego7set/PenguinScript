@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, NumericLiteral, StringLiteral } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -299,6 +299,18 @@ export default class Parser {
       }
       case TokenType.STRING: {
         return { kind: NodeType.PrimitiveLiteral, value: this.eat().raw } as StringLiteral
+      }
+      case TokenType.TRUE: {
+        this.eat();
+        return { kind: NodeType.PrimitiveLiteral, value: true } as True
+      }
+      case TokenType.FALSE: {
+        this.eat();
+        return { kind: NodeType.PrimitiveLiteral, value: false } as False
+      }
+      case TokenType.NULL: {
+        this.eat();
+        return { kind: NodeType.PrimitiveLiteral, value: null } as Null
       }
       case TokenType.OPEN_PAREN: {
         this.eat();
