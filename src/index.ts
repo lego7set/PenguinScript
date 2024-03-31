@@ -13,7 +13,7 @@ function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
 function preCompile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
   const generator = new JSGenerator(program);
-  return "(yield* (function($globalEnv, $target)*{" + generator.transpile("string", true, warpTimer, isWarp) + "})(runtime.ext_vgspenguinscript._globalEnv, target))";
+  return "(yield* (function*($globalEnv, $target){" + generator.transpile("string", true, warpTimer, isWarp) + "})(runtime.ext_vgspenguinscript._globalEnv, target))";
 }
 
 _globalEnv.__env.set("print", {
