@@ -93,11 +93,11 @@ if (typeof window === "object" && window && typeof window.document === "object" 
               const tryCompile = JSON.parse(code.asString());
               preCompiled = preCompile(tryCompile, compiler.warpTimer, compiler.isWarp); // transpile at compile time to make it fast.
               // compiler.src += preCompiled + ";"
-              if (canNullish) return new (imports.TypedInput)(`(${preCompiled}) ?? { toReporterContent() {return "null"} }`);
-              return new (imports.TypedInput)(`nullish((${preCompiled}),{ toReporterContent() {return "null"} })`, imports.TYPE_UNKNOWN);
+              if (canNullish) return new (imports.TypedInput)(`(${preCompiled}) ?? "null"`);
+              return new (imports.TypedInput)(`nullish((${preCompiled}),"null")`, imports.TYPE_UNKNOWN);
             } catch(e) {
-              if (canNullish) return new (imports.TypedInput)(`(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})())  ?? { toReporterContent() {return "null"} }`, imports.TYPE_UNKNOWN);
-              return new (imports.TypedInput)(`nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})()),{ toReporterContent() {return "null"} })`, imports.TYPE_UNKNOWN);
+              if (canNullish) return new (imports.TypedInput)(`(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})())  ?? "null"`, imports.TYPE_UNKNOWN);
+              return new (imports.TypedInput)(`nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})()),"null")`, imports.TYPE_UNKNOWN);
               // compiler.src += `(yield* transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target));`
             }
           }
