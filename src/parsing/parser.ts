@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -418,6 +418,11 @@ export default class Parser {
     switch (token) {
       case TokenType.IDENTIFIER: {
         return { kind: NodeType.Identifier, symbol: this.eat().raw } as Identifier
+      }
+      case TokenType.GLOBAL: {
+        this.eat();
+        if (!this.at().type === TokenType.IDENTIFIER) throw new SyntaxError("Expected identifier after keyword global");
+        return { kind: NodeType.Global, symbol: this.eat().raw } as Global
       }
       case TokenType.NUMBER: {
         return { kind: NodeType.PrimitiveLiteral, value: Number(this.eat().raw) } as NumericLiteral
