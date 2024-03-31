@@ -1,4 +1,4 @@
-import type {Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, UnaryExpr} from "../parsing/ast.ts";
+import type {Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, UnaryExpr } from "../parsing/ast.ts";
 import { NodeType } from "../parsing/ast";
 
 export enum OutputType {
@@ -225,9 +225,15 @@ export default class JSGenerator {
         this.src += "}";
         break;
       }
+      case NodeType.ReturnStatement: {
+        this.src += "return(";
+        this.src += this.descendExpr(node.value).asUnknown();
+        this.src += ");"
+        break;
+      }
       case NodeType.IfStatement: {
         this.src += "if(";
-        this.descendExpr(node.condition);
+        this.src += this.descendExpr(node.condition).asBoolean();
         this.src += ")";
         if (node.body.kind === NodeType.VariableDeclaration) throw new SyntaxError("Cannot declare a variable in a single-statement context")
         this.descendNode(node.body);
@@ -339,11 +345,41 @@ export default class JSGenerator {
           return new TypedInput(`(${ident})`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Inline: {
-          if (this.yields) this.src += "(yield*(function*(){";
-          else this.src += "(function(){";
+          let src = ""
+          const oldSrc = this.src;
+          this.src = "";
           this.descendNode(node.body);
-          this.src += "})()";
-          if (this.yields) this.src += ")";
+          const stackSrc = this.src;
+          this.src = oldSrc;
+          if (this.yields) src += "(yield*(function*(){";
+          else src += "(function(){";
+          src += stackSrc;
+          src += "})()";
+          if (this.yields) src += ")";
+          return new TypedInput(`(${src})`, OutputType.TYPE_UNKNOWN);
+        }
+        case NodeType.Function: {
+          const args = node.args.args;
+          let src = ""
+          const oldSrc = this.src;
+          this.src = "";
+          this.descendNode(node.body);
+          const stackSrc = this.src;
+          this.src = oldSrc;
+          let list = "";
+          for (const ident of args) {
+            list += this.getVariable(ident.symbol);
+            list += ","
+          }
+          return new TypedInput(`(function(${list}){${stackSrc}})`, OutputType.TYPE_UNKNOWN)
+        }
+        case NodeType.FunctionCall: {
+          const func = this.descendExpr(node.func).asUnknown();
+          const args = [];
+          for (const arg of node.args) {
+            args.push(this.descendExpr(arg).asUnknown());
+          }
+          return new TypedInput(`(${func}(${args.join(",")}))`)
         }
       }
     }
