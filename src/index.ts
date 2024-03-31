@@ -525,15 +525,15 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     getParser() {
       return Parser
     }
+    getJSGenerator() {
+      return JSGenerator
+    }
+    getGlobalEnv() {
+      return _globalEnv
+    }
   }
-  Scratch.extensions.register(new PenguinScript());
+  // Scratch.extensions.register(new PenguinScript());
 }
 
-module.exports = {
-  Lexer,
-  Parser,
-  JSGenerator,
-  default: transpile,
-  transpile
-}
+module.exports = PenguinScript
           
