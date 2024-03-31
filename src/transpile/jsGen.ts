@@ -186,6 +186,7 @@ export default class JSGenerator {
         return new GeneratorFunction("$globalEnv", "$target", this.src) as TranspiledGenerator;
       }
     }
+  }
 
   protected yielded() {
     if (!this.yields) throw new Error("Script yielded but is not marked as yielding");
