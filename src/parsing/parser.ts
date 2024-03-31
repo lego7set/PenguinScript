@@ -112,6 +112,7 @@ export default class Parser {
   protected parse_return() {
     this.eat(); // eat return
     const expr = this.parse_expr();
+    if (this.at().type === TokenType.RETURN) this.eat();
     return {
       kind: NodeType.ReturnStatement,
       value: expr
@@ -170,7 +171,8 @@ export default class Parser {
   }
 
   protected parse_loop() {
-    switch (this.eat().raw) {
+    const raw = this.eat().raw
+    switch (raw) {
       case "while": {
         return {
           kind: NodeType.While,
