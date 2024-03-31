@@ -154,7 +154,9 @@ export default class JSGenerator {
   protected scriptName: string;
   protected _variablePool: Generator<string>;
   protected _cachedVariables: Record<string, string>;
-  protected _globalEnv: GlobalEnv
+  protected _globalEnv: GlobalEnv;
+  public warpTimer: boolean;
+  public isWarp: boolean;
   public constructor(program) {
     this.program = program;
     this.scriptName = ScriptPool.next();
@@ -165,8 +167,11 @@ export default class JSGenerator {
     this._globalEnv = _globalEnv;
   }
 
-  public transpile(type: "string" | "func" | "generator"): string | TranspiledFunction {
+  public transpile(type: "string" | "func" | "generator", yields?: boolean, warpTimer?: boolean, isWarp?: boolean): string | TranspiledFunction | TranspiledGenerator {
     const program = this.program;
+    this.warpTimer = warpTimer;
+    this.isWarp = isWarp;
+    this.yields = yields; // guaranteed to be true but, let some people do their stuff ig
     for (const node of program.body) {
       this.descendNode(node);
     }
@@ -175,10 +180,30 @@ export default class JSGenerator {
         return this.src;
       }
       case "func": {
-        return new Function("$globalEnv", "$target", this.src);
+        return new Function("$globalEnv", "$target", this.src) as TranspiledFunction;
       }
       case "generator: {
-        return new GeneratorFunction("$globalEnv", "$target", this.src)
+        return new GeneratorFunction("$globalEnv", "$target", this.src) as TranspiledGenerator;
+      }
+    }
+  }
+
+  protected yielded() {
+    if (!this.yields) throw new Error("Script yielded but is not marked as yielding")
+  }
+
+  protected yieldLoop() {
+    if (this.warpTimer) {
+      if (this.isWarp) {
+        this.src += "if (isStuck()) yield;"; // from the scratch vm
+      } else {
+        this.src += "yield;";
+      }
+      this.yielded();
+    } else {
+      if (!this.isWarp) {
+        this.src += "yield;";
+        this.yielded();
       }
     }
   }
@@ -226,6 +251,15 @@ export default class JSGenerator {
         }
         this.src += ";";
         break;
+      }
+      case NodeType.While: {
+        this.src += "while(";
+        this.src += this.descendExpr(node.condition).asBoolean();
+        this.src += "){"; // luckily, variables cannot be defined in a single statement.
+        if (node.body.kind === NodeType.VariableDeclaration) throw new SyntaxError("Cannot declare a variable in a single-statement context")
+        this.descendNode();
+        this.yieldLoop();
+        this.src == "};"
       }
       default: {
         const expr = this.descendExpr(node);
@@ -303,6 +337,13 @@ export default class JSGenerator {
         case NodeType.Identifier: {
           const ident = this.getVariable(node.symbol);
           return new TypedInput(`(${ident})`, OutputType.TYPE_UNKNOWN)
+        }
+        case NodeType.Inline: {
+          if (this.yields) this.src += "(yield*(function*(){";
+          else this.src += "(function(){";
+          this.descendNode(node.body);
+          this.src += "})()";
+          if (this.yields) this.src += ")";
         }
       }
     }
