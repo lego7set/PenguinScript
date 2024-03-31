@@ -117,7 +117,7 @@ export interface GlobalEnv {
   readOnly: (key: any) => boolean;
   makeReadOnly: (key: any) => void;
   __env: Map<any, any>;
-  __readonly: <any, boolean>;
+  __readonly: Map<any, boolean>;
 }
 
 export const _globlEnv: GlobalEnv = {
@@ -188,7 +188,7 @@ export default class JSGenerator {
     }
 
   protected yielded() {
-    if (!this.yields) throw new Error("Script yielded but is not marked as yielding")
+    if (!this.yields) throw new Error("Script yielded but is not marked as yielding");
   }
 
   protected yieldLoop() {
