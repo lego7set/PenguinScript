@@ -141,12 +141,12 @@ export default class Parser {
     }
   }
 
-  protected parse_argslist(isFunctionCall) {
+  protected parse_argslist() {
     this.expect(TokenType.OPEN_ANGLE);
     const args = [] as Identifier[];
     while (this.at().type !== TokenType.CLOSE_ANGLE && this.not_eof()) {
       let ident: any = this.parse_primary_expr() as Expr;
-      if (ident.kind !== NodeType.Identifier) throw new SyntaxError("Expect parameter name.")
+      if (ident.kind !== NodeType.Identifier) throw new SyntaxError("Expected parameter name.");
       ident = ident as unknown as Identifier; // this is actually annoying
       if (!(this.not_eof() && this.tokens[1].type === TokenType.CLOSE_ANGLE)) this.expect(TokenType.COMMA);
       else if (this.at().type === TokenType.COMMA) this.eat(); // consume one trailing comma, if it exists
