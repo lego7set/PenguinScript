@@ -59,38 +59,38 @@ let Scratch: any;
 if (typeof window === "object" && window && typeof window.document === "object" && typeof (Scratch = window.Scratch) === "object" && Scratch) {
   // Logic here
   if (!Scratch.extensions.isPenguinMod) throw "Please load PenguinScript in PenguinMod"; // i dnot need to explain tis
-  function* setX(target: object, x: any) {
+  function* setX(target: any, x: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set x position of non-sprite to " + Number(x));
     const pos = Number(x) || 0;
     target.setXY(pos, target.y, false);
     return null;
   }
-  function* setY(target: object, y: any) {
+  function* setY(target: any, y: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set y position of non-sprite to " + Number(y));
     const pos = Number(y) || 0;
     target.setXY(target.x, pos, false);
     return null;
   }
-  function* setXY(target: object, x: any, y: any) {
+  function* setXY(target: any, x: any, y: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set x and y position of non-sprite to " + Number(x) + "and " + Number(y) + " respectively");
     const xPos = Number(x) || 0;
     const yPos = Number(y) || 0;
     target.setXY(xPos, yPos, false);
     return null;
   }
-  function* changeX(target: object, x: any) {
+  function* changeX(target: any, x: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change x position of non-sprite by " + Number(x));
     const pos = Number(x) || 0;
     target.setXY(target.x + pos, target.y, false);
     return null;
   }
-  function* changeY(target: object, y: any) {
+  function* changeY(target: any, y: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change y position of non-sprite by " + Number(y));
     const pos = Number(y) || 0;
     target.setXY(target.x, target.y + pos, false);
     return null;
   }
-  function* changeXY(target: object, x: any, y: any) {
+  function* changeXY(target: any, x: any, y: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change x and y position of non-sprite by " + Number(x) + "and " + Number(y) + " respectively");
     const xPos = Number(x) || 0;
     const yPos = Number(y) || 0;
@@ -100,8 +100,8 @@ if (typeof window === "object" && window && typeof window.document === "object" 
   function degToRad(deg: number) {
     return deg * Math.PI / 180
   }
-  function _moveSteps(target: object, steps: any, direction?: any) {
-    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot move a non-sprite by " + Number(steps) " steps");
+  function _moveSteps(target: any, steps: any, direction?: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot move a non-sprite by " + Number(steps) + " steps");
     const numOfSteps = Number(steps) || 0;
     const dir = direction ?? target.direction;
     const oldDir = target.direction;
@@ -114,32 +114,32 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     const dy = steps * Math.sin(radians);
     target.setXY(target.x + dx, target.y + dy); // we're done!
   }
-  function* setDirection(target: object, direction: any) {
+  function* setDirection(target: any, direction: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot set or change direction of a non-sprite");
     const dir = Number(direction) || 0;
     target.setDirection(dir);
     return null;
   }
-  function* turnRight(target: object, direction: any) {
+  function* turnRight(target: any, direction: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot set or change direction of a non-sprite");
     const dir = Number(direction) || 0;
     return yield* setDirection(target, target.direction + dir)
   }
-  function* turnLeft(target: object, direction: any) {
+  function* turnLeft(target: any, direction: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot set or change direction of a non-sprite");
     const dir = Number(direction) || 0;
     return yield* setDirection(target, target.direction - dir)
   }
-  function* moveSteps(target: object, steps: any, direction?: any) {
+  function* moveSteps(target: any, steps: any, direction?: any) {
     _moveSteps(target, steps, direction);
     return null;
   }
-  function* moveBackSteps(target: object, steps: any, direction?: any) {
+  function* moveBackSteps(target: any, steps: any, direction?: any) {
     const numOfSteps = Number(steps) || 0;
     _moveSteps(target, 0 - numOfSteps, direction);
     return null;
   }
-  function* moveUpSteps(target: object, steps: any, direction?: any) {
+  function* moveUpSteps(target: any, steps: any, direction?: any) {
     let dir = direction ?? target.direction;
     dir = Number(dir) || 0
     const numOfSteps = Number(steps) || 0
@@ -149,7 +149,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     target.setDirection(oldDir);
     return null;
   }
-  function* moveDownSteps(target: object, steps: any, direction?: any) {
+  function* moveDownSteps(target: any, steps: any, direction?: any) {
     let dir = direction ?? target.direction;
     dir = Number(dir) || 0
     const numOfSteps = Number(steps) || 0
