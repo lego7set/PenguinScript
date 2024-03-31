@@ -11,7 +11,10 @@ export enum NodeType {
   StmtBlock,
   IfStatement,
   NoOp,
-  ElseStatement
+  ElseStatement,
+  While,
+  Function,
+  Inline
 }
 
 export enum OutputType { // going to be unused
@@ -137,4 +140,21 @@ export interface False extends BooleanLiteral {
 
 export interface Null extends PrimitiveLiteral {
   value: null;
+}
+
+export interface While extends Stmt {
+  kind: NodeType.While;
+  condition: Expr;
+  body: Stmt;
+}
+
+/*export interface Function extends Expr {
+  kind: NodeType.While;
+  condition: Expr;
+  body: Stmt;
+}*/
+
+export interface Inline extends Expr {
+  kind: NodeType.Inline;
+  body: Stmt;
 }
