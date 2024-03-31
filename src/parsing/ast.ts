@@ -18,7 +18,8 @@ export enum NodeType {
   ReturnStatement,
   ArgsList,
   FunctionCall,
-  Global
+  Global,
+  Target
 }
 
 export enum OutputType { // going to be unused
@@ -182,4 +183,8 @@ export interface FunctionCall extends Expr {
   kind: NodeType.FunctionCall;
   func: Expr;
   args: Expr[];
+}
+
+export interface Target extends Expr {
+  kind: NodeType.Target;
 }
