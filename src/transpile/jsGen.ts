@@ -292,7 +292,7 @@ export default class JSGenerator {
       switch (node.kind) {
         case NodeType.Global: {
           const node2 = node as unknown as Global;
-          return new TypedInput(`(\$globalEnv.get(${JSON.stringify(node2.symbol)}).value)`)
+          return new TypedInput(`(\$globalEnv.get(${JSON.stringify(node2.symbol)}).value)`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.AssignmentExpr: {
           const node2 = node as unknown as AssignmentExpr;
