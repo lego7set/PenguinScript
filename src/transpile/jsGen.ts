@@ -143,7 +143,10 @@ export const _globlEnv: GlobalEnv = {
   }
 }
 
-export type TranspiledFunction = ($globalEnv, $target) => any
+export type TranspiledFunction = ($globalEnv, $target) => any;
+export type TranspiledGenerator = ($globalEnv, $target) => Generator<any>;
+
+const GeneratorFunction = function*(){}.constructor;
 
 export default class JSGenerator {
   protected program;
@@ -162,10 +165,21 @@ export default class JSGenerator {
     this._globalEnv = _globalEnv;
   }
 
-  public transpile(asFunc: boolean): string | Function {
+  public transpile(type: "string" | "func" | "generator"): string | TranspiledFunction {
     const program = this.program;
     for (const node of program.body) {
       this.descendNode(node);
+    }
+    switch (type) {
+      case "string": {
+        return this.src;
+      }
+      case "func": {
+        return new Function("$globalEnv", "$target", this.src);
+      }
+      case "generator: {
+        return new GeneratorFunction("$globalEnv", "$target", this.src)
+      }
     }
   }
 
