@@ -120,10 +120,6 @@ export interface GlobalEnv {
   __readonly: <any, boolean>;
 }
 
-export const _runtimeVariables = {
-  __proto__: null, // make it null prototype
-};
-
 export const _globlEnv: GlobalEnv = {
   __env: new Map<any, any>(),
   __readonly: new Map<any, boolean>(),
@@ -153,14 +149,16 @@ export default class JSGenerator {
   protected program;
   protected src: string = "let _;let _2;let _3;let _4"; // add some variables so we can use them inside expressions
   protected scriptName: string;
+  protected _variablePool: Generator<string>;
+  protected _cachedVariables: Record<string, string>;
+  protected _globalEnv: GlobalEnv
   public constructor(program) {
     this.program = program;
     this.scriptName = ScriptPool.next();
     this._variablePool = VariablePool("v");
     this._cachedVariables = {
-      
+      __proto__: null
     };
-    this._runtimeVariables = _runtimeVariables;
     this._globalEnv = _globalEnv;
   }
 
@@ -169,6 +167,12 @@ export default class JSGenerator {
     for (const node of program.body) {
       this.descendNode(node);
     }
+  }
+
+  protected getVariable(symbol: string): string {
+    if (this.cachedVariables[symbol]) return this.cachedVariables[symbol];
+    const next = this._variablePool.next();
+    return (this.cachedVariables[symbol] = next);
   }
 
   protected descendNode(node: Stmt): void {
@@ -222,7 +226,7 @@ export default class JSGenerator {
           if (node.assigne.kind !== NodeType.Identifier) throw new SyntaxError("Invalid left-hand in assignment")// add for member assignment later
           const assigne = this.descendExpr(node.assigne);
           const value = this.descendExpr(node.value);
-          return new TypedInput(`((${assigne.asUnknown()}) = (${value.asUnknown()}))`);
+          return new TypedInput(`((${assigne.asUnknown()}) = (${value.asUnknown()}))`, OutputType.TYPE_UNKNOWN);
         }
         case NodeType.UnaryExpr: {
           const operand = this.descendExpr(node.operand);
@@ -234,53 +238,57 @@ export default class JSGenerator {
             case "and": {
               const left = this.descendExpr(node.left);
               const right = this.descendExpr(node.right);
-              return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _ : (((_2 ?? false) === false) && !((_ ?? false) === false)) ? _2 : _)`)
+              return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _ : (((_2 ?? false) === false) && !((_ ?? false) === false)) ? _2 : _)`, OutputType.TYPE_UNKNOWN)
             }
             case "xor": {
               const left = this.descendExpr(node.left);
               const right = this.descendExpr(node.right);
-              return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _2 : (((_2 ?? false) === false) && !((_ ?? false) === false)) ? _ : false)`)
+              return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _2 : (((_2 ?? false) === false) && !((_ ?? false) === false)) ? _ : false)`, OutputType.TYPE_UNKNOWN)
             }
             case "or": {
               const left = this.descendExpr(node.left);
               const right = this.descendExpr(node.right);
-              return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _ : _2)`)
+              return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _ : _2)`, OutputType.TYPE_UNKNOWN)
             }
             case "+": {
               const left = this.descendExpr(node.left);
               const right = this.descendExpr(node.right);
-              return new TypedInput(`(${left.asNumber()} + ${right.asNumber()})`) // dont be like js, be more like pm (which is awesome!!!).
+              return new TypedInput(`(${left.asNumber()} + ${right.asNumber()})`, OutputType.TYPE_NUMBER) // dont be like js, be more like pm (which is awesome!!!).
             }
             case "-": {
               const left = this.descendExpr(node.left);
               const right = this.descendExpr(node.right);
-              return new TypedInput(`(${left.asNumber()} - ${right.asNumber()})`)
+              return new TypedInput(`(${left.asNumber()} - ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
             case "*": {
               const left = this.descendExpr(node.left);
               const right = this.descendExpr(node.right);
-              return new TypedInput(`(${left.asNumber()} * ${right.asNumber()})`)
+              return new TypedInput(`(${left.asNumber()} * ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
             case "/": {
               const left = this.descendExpr(node.left);
               const right = this.descendExpr(node.right);
-              return new TypedInput(`(${left.asNumber()} / ${right.asNumber()})`)
+              return new TypedInput(`(${left.asNumber()} / ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
             case "%": {
               const left = this.descendExpr(node.left);
               const right = this.descendExpr(node.right);
-              return new TypedInput(`(${left.asNumber()} % ${right.asNumber()})`)
+              return new TypedInput(`(${left.asNumber()} % ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
             case "^": {
               const left = this.descendExpr(node.left);
               const right = this.descendExpr(node.right);
-              return new TypedInput(`(${left.asNumber()} ** ${right.asNumber()})`)
+              return new TypedInput(`(${left.asNumber()} ** ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
           }
         }
         case NodeType.PrimitiveLiteral: {
           const value = node.value;
           return new ConstantInput(value);
+        }
+        case NodeType.Identifier: {
+          const ident = this.getVariable(node.symbol);
+          return new TypedInput(`(${ident})`, OutputType.TYPE_UNKNOWN)
         }
       }
     }
