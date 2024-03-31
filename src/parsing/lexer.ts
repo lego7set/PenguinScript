@@ -1,6 +1,9 @@
 export enum TokenType {
   NUMBER, // Literal types
   STRING,
+  TRUE,
+  FALSE,
+  NULL,
   IDENTIFIER,
 
   LET,
@@ -54,7 +57,10 @@ export default class Lexer {
     xor: TokenType.BINARY_OPERATOR,
     not: TokenType.UNARY_OPERATOR,
     if: TokenType.IF,
-    else: TokenType.ELSE
+    else: TokenType.ELSE,
+    false: TokenType.FALSE,
+    true: TokenType.TRUE,
+    null: TokenType.NULL
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
