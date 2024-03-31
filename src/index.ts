@@ -16,16 +16,28 @@ function preCompile(code: string, warpTimer: boolean, isWarp: boolean): any {
   return "(yield* (function*($globalEnv, $target){" + generator.transpile("string", true, warpTimer, isWarp) + "})(runtime.ext_vgspenguinscript._globalEnv, target))";
 }
 
+function* log(...args) {
+  console.log(...args);
+}
+
+function* warn(...args) {
+  console.warn(...args);
+}
+
+function* error(...args) {
+  console.error(...args);
+}
+
 _globalEnv.__env.set("print", {
-  get value() {return console.log}
+  get value() {return log}
 })
 
 _globalEnv.__env.set("warn", {
-  get value() {return console.warn}
+  get value() {return warn}
 })
 
 _globalEnv.__env.set("error", {
-  get value() {return console.error}
+  get value() {return error}
 })
 
 import { SupportsExtensions, IsPenguinMod } from "./pmUtils/PenguinModDetector";
