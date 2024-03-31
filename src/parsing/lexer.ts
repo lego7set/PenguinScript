@@ -14,6 +14,7 @@ export enum TokenType {
   FUNCTION,
   RETURN,
   INLINE,
+  GLOBAL,
 
   EQUALS,
   BINARY_OPERATOR,
@@ -70,7 +71,8 @@ export default class Lexer {
     forever: TokenType.WHILE,
     fn: TokenType.FUNCTION,
     return: TokenType.RETURN,
-    inline: TokenType.INLINE
+    inline: TokenType.INLINE,
+    global: TokenType.GLOBAL
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
