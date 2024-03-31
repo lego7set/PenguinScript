@@ -95,7 +95,6 @@ export default class Parser {
       case TokenType.ELSE: {
         throw new SyntaxError("Unexpected else statement.")
       }
-      case TokenType.ELSE
       case TokenType.SEMICOLON: {
         this.eat();
         return {
@@ -119,7 +118,7 @@ export default class Parser {
     return {
       kind: NodeType.Inline,
       body: this.parse_stmt()
-    }
+    } as Inline
   }
 
   protected parse_loop() {
