@@ -175,5 +175,5 @@ export interface Inline extends Expr {
 export interface FunctionCall extends Expr {
   kind: NodeType.FunctionCall;
   func: Expr;
-  args: ArgsList;
+  args: Expr[];
 }
