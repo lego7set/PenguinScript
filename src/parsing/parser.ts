@@ -145,7 +145,7 @@ export default class Parser {
     this.expect(TokenType.OPEN_ANGLE);
     const args = [] as Identifier[];
     while (this.at().type !== TokenType.CLOSE_ANGLE && this.not_eof()) {
-      let ident = this.parse_primary_expr() as Expr;
+      let ident: any = this.parse_primary_expr() as Expr;
       if (ident.kind !== NodeType.Identifier) throw new SyntaxError("Expect parameter name.")
       ident = ident as unknown as Identifier; // this is actually annoying
       if (!(this.not_eof() && this.tokens[1].type === TokenType.CLOSE_ANGLE)) this.expect(TokenType.COMMA);
