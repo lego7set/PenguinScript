@@ -1,4 +1,4 @@
-import type {Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, UnaryExpr } from "../parsing/ast.ts";
+import type {Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, UnaryExpr, Identifier, PrimitiveLiteral, NumberLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline } from "../parsing/ast.ts";
 import { NodeType } from "../parsing/ast";
 
 export enum OutputType {
@@ -120,7 +120,7 @@ export interface GlobalEnv {
   __readonly: Map<any, boolean>;
 }
 
-export const _globlEnv: GlobalEnv = {
+export const _globalEnv: GlobalEnv = {
   __env: new Map<any, any>(),
   __readonly: new Map<any, boolean>(),
   makeReadOnly: function MAKE_READ_ONLY(k) {
@@ -146,7 +146,9 @@ export const _globlEnv: GlobalEnv = {
 export type TranspiledFunction = ($globalEnv, $target) => any;
 export type TranspiledGenerator = ($globalEnv, $target) => Generator<any>;
 
-const GeneratorFunction = function*(){}.constructor;
+type GeneratorFunctionConstructor = new () => typeof function*(){};
+
+const GeneratorFunction = function*(){}.constructor as unknown as GeneratorFunctionConstructor;
 
 export default class JSGenerator {
   protected program;
@@ -157,9 +159,10 @@ export default class JSGenerator {
   protected _globalEnv: GlobalEnv;
   public warpTimer: boolean;
   public isWarp: boolean;
+  public yields: boolean;
   public constructor(program) {
     this.program = program;
-    this.scriptName = ScriptPool.next();
+    this.scriptName = ScriptPool.next().value;
     this._variablePool = VariablePool("v");
     this._cachedVariables = {
       __proto__: null
@@ -209,9 +212,9 @@ export default class JSGenerator {
   }
 
   protected getVariable(symbol: string): string {
-    if (this.cachedVariables[symbol]) return this.cachedVariables[symbol];
-    const next = this._variablePool.next();
-    return (this.cachedVariables[symbol] = next);
+    if (this._cachedVariables[symbol]) return this.cachedVariables[symbol];
+    const next = this._variablePool.next().value;
+    return (this._cachedVariables[symbol] = next);
   }
 
   protected descendNode(node: Stmt): void {
@@ -220,38 +223,42 @@ export default class JSGenerator {
         break;
       }
       case NodeType.StmtBlock: {
+        const node2 = node as unknown as StmtBlock;
         this.src += "{"
-        for (const stmt of node.body) this.descendNode(stmt);
+        for (const stmt of node2.body) this.descendNode(stmt);
         this.src += "}";
         break;
       }
       case NodeType.ReturnStatement: {
+        const node2 = node as unknown as ReturnStatement;
         this.src += "return(";
-        this.src += this.descendExpr(node.value).asUnknown();
+        this.src += this.descendExpr(node2.value).asUnknown();
         this.src += ");"
         break;
       }
       case NodeType.IfStatement: {
+        const node2 = node as unknown as IfStatement;
         this.src += "if(";
-        this.src += this.descendExpr(node.condition).asBoolean();
+        this.src += this.descendExpr(node2.condition).asBoolean();
         this.src += ")";
-        if (node.body.kind === NodeType.VariableDeclaration) throw new SyntaxError("Cannot declare a variable in a single-statement context")
-        this.descendNode(node.body);
-        if (node.else) {
+        if (node2.body.kind === NodeType.VariableDeclaration) throw new SyntaxError("Cannot declare a variable in a single-statement context")
+        this.descendNode(node2.body);
+        if (node2.else) {
           this.src += "else ";
-          if (node.else.body.kind === NodeType.VariableDeclaration) throw new SyntaxError("Cannot declare a variable in a single-statement context")
-          this.descendNode(node.else.body);
+          if (node2.else.body.kind === NodeType.VariableDeclaration) throw new SyntaxError("Cannot declare a variable in a single-statement context")
+          this.descendNode(node2.else.body);
         }
         this.src += ";";
         break;
       }
       case NodeType.VariableDeclaration: {
-        const ident = this.getVariable(node.symbol);
-        node.constant ? this.src += "const " : this.src += "let ";
+        const node2 = node as unknown as VariableDeclaration;
+        const ident = this.getVariable(node2.symbol);
+        node2.constant ? this.src += "const " : this.src += "let ";
         this.src += ident;
 
-        if (node.value) {
-          const value = this.descendExpr(node.value);
+        if (node2.value) {
+          const value = this.descendExpr(node2.value);
           this.src += "=";
           this.src += value.asUnknown();
         }
@@ -259,10 +266,11 @@ export default class JSGenerator {
         break;
       }
       case NodeType.While: {
+        const node2 = node as unknown as While;
         this.src += "while(";
-        this.src += this.descendExpr(node.condition).asBoolean();
+        this.src += this.descendExpr(node2.condition).asBoolean();
         this.src += "){"; // luckily, variables cannot be defined in a single statement.
-        if (node.body.kind === NodeType.VariableDeclaration) throw new SyntaxError("Cannot declare a variable in a single-statement context")
+        if (node2.body.kind === NodeType.VariableDeclaration) throw new SyntaxError("Cannot declare a variable in a single-statement context")
         this.descendNode();
         this.yieldLoop();
         this.src == "};"
@@ -278,78 +286,84 @@ export default class JSGenerator {
     protected descendExpr(node: Stmt): Input {
       switch (node.kind) {
         case NodeType.AssignmentExpr: {
-          if (node.assigne.kind !== NodeType.Identifier) throw new SyntaxError("Invalid left-hand in assignment")// add for member assignment later
-          const assigne = this.descendExpr(node.assigne);
-          const value = this.descendExpr(node.value);
+          const node2 = node as unknown as AssignmentExpr;
+          if (node2.assigne.kind !== NodeType.Identifier) throw new SyntaxError("Invalid left-hand in assignment")// add for member assignment later
+          const assigne = this.descendExpr(node2.assigne);
+          const value = this.descendExpr(node2.value);
           return new TypedInput(`((${assigne.asUnknown()}) = (${value.asUnknown()}))`, OutputType.TYPE_UNKNOWN);
         }
         case NodeType.UnaryExpr: {
-          const operand = this.descendExpr(node.operand);
-          if (node.operator === "not") return new TypedInput(`(!(${operand.asBoolean()}))`, OutputType.TYPE_BOOLEAN);
+          const node2 = node as unknown as UnaryExpr;
+          const operand = this.descendExpr(node2.operand);
+          if (node2.operator === "not") return new TypedInput(`(!(${operand.asBoolean()}))`, OutputType.TYPE_BOOLEAN);
           throw new SyntaxError("Unknown unary operator");
         }
         case NodeType.BinaryExpr: {
-          switch (node.operator) {
+          const node2 = node as unknown as BinaryExpr;
+          switch (node2.operator) {
             case "and": {
-              const left = this.descendExpr(node.left);
-              const right = this.descendExpr(node.right);
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
               return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _ : (((_2 ?? false) === false) && !((_ ?? false) === false)) ? _2 : _)`, OutputType.TYPE_UNKNOWN)
             }
             case "xor": {
-              const left = this.descendExpr(node.left);
-              const right = this.descendExpr(node.right);
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
               return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _2 : (((_2 ?? false) === false) && !((_ ?? false) === false)) ? _ : false)`, OutputType.TYPE_UNKNOWN)
             }
             case "or": {
-              const left = this.descendExpr(node.left);
-              const right = this.descendExpr(node.right);
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
               return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _ : _2)`, OutputType.TYPE_UNKNOWN)
             }
             case "+": {
-              const left = this.descendExpr(node.left);
-              const right = this.descendExpr(node.right);
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
               return new TypedInput(`(${left.asNumber()} + ${right.asNumber()})`, OutputType.TYPE_NUMBER) // dont be like js, be more like pm (which is awesome!!!).
             }
             case "-": {
-              const left = this.descendExpr(node.left);
-              const right = this.descendExpr(node.right);
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
               return new TypedInput(`(${left.asNumber()} - ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
             case "*": {
-              const left = this.descendExpr(node.left);
-              const right = this.descendExpr(node.right);
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
               return new TypedInput(`(${left.asNumber()} * ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
             case "/": {
-              const left = this.descendExpr(node.left);
-              const right = this.descendExpr(node.right);
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
               return new TypedInput(`(${left.asNumber()} / ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
             case "%": {
-              const left = this.descendExpr(node.left);
-              const right = this.descendExpr(node.right);
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
               return new TypedInput(`(${left.asNumber()} % ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
             case "^": {
-              const left = this.descendExpr(node.left);
-              const right = this.descendExpr(node.right);
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
               return new TypedInput(`(${left.asNumber()} ** ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
           }
         }
         case NodeType.PrimitiveLiteral: {
-          const value = node.value;
+          const node2 = node as unknown as PrimitiveLiteral;
+          const value = node2.value;
           return new ConstantInput(value);
         }
         case NodeType.Identifier: {
-          const ident = this.getVariable(node.symbol);
+          const node2 = node as unknown as Identifier;
+          const ident = this.getVariable(node2.symbol);
           return new TypedInput(`(${ident})`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Inline: {
+          const node2 = node as unknown as Inline;
           let src = ""
           const oldSrc = this.src;
           this.src = "";
-          this.descendNode(node.body);
+          this.descendNode(node2.body);
           const stackSrc = this.src;
           this.src = oldSrc;
           if (this.yields) src += "(yield*(function*(){";
@@ -360,11 +374,12 @@ export default class JSGenerator {
           return new TypedInput(`(${src})`, OutputType.TYPE_UNKNOWN);
         }
         case NodeType.Function: {
-          const args = node.args.args;
+          const node2 = node as unknown as Function;
+          const args = node2.args.args;
           let src = ""
           const oldSrc = this.src;
           this.src = "";
-          this.descendNode(node.body);
+          this.descendNode(node2.body);
           const stackSrc = this.src;
           this.src = oldSrc;
           let list = "";
@@ -375,9 +390,10 @@ export default class JSGenerator {
           return new TypedInput(`(function(${list}){${stackSrc}})`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.FunctionCall: {
-          const func = this.descendExpr(node.func).asUnknown();
+          const node2 = node as unknown as FunctionCall;
+          const func = this.descendExpr(node2.func).asUnknown();
           const args = [];
-          for (const arg of node.args) {
+          for (const arg of node2.args) {
             args.push(this.descendExpr(arg).asUnknown());
           }
           return new TypedInput(`(${func}(${args.join(",")}))`)
