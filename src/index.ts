@@ -2,7 +2,7 @@ import Parser from "./parsing/parser";
 
 import Lexer from "./parsing/lexer";
 
-import JSGenerator from "./transpile/jsGen";
+import JSGenerator, { _globalEnv } from "./transpile/jsGen";
 
 function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
@@ -13,8 +13,20 @@ function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
 function preCompile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
   const generator = new JSGenerator(program);
-  return "(yield* (function()*{" + generator.transpile("string", true, warpTimer, isWarp) + "})())";
+  return "(yield* (function($globalEnv, $target)*{" + generator.transpile("string", true, warpTimer, isWarp) + "})(runtime.ext_vgspenguinscript._globalEnv, target))";
 }
+
+_globalEnv.__env.set("print", {
+  get value() {return console.log};
+})
+
+_globalEnv.__env.set("warn", {
+  get value() {return console.warn};
+})
+
+_globalEnv.__env.set("error", {
+  get value() {return console.error};
+})
 
 import { SupportsExtensions, IsPenguinMod } from "./pmUtils/PenguinModDetector";
 let Scratch;
@@ -22,7 +34,9 @@ let Scratch;
 if (typeof window === "object" && window && typeof window.document === "object" && typeof (Scratch = window.Scratch) === "object" && Scratch) {
   // Logic here
   if (!Scratch.extensions.isPenguinMod) throw "Please load PenguinScript in PenguinMod"; // i dnot need to explain tis
+  
   class PenguinScript {
+    _globalEnv = _globalEnv;
     constructor() {
       Scratch.vm.runtime.registerCompiledExtensionBlocks("vgspenguinscript", this.getCompiledInfo());
     }
@@ -47,7 +61,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
               preCompiled = preCompile(tryCompile, compiler.warpTimer, compiler.isWarp); // transpile at compile time to make it fast.
               compiler.source += preCompiled + ";"
             } catch(e) {
-              compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})());`
+              compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target));`
             }
           },
           evalReporter: (node, compiler, imports) => {
@@ -60,7 +74,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
               return new (imports.TypedInput)(`(${preCompiled})`, imports.TYPE_UNKNOWN)
             } catch(e) {
               return new (imports.TypedInput)(`(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})())`, imports.TYPE_UNKNOWN)
-              // compiler.src += `(yield* transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})());`
+              // compiler.src += `(yield* transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target));`
             }
           }
         }
