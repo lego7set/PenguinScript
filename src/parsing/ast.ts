@@ -14,7 +14,9 @@ export enum NodeType {
   ElseStatement,
   While,
   Function,
-  Inline
+  Inline,
+  ReturnStatement,
+  ArgsList
 }
 
 export enum OutputType { // going to be unused
@@ -148,11 +150,21 @@ export interface While extends Stmt {
   body: Stmt;
 }
 
-/*export interface Function extends Expr {
+export interface ArgsList extends Expr {
+  kind: NodeType.ArgsList;
+  args: Identifier[];
+} // its a node, but yeah.
+
+export interface ReturnStatement extends Stmt {
+  kind: NodeType.ReturnStatement;
+  value: Expr;
+}
+
+export interface Function extends Expr {
   kind: NodeType.While;
-  condition: Expr;
+  args: ArgsList;
   body: Stmt;
-}*/
+}
 
 export interface Inline extends Expr {
   kind: NodeType.Inline;
