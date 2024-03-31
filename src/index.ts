@@ -117,7 +117,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
             arguments: {
               code: {
                 type: Scratch.ArgumentType.STRING,
-                defaultValue: "let x = 5; x = 6 xor 5;"
+                defaultValue: "let x = 5; x = 6 xor 5; global print<x>;"
               }
             }
           },
