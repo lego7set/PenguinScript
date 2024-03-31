@@ -171,7 +171,7 @@ export default class Lexer {
             let str = ""
             for (; typeof src[0] === "string" && /^[_a-zA-Z]+[_a-zA-Z0-9]*$/.test(str + src[0]) && src.length > 0; str += src.shift());
             let reserved = this.Keywords[str];
-            console.log(reserved, " ", str, TokenType.IDENTIFIER);
+            // console.log(reserved, " ", str, TokenType.IDENTIFIER);
             if (reserved) yield* this.yieldToken(new Token(reserved, str));
             else yield* this.yieldToken(new Token(TokenType.IDENTIFIER, str));
           } else if (src[0] === '"') {
@@ -297,10 +297,10 @@ export default class Lexer {
               num += src.shift();
               for (;typeof src[0] === "string" && /^[0-9]+\.[0-9]+$/.test(num + src[0]) && src.length > 0; num += src.shift());
             }
-            console.log(TokenType.NUMBER, num)
+            // console.log(TokenType.NUMBER, num)
             yield* this.yieldToken(new Token(TokenType.NUMBER, num));
           } /*else if (/^[\s]+$/.test(src[0])) {
-            console.log("Consume whitespace");
+            // console.log("Consume whitespace");
             // skip, consume the whitespace
             src.shift();
             debugger;
