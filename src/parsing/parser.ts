@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -86,9 +86,6 @@ export default class Parser {
       case TokenType.WHILE: {
         return this.parse_loop();
       }
-      case TokenType.FUNCTION: {
-        return this.parse_function();
-      }
       case TokenType.INLINE: {
         return this.parse_inline();
       }
@@ -101,6 +98,9 @@ export default class Parser {
           kind: NodeType.NoOp
         } as NoOp // an empty statement.
       }
+      case TokenType.RETURN: {
+        return this.parse_return();
+      }
       default: {
         const expr = this.parse_expr();
         this.expect(TokenType.SEMICOLON); // expect a semicolon on every statement (except some)
@@ -109,8 +109,54 @@ export default class Parser {
     }
   }
 
+  protected parse_return() {
+    this.eat(); // eat return
+    const expr = this.parse_expr();
+    return {
+      kind: NodeType.ReturnStatement,
+      value: expr
+    } as ReturnStatement
+  }
+
   protected parse_function() {
-    throw new SyntaxError("unimplemented")
+    // no functions declarations haha
+    this.eat(); // eat fn keyword
+    const args = this.parse_argslist();
+    // parse body
+    this.expect(TokenType.OPEN_BRACE); // no single statement functions.
+    const stmts = [] as StmtBody;
+    while (this.at().type !== TokenType.CLOSE_BRACE && this.not_eof()) {
+      const stmt = this.parse_stmt();
+      stmts.push(stmt);
+    }
+    this.expect(TokenType.CLOSE_BRACE);
+    const body = {
+      kind: NodeType.StmtBlock,
+      body: stmts
+    } as StmtBlock
+    return {
+      kind: NodeType.Function,
+      args,
+      body
+    }
+  }
+
+  protected parse_argslist() {
+    this.expect(TokenType.OPEN_ANGLE);
+    const args = [] as Identifier[];
+    while (this.at().type !== TokenType.CLOSE_ANGLE && this.not_eof()) {
+      const ident = this.expect(TokenType.IDENTIFIER);
+      if (!(this.not_eof() && this.tokens[1].type === TokenType.CLOSE_ANGLE)) this.expect(TokenType.COMMA);
+      else if (this.at().type === TokenType.COMMA) this.eat(); // consume one trailing comma, if it exists
+      args.forEach((val) => {if (val.symbol === ident.symbol) throw new SyntaxError("Duplicate parameter name")});
+      args.push(ident);
+    }
+    this.expect(TokenType.CLOSE_ANGLE);
+    const params = {
+      kind: NodeType.ArgsList,
+      args
+    } as ArgsList
+    return params;
   }
 
   protected parse_inline() {
@@ -223,7 +269,7 @@ export default class Parser {
         operator: "not"
       } as UnaryExpr
     }
-    return this.parse_and_expr()
+    return this.parse_additive_expr()
   }
 
   protected parse_and_expr(): BinaryExpr | Expr {
@@ -261,11 +307,11 @@ export default class Parser {
   }
 
   protected parse_or_expr(): BinaryExpr | Expr {
-    let left = this.parse_additive_expr();
+    let left = this.parse_not_expr();
 
     while (this.at().raw === "or") {
       const operator = this.eat().raw;
-      const right = this.parse_additive_expr();
+      const right = this.parse_not_expr();
       left = {
         kind: NodeType.BinaryExpr,
         left,
@@ -278,7 +324,7 @@ export default class Parser {
   }
 
   protected parse_assignment_expr(): AssignmentExpr | Expr {
-    const left = this.parse_not_expr();
+    const left = this.parse_and_expr();
 
     if (this.at().type === TokenType.EQUALS) {
       this.eat();
@@ -326,11 +372,11 @@ export default class Parser {
   }
 
   protected parse_exponential_expr(): BinaryExpr | Expr {
-    let left = this.parse_primary_expr();
+    let left = this.parse_function_call(); //
 
     while (this.at().raw === "^") {
       const operator = this.eat().raw;
-      const right = this.parse_primary_expr();
+      const right = this.parse_function_call();
       left = {
         kind: NodeType.BinaryExpr,
         left,
@@ -339,6 +385,28 @@ export default class Parser {
       } as BinaryExpr
     }
     return left;
+  }
+
+  protected parse_function_call() {
+    const primary = this.parse_primary_expr();
+    if (this.at().type === TokenType.OPEN_ANGLE) {
+      this.expect(TokenType.OPEN_ANGLE);
+      const args = [] as Expr[];
+      while (this.at().type !== TokenType.CLOSE_ANGLE && this.not_eof()) {
+        const val = this.parse_expr();
+        if (!(this.not_eof() && this.tokens[1].type === TokenType.CLOSE_ANGLE)) this.expect(TokenType.COMMA);
+        else if (this.at().type === TokenType.COMMA) this.eat(); // consume one trailing comma, if it exists
+        args.push(val);
+      }
+      this.expect(TokenType.CLOSE_ANGLE);
+      return {
+        kind: NodeType.FunctionCall,
+        func: primary,
+        args
+      } as FunctionCall;
+    }
+      
+    return primary;
   }
 
   protected parse_primary_expr(): Expr {
@@ -370,6 +438,9 @@ export default class Parser {
         const expr = this.parse_expr();
         this.expect(TokenType.CLOSE_PAREN);
         return expr;
+      }
+      case TokenType.FUNCTION: {
+        return this.parse_function();
       }
       default: {
         throw new SyntaxError(`Invalid token ${token}.`)
