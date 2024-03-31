@@ -141,11 +141,12 @@ export default class Parser {
     }
   }
 
-  protected parse_argslist() {
+  protected parse_argslist(isFunctionCall) {
     this.expect(TokenType.OPEN_ANGLE);
     const args = [] as Identifier[];
     while (this.at().type !== TokenType.CLOSE_ANGLE && this.not_eof()) {
-      const ident = this.expect(TokenType.IDENTIFIER);
+      const ident = this.parse_primary_expr() as Expr;
+      if (ident.kind !== NodeType.Identifier) throw new SyntaxError("Expect parameter name.")
       if (!(this.not_eof() && this.tokens[1].type === TokenType.CLOSE_ANGLE)) this.expect(TokenType.COMMA);
       else if (this.at().type === TokenType.COMMA) this.eat(); // consume one trailing comma, if it exists
       args.forEach((val) => {if (val.symbol === ident.symbol) throw new SyntaxError("Duplicate parameter name")});
