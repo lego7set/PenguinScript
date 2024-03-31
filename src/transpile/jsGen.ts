@@ -4,7 +4,7 @@ import { NodeType } from "../parsing/ast";
 export enum OutputType {
   TYPE_NUMBER,
   TYPE_STRING,
-  TYPE_BOOOLEAN,
+  TYPE_BOOLEAN,
   TYPE_UNKNOWN
   // introduce other types later
 }
