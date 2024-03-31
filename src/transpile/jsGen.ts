@@ -273,6 +273,7 @@ export default class JSGenerator {
         this.src += ";";
       }
     }
+  }
 
     protected descendExpr(node: Stmt): Input {
       switch (node.kind) {
@@ -384,4 +385,3 @@ export default class JSGenerator {
       }
     }
   }
-}
