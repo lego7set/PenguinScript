@@ -16,7 +16,8 @@ export enum NodeType {
   Function,
   Inline,
   ReturnStatement,
-  ArgsList
+  ArgsList,
+  FunctionCall
 }
 
 export enum OutputType { // going to be unused
@@ -169,4 +170,10 @@ export interface Function extends Expr {
 export interface Inline extends Expr {
   kind: NodeType.Inline;
   body: Stmt;
+}
+
+export interface FunctionCall extends Expr {
+  kind: NodeType.FunctionCall;
+  func: Expr;
+  args: ArgsList;
 }
