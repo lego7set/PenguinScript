@@ -32,7 +32,7 @@ export default class Parser {
   protected expect(type: TokenType): Token {
     const token = this.eat();
     if (!token || token.type !== type) {
-      throw new SyntaxError(`Expected ${type} token, got ${token?.type} instead`);
+      throw new SyntaxError(`Expected ${TokenType[type]} token, got ${TokenType[token?.type]} instead`);
     }
     return token;
   }
@@ -149,7 +149,7 @@ export default class Parser {
       let ident: any = this.parse_primary_expr() as Expr;
       if (ident.kind !== NodeType.Identifier) throw new SyntaxError("Expected parameter name.");
       ident = ident as unknown as Identifier; // this is actually annoying
-      if (!(this.not_eof() && this.tokens[1].type === TokenType.CLOSE_ANGLE)) this.expect(TokenType.COMMA);
+      if (!(this.not_eof() || this.tokens[1].type === TokenType.CLOSE_ANGLE)) this.expect(TokenType.COMMA);
       else if (this.at().type === TokenType.COMMA) this.eat(); // consume one trailing comma, if it exists
       args.forEach((val) => {if (val.symbol === ident.symbol) throw new SyntaxError("Duplicate parameter name")});
       args.push(ident);
@@ -398,7 +398,7 @@ export default class Parser {
       const args = [] as Expr[];
       while (this.at().type !== TokenType.CLOSE_ANGLE && this.not_eof()) {
         const val = this.parse_expr();
-        if (!(this.not_eof() && this.tokens[1].type === TokenType.CLOSE_ANGLE)) this.expect(TokenType.COMMA);
+        if (!(this.not_eof() || this.tokens[1].type === TokenType.CLOSE_ANGLE)) this.expect(TokenType.COMMA);
         else if (this.at().type === TokenType.COMMA) this.eat(); // consume one trailing comma, if it exists
         args.push(val);
       }
@@ -452,7 +452,7 @@ export default class Parser {
         return this.parse_function();
       }
       default: {
-        throw new SyntaxError(`Invalid token ${token}.`)
+        throw new SyntaxError(`Invalid token ${TokenType[token]}.`)
       }
     }
   }
