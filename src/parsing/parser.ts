@@ -78,7 +78,7 @@ export default class Parser {
         return {
           kind: NodeType.StmtBlock,
           body: stmts
-        } as StmtBody;
+        } as StmtBlock;
       }
       case TokenType.IF: {
         return this.parse_if();
@@ -110,10 +110,14 @@ export default class Parser {
     }
   }
 
+  protected parse_function() {
+    throw new SyntaxError("unimplemented")
+  }
+
   protected parse_inline() {
     this.eat(); // eat inline
     return {
-      kind: NodeType.INLINE,
+      kind: NodeType.Inline,
       body: this.parse_stmt()
     }
   }
