@@ -15,6 +15,7 @@ export enum TokenType {
   RETURN,
   INLINE,
   GLOBAL,
+  TARGET,
 
   EQUALS,
   BINARY_OPERATOR,
@@ -72,7 +73,8 @@ export default class Lexer {
     fn: TokenType.FUNCTION,
     return: TokenType.RETURN,
     inline: TokenType.INLINE,
-    global: TokenType.GLOBAL
+    global: TokenType.GLOBAL,
+    target: TokenType.TARGET
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
