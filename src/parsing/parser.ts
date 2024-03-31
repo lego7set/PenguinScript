@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -83,6 +83,15 @@ export default class Parser {
       case TokenType.IF: {
         return this.parse_if();
       }
+      case TokenType.WHILE: {
+        return this.parse_loop();
+      }
+      case TokenType.FUNCTION: {
+        return this.parse_function();
+      }
+      case TokenType.INLINE: {
+        return this.parse_inline();
+      }
       case TokenType.ELSE: {
         throw new SyntaxError("Unexpected else statement.")
       }
@@ -97,6 +106,47 @@ export default class Parser {
         const expr = this.parse_expr();
         this.expect(TokenType.SEMICOLON); // expect a semicolon on every statement (except some)
         return expr;
+      }
+    }
+  }
+
+  protected parse_inline() {
+    this.eat(); // eat inline
+    return {
+      kind: NodeType.INLINE,
+      body: this.parse_stmt()
+    }
+  }
+
+  protected parse_loop() {
+    switch (this.eat().raw) {
+      case "while": {
+        return {
+          kind: NodeType.While,
+          condition: this.parse_expr(),
+          body: this.parse_stmt()
+        } as While
+      }
+      case "repeatUntil": {
+        return {
+          kind: NodeType.While,
+          condition: {
+            kind: NodeType.UnaryExpr,
+            operand: this.parse_expr(),
+            operator: "not"
+          } as UnaryExpr,
+          body: this.parse_stmt()
+        }
+      }
+      case "forever": {
+        return {
+          kind: NodeType.While,
+          condition: {
+            kind: NodeType.PrimitiveLiteral,
+            value: true
+          } as True,
+          body: this.parse_stmt()
+        }
       }
     }
   }
