@@ -12,6 +12,7 @@ export enum TokenType {
   ELSE,
   WHILE,
   FUNCTION,
+  RETURN,
   INLINE,
 
   EQUALS,
@@ -68,7 +69,8 @@ export default class Lexer {
     repeatUntil: TokenType.WHILE,
     forever: TokenType.WHILE,
     fn: TokenType.FUNCTION,
-    inline: TokenType.INLINE,
+    return: TokenType.RETURN,
+    inline: TokenType.INLINE
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
