@@ -301,13 +301,15 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     return null;
   }
   function* changeXStretch(target: any, x: any) {
+    // @ts-ignore
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change x stretch of non-sprite by " + Number(x));
     const pos = Number(x) || 0;
     target.setXY(target.stretch[0] + pos, target.stretch[1]);
     return null;
   }
   function* changeYStretch(target: any, y: any) {
-    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change y stretch of non-sprite by " + Number(x));
+    // @ts-ignore
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change y stretch of non-sprite by " + Number(y));
     const pos = Number(y) || 0;
     target.setXY(target.stretch[0], target.stretch[1] + pos);
     return null;
