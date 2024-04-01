@@ -176,9 +176,11 @@ export default class Parser {
 
   protected parse_inline() {
     this.eat(); // eat inline
+    const body = this.parse_stmt()
+    if (body.kind === NodeType.VariableDeclaration) throw new SyntaxError("Cannot declare a variable in a single-statement context")
     return {
       kind: NodeType.Inline,
-      body: this.parse_stmt()
+      body
     } as Inline
   }
 
