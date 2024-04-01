@@ -1,3 +1,5 @@
+// EDIT: This is useless but we might use it later
+
 // @ts-ignore
 export const SupportsExtensions = typeof window === "object" && window && typeof window.document === "object" && window.document && typeof window.Scratch === "object" && window.Scratch;
 // @ts-ignore
