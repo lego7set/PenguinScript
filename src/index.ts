@@ -13,7 +13,7 @@ function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
 function preCompile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
   const generator = new JSGenerator(program);
-  return "(yield* (function*($globalEnv, $target){" + generator.transpile("string", true, warpTimer, isWarp) + "})(runtime.ext_vgspenguinscript._globalEnv, target))";
+  return "(yield* (function*($globalEnv, $target, isStuck){" + generator.transpile("string", true, warpTimer, isWarp) + "})(runtime.ext_vgspenguinscript._globalEnv, target, isStuck))";
 }
 
 function* log(...args) {
@@ -494,11 +494,11 @@ if (typeof window === "object" && window && typeof window.document === "object" 
             try {
               const tryCompile = JSON.parse(code.asString());
               preCompiled = preCompile(tryCompile, compiler.warpTimer, compiler.isWarp); // transpile at compile time to make it fast.
-              compiler.source += '"require waitPromise";'
+              //compiler.source += '"require waitPromise";'
               compiler.source += preCompiled + ";"
             } catch(e) {
-              compiler.source += '"require waitPromise";'
-              compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target));`
+              //compiler.source += '"require waitPromise";'
+              compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target, isStuck));`
             }
           },
           evalReporter: (node, compiler, imports) => {
@@ -508,11 +508,11 @@ if (typeof window === "object" && window && typeof window.document === "object" 
               const tryCompile = JSON.parse(code.asString());
               preCompiled = preCompile(tryCompile, compiler.warpTimer, compiler.isWarp); // transpile at compile time to make it fast.
               // compiler.src += preCompiled + ";"
-              if (canNullish) return new (imports.TypedInput)(`("require waitPromise",(${preCompiled} ?? "null"))`);
-              return new (imports.TypedInput)(`("require waitPromise",nullish((${preCompiled}),"null"))`, imports.TYPE_UNKNOWN);
+              if (canNullish) return new (imports.TypedInput)(`(${preCompiled} ?? "null")`);
+              return new (imports.TypedInput)(`nullish((${preCompiled}),"null")`, imports.TYPE_UNKNOWN);
             } catch(e) {
-              if (canNullish) return new (imports.TypedInput)(`("require waitPromise",(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target))  ?? "null")`, imports.TYPE_UNKNOWN);
-              return new (imports.TypedInput)(`("require waitPromise",nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target)),"null"))`, imports.TYPE_UNKNOWN);
+              if (canNullish) return new (imports.TypedInput)(`((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target, isStuck))  ?? "null)"`, imports.TYPE_UNKNOWN);
+              return new (imports.TypedInput)(`nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target, isStuck)),"null"))`, imports.TYPE_UNKNOWN);
               // compiler.src += `(yield* transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target));`
             }
           }
