@@ -43,6 +43,45 @@ _globalEnv.__env.set("error", {
   get value() {return error}
 })
 
+function* convertToString(value: any) {
+  return String(value);
+}
+function* convertToNumber(value: any) {
+  return Number(value);
+}
+function* convertToBoolean(value: any) {
+  return Boolean(value);
+}
+
+function* charFromCodePoint(value: any) {
+  return String.fromCodePoint(Number(value) || 0)
+}
+
+function* charToCodePoint(value: any) {
+  if (typeof value !== "string") throw new TypeError("Please pass in a string to charToCodePoint")
+  return value.codePointAt(0) ?? null;
+}
+
+_globalEnv.__env.set("toString", {
+  get value() {return convertToString}
+})
+
+_globalEnv.__env.set("toNumber", {
+  get value() {return convertToNumber}
+})
+
+_globalEnv.__env.set("toBoolean", {
+  get value() {return convertToBoolean}
+})
+
+function* type(value: any) {
+  return typeof value;
+}
+
+_globalEnv.__env.set("typeof", {
+  get value() {return type}
+})
+
 function supportsNullishCoalescing() {
   try {
     return eval("true ?? 0")
@@ -322,6 +361,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     target.setCostume(target.currentCostume - 1);
     return null;
   }
+  // Implement variable interop functions here
   // Looks-related global functions.
   _globalEnv.__env.set("setCostume", {
     get value() {return setCostume}
@@ -483,6 +523,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
       return {
         id: "vgspenguinscript",
         name: "PenguinScript",
+        docsURI: "https://extensions.penguinmod.com/docs/penguinscript",
         blocks: [
           {
             opcode: "evalStack",
