@@ -311,11 +311,11 @@ export default class Parser {
   }
 
   protected parse_or_expr(): BinaryExpr | Expr {
-    let left = this.parse_not_expr();
+    let left = this.parse_relational_expr();
 
     while (this.at().raw === "or") {
       const operator = this.eat().raw;
-      const right = this.parse_not_expr();
+      const right = this.parse_relational_expr();
       left = {
         kind: NodeType.BinaryExpr,
         left,
@@ -327,6 +327,29 @@ export default class Parser {
     return left;
   }
 
+  protected parse_relational_expr(): BinaryExpr | Expr {
+    let left = this.parse_not_expr();
+
+    while (this.at().raw === "<" || this.at().raw === ">" || this.at().raw === "==") {
+      let operator = this.eat().raw;
+      if (operator === "<" || operator === ">") {
+        if (this.at().type === TokenType.EQUALS) {
+          this.eat(); // consume equals token, and make a <= or >= token instead (also technically  0 >   = 0 is valid code lol, oh and also its only valid code because it wouldn't make sense of > to be the left hand side of assignment)
+        }
+        operator += "=";
+      }
+      const right = this.parse_not_expr();
+      left = {
+        kind: NodeType.BinaryExpr,
+        left,
+        right,
+        operator
+      } as BinaryExpr
+    }
+    
+    return left;
+  }
+  
   protected parse_assignment_expr(): AssignmentExpr | Expr {
     const left = this.parse_and_expr();
 
