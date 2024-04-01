@@ -451,6 +451,20 @@ if (typeof window === "object" && window && typeof window.document === "object" 
   _globalEnv.__env.set("changeXYStretch", {
     get value() {return changeXYStretch}
   })
+  function* getXStretch(target: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get x stretch of non-sprite)
+    return target.stretch[0]
+  }
+  function* getYStretch(target: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get y stretch of non-sprite)
+    return target.stretch[1]
+  }
+  _globalEnv.__env.set("getXStretch", {
+    get value() {return getXStretch}
+  })
+  _globalEnv.__env.set("getYStretch", {
+    get value() {return getYStretch}
+  })
   // Scratch-related global functions.
   _globalEnv.__env.set("getSprite", {
     get value() {return getSprite}
