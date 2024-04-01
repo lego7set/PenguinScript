@@ -121,7 +121,7 @@ export default class Parser {
   protected parse_return() {
     this.eat(); // eat return
     const expr = this.parse_expr();
-    if (this.at().type === TokenType.RETURN) this.eat();
+    if (this.at().type === TokenType.SEMICOLON) this.eat();
     return {
       kind: NodeType.ReturnStatement,
       value: expr
