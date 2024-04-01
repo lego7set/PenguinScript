@@ -93,6 +93,8 @@ _globalEnv.__env.set("typeof", {
 function* getMathForPS(name: any) {
   if (typeof name !== "string") throw new TypeError("Expected math item to a string");
   if (!Object.hasOwn(Math, name)) throw new TypeError("Invalid math item");
+  const item = Math[name];
+  if (typeof item === "function") return function*(...args){return item(...args);}
   return Math[name];
 }
 
@@ -392,7 +394,6 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     target.setCostume(target.currentCostume - 1);
     return null;
   }
-  // Implement variable interop functions here
   // Looks-related global functions.
   _globalEnv.__env.set("setCostume", {
     get value() {return setCostume}
@@ -501,6 +502,48 @@ if (typeof window === "object" && window && typeof window.document === "object" 
   _globalEnv.__env.set("turnRight", {
     get value() {return turnRight}
   })
+
+  function* getVariableForTarget(target: any, name: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
+    return target.lookupVariableByNameAndType(name, "", true)?.value ?? null;
+  }
+  function* setVariableForTarget(target: any, name: any, value: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
+    const variable = target.lookupVariableByNameAndType(name, "", true);
+    if (variable) {
+      return variable.value = String(value) // force into string because there can be some weird things like setting a variable to a sprite.
+    }
+    return null;
+  }
+  function* getVariableForAll(name: any) {
+    const target = Scratch.vm.runtime.getTargetForStage();
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
+    return target.lookupVariableByNameAndType(name, "", true)?.value ?? null;
+  }
+  function* setVariableForAll(name: any, value: any) {
+    const target = Scratch.vm.runtime.getTargetForStage();
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
+    const variable = target.lookupVariableByNameAndType(name, "", true);
+    if (variable) {
+      return variable.value = String(value) // force into string because there can be some weird things like setting a variable to a sprite.
+    }
+    return null;
+  }
+
+  _globalEnv.__env.set("getVariableForSprite", {
+    get value() {return getVariableForTarget}
+  })
+  _globalEnv.__env.set("setVariableForSprite", {
+    get value() {return setVariableForTarget}
+  })
+  _globalEnv.__env.set("getVariableForAllSprites", {
+    get value() {return getVariableForAll}
+  })
+  _globalEnv.__env.set("setVariableForAllSprites", {
+    get value() {return setVariableForAll}
+  })
+
+  
   class PenguinScript {
     _globalEnv = _globalEnv;
     constructor() {
