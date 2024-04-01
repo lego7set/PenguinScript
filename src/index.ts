@@ -74,12 +74,43 @@ _globalEnv.__env.set("toBoolean", {
   get value() {return convertToBoolean}
 })
 
+_globalEnv.__env.set("charFromCodePoint", {
+  get value() {return charFromCodePoint)
+})
+
+_globalEnv.__env.set("charToCodePoint", {
+  get value() {return charToCodePoint)
+})
+
 function* type(value: any) {
   return typeof value;
 }
 
 _globalEnv.__env.set("typeof", {
   get value() {return type}
+})
+
+function* getMathForPS(name: any) {
+  if (typeof name !== "string") throw new TypeError("Expected math item to a string");
+  if (!Object.hasOwn(Math, name)) throw new TypeError("Invalid math item");
+  return Math[name];
+}
+
+_globalEnv.__env.set("getMath", {
+  get value() {return getMathForPS}
+})
+
+function* join(str: any, str2: any) {
+  return String(str) + String(str2);
+}
+
+
+_globalEnv.__env.set("join", {
+  get value() {return join}
+})
+
+_globalEnv.__env.set("concat", {
+  get value() {return join}
 })
 
 function supportsNullishCoalescing() {
