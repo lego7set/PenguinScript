@@ -86,9 +86,6 @@ export default class Parser {
       case TokenType.WHILE: {
         return this.parse_loop();
       }
-      case TokenType.INLINE: {
-        return this.parse_inline();
-      }
       case TokenType.ELSE: {
         throw new SyntaxError("Unexpected else statement.")
       }
@@ -480,6 +477,9 @@ export default class Parser {
       }
       case TokenType.FUNCTION: {
         return this.parse_function();
+      }
+      case TokenType.INLINE: {
+        return this.parse_inline();
       }
       case TokenType.RESERVED: {
         throw new SyntaxError(`Unexpected reserved word ${token.raw}`);
