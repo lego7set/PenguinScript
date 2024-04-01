@@ -403,7 +403,7 @@ export default class Parser {
 
     while (this.at().raw === "^") {
       const operator = this.eat().raw;
-      const right = this.parse_function_call();
+      const right = this.parse_exponential_exr(); // 3 ^ 4 ^ 5 would be parsed as 3 (primary) ^, 4 (primary) ^ 5 (primary). so it would be 3^(4^5) instead of (3^4)^5
       left = {
         kind: NodeType.BinaryExpr,
         left,
