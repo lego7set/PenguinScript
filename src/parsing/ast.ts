@@ -19,7 +19,9 @@ export enum NodeType {
   ArgsList,
   FunctionCall,
   Global,
-  Target
+  Target,
+  Break,
+  Continue
 }
 
 export enum OutputType { // going to be unused
@@ -188,4 +190,12 @@ export interface FunctionCall extends Expr {
 
 export interface Target extends Expr {
   kind: NodeType.Target;
+}
+
+export interface Break extends Stmt {
+  kind: NodeType.Break;
+}
+
+export interface Continue extends Stmt {
+  kind: NodeType.Continue;
 }
