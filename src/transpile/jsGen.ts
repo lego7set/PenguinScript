@@ -319,6 +319,7 @@ export default class JSGenerator {
         case NodeType.BinaryExpr: {
           const node2 = node as unknown as BinaryExpr;
           switch (node2.operator) {
+            // logical operators
             case "and": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
@@ -334,6 +335,33 @@ export default class JSGenerator {
               const right = this.descendExpr(node2.right);
               return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _ : _2)`, OutputType.TYPE_UNKNOWN)
             }
+            // relational operators
+            case "<": {
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
+              return new TypedInput(`(${left.asNumber()} < ${right.asNumber()})`, OutputType.TYPE_BOOLEAN)
+            }
+            case ">": {
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
+              return new TypedInput(`(${left.asNumber()} > ${right.asNumber()})`, OutputType.TYPE_BOOLEAN)
+            }
+            case "<=": {
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
+              return new TypedInput(`(${left.asNumber()} <= ${right.asNumber()})`, OutputType.TYPE_BOOLEAN)
+            }
+            case ">=": {
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
+              return new TypedInput(`(${left.asNumber()} >= ${right.asNumber()})`, OutputType.TYPE_BOOLEAN)
+            }
+            case "==": {
+              const left = this.descendExpr(node2.left);
+              const right = this.descendExpr(node2.right);
+              return new TypedInput(`(Object.is(${left.asUnknown()}, ${right.asUnknown()}))`, OutputType.TYPE_BOOLEAN)
+            }
+            // arithmetic operators
             case "+": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
