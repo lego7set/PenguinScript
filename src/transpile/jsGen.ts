@@ -288,7 +288,13 @@ export default class JSGenerator {
         if (node2.body.kind === NodeType.VariableDeclaration) throw new SyntaxError("Cannot declare a variable in a single-statement context")
         this.descendNode(node2.body);
         this.yieldLoop();
-        this.src == "};"
+        this.src += "};"
+      }
+      case NodeType.Break: {
+        this.src += "break;"
+      }
+      case NodeType.Continue: {
+        this.src += "continue;"
       }
       default: {
         const expr = this.descendExpr(node);
