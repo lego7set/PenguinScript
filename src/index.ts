@@ -545,6 +545,39 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     get value() {return setVariableForAll}
   })
 
+  function* broadcast(message: any) {
+    const msg = String(message);
+    Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
+      BROADCAST_OPTION: msg
+    });
+    return null
+  }
+
+  function* broadcastToSprite(message: any, target: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot broadcast to a non-sprite")
+    const msg = String(message);
+    Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
+      BROADCAST_OPTION: msg
+    }, target);
+    return null
+  }
+
+  function* isSprite(value: any) {
+    return value instanceof Scratch.vm.exports.RenderedTarget;
+  }
+
+  _globalEnv.__env.set("broadcast", {
+    get value() {return broadcast}
+  })
+
+  _globalEnv.__env.set("broadcastToSprite", {
+    get value() {return broadcastToSprite}
+  })
+
+  _globalEnv.__env.set("isSprite", {
+    get value() {return isSprite}
+  })
+
   
   class PenguinScript {
     _globalEnv = _globalEnv;
