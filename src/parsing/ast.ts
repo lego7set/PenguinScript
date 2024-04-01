@@ -172,6 +172,7 @@ export interface Function extends Expr {
   kind: NodeType.Function;
   args: ArgsList;
   body: Stmt;
+  symbol?: Identifier;
 }
 
 export interface Inline extends Expr {
