@@ -34,8 +34,8 @@ export enum TokenType {
   CLOSE_BRACE,
   OPEN_BRACKET, // Objects. [key -> value, key -> value...]
   CLOSE_BRACKET,
-  OPEN_ANGLE, // function invocation, so that its not confusing like js
-  CLOSE_ANGLE,
+  //OPEN_ANGLE, // function invocation, so that its not confusing like js (nope, its been refactored)
+  //CLOSE_ANGLE,
 
   EOF
 }
@@ -100,16 +100,6 @@ export default class Lexer {
           src.shift(); // skip over whitespace, for some reason, typescript or webpack doesnt like me
           break;
         }
-        case "<": {
-          const token = new Token(TokenType.OPEN_ANGLE, src.shift())
-          yield* this.yieldToken(token);
-          break;
-        }
-        case ">": {
-          const token = new Token(TokenType.CLOSE_ANGLE, src.shift())
-          yield* this.yieldToken(token);
-          break;
-        }
         case "(": {
           const token = new Token(TokenType.OPEN_PAREN, src.shift())
           this.tokens.push(token);
@@ -146,6 +136,8 @@ export default class Lexer {
           yield token;
           break;
         }
+        case "<":
+        case ">":
         case "+":
         case "-":
         case "*":
