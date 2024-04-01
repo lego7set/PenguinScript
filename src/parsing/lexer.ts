@@ -157,7 +157,9 @@ export default class Lexer {
           break;
         }
         case "=": {
-          const token = new Token(TokenType.EQUALS, src.shift());
+          let token;
+          if (src[1] === "=") token = new Token(TokenType.BINARY_OPERATOR, src.shift() + src.shift());
+          else token = new Token(TokenType.EQUALS, src.shift());
           yield* this.yieldToken(token);
           break;
         }
