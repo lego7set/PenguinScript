@@ -149,12 +149,12 @@ export default class Parser {
       let ident: any = this.parse_primary_expr() as Expr;
       if (ident.kind !== NodeType.Identifier) throw new SyntaxError("Expected parameter name.");
       ident = ident as unknown as Identifier; // this is actually annoying
-      if (!(this.not_eof() || this.tokens[1].type === TokenType.CLOSE_PAREN)) this.expect(TokenType.COMMA);
+      if (this.at().type !== TokenType.CLOSE_PAREN) this.expect(TokenType.COMMA);
       else if (this.at().type === TokenType.COMMA) this.eat(); // consume one trailing comma, if it exists
       args.forEach((val) => {if (val.symbol === ident.symbol) throw new SyntaxError("Duplicate parameter name")});
       args.push(ident);
     }
-    this.expect(TokenType.CLOSE_ANGLE);
+    this.expect(TokenType.CLOSE_PAREN);
     const params = {
       kind: NodeType.ArgsList,
       args
@@ -421,7 +421,7 @@ export default class Parser {
       const args = [] as Expr[];
       while (this.at().type !== TokenType.CLOSE_PAREN && this.not_eof()) {
         const val = this.parse_expr();
-        if (!(this.not_eof() || this.tokens[1].type === TokenType.CLOSE_PAREN) this.expect(TokenType.COMMA);
+        if (this.at().type !== TokenType.CLOSE_PAREN) this.expect(TokenType.COMMA);
         else if (this.at().type === TokenType.COMMA) this.eat(); // consume one trailing comma, if it exists
         args.push(val);
       }
