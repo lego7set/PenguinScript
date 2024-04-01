@@ -478,6 +478,9 @@ export default class Parser {
       case TokenType.FUNCTION: {
         return this.parse_function();
       }
+      case TokenType.RESERVED: {
+        throw new SyntaxError(`Unexpected reserved word ${token.raw}`);
+      }
       default: {
         throw new SyntaxError(`Invalid or unexpected token ${TokenType[token]}.`)
       }
