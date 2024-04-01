@@ -172,7 +172,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     target.setXY(target.x + xPos, target.y + yPos, false);
     return null;
   }
-  function degToRad(deg: number) {
+  function* degToRad(deg: number) {
     return deg * Math.PI / 180
   }
   function _moveSteps(target: any, steps: any, direction?: any) {
@@ -184,7 +184,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     const newDir = target.direction;
     target.setDirection(oldDir);
     // so newDir is the direction, and numOfSteps is the step count
-    const radians = degToRad(newDir);
+    const radians = degToRad(newDir).next().value;
     const dx = steps * Math.cos(radians);
     const dy = steps * Math.sin(radians);
     target.setXY(target.x + dx, target.y + dy); // we're done!
@@ -504,7 +504,9 @@ if (typeof window === "object" && window && typeof window.document === "object" 
   _globalEnv.__env.set("turnRight", {
     get value() {return turnRight}
   })
-
+  _globalEnv.__env.set("degToRad", {
+    get value() {return degToRad}
+  })
   function* getVariableForTarget(target: any, name: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
     return target.lookupVariableByNameAndType(name, "", true)?.value ?? null;
