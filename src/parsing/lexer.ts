@@ -18,6 +18,8 @@ export enum TokenType {
   INLINE,
   GLOBAL,
   TARGET,
+  BREAK,
+  CONTINUE,
 
   // WAIT, // wait milliseconds, only available in pm (not yet)
 
@@ -87,6 +89,8 @@ export default class Lexer {
     self: TokenType.RESERVED,
     struct: TokenType.RESERVED,
     enum: TokenType.RESERVED,
+    break: TokenType.BREAK,
+    continue: TokenType.CONTINUE
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
