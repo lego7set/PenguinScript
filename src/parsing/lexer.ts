@@ -37,6 +37,8 @@ export enum TokenType {
   //OPEN_ANGLE, // function invocation, so that its not confusing like js (nope, its been refactored)
   //CLOSE_ANGLE,
 
+  RESERVED,
+
   EOF
 }
 
@@ -79,6 +81,12 @@ export default class Lexer {
     inline: TokenType.INLINE,
     global: TokenType.GLOBAL,
     target: TokenType.TARGET,
+    in: TokenType.RESERVED,
+    for: TokenType.RESERVED,
+    this: TokenType.RESERVED,
+    self: TokenType.RESERVED,
+    struct: TokenType.RESERVED,
+    enum: TokenType.RESERVED,
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
