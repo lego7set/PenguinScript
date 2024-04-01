@@ -121,7 +121,9 @@ export default class Parser {
 
   protected parse_function() {
     // no functions declarations haha
+    let name = "";
     this.eat(); // eat fn keyword
+    if (this.at().type === TokenType.IDENTIFIER) name = this.eat().raw; 
     const args = this.parse_argslist();
     // parse body
     this.expect(TokenType.OPEN_BRACE); // no single statement functions.
@@ -138,7 +140,8 @@ export default class Parser {
     return {
       kind: NodeType.Function,
       args,
-      body
+      body,
+      symbol: name
     }
   }
 
