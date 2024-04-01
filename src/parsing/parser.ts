@@ -392,18 +392,18 @@ export default class Parser {
   }
 
   protected parse_function_call() {
-    const primary = this.parse_primary_expr();
-    if (this.at().type === TokenType.OPEN_ANGLE) {
-      this.expect(TokenType.OPEN_ANGLE);
+    let primary = this.parse_primary_expr();
+    while (this.at().type === TokenType.OPEN_PAREN) {
+      this.expect(TokenType.OPEN_PAREN);
       const args = [] as Expr[];
-      while (this.at().type !== TokenType.CLOSE_ANGLE && this.not_eof()) {
+      while (this.at().type !== TokenType.CLOSE_PAREN && this.not_eof()) {
         const val = this.parse_expr();
-        if (!(this.not_eof() || this.tokens[1].type === TokenType.CLOSE_ANGLE)) this.expect(TokenType.COMMA);
+        if (!(this.not_eof() || this.tokens[1].type === TokenType.CLOSE_PAREN) this.expect(TokenType.COMMA);
         else if (this.at().type === TokenType.COMMA) this.eat(); // consume one trailing comma, if it exists
         args.push(val);
       }
-      this.expect(TokenType.CLOSE_ANGLE);
-      return {
+      this.expect(TokenType.CLOSE_PAREN);
+      primary = {
         kind: NodeType.FunctionCall,
         func: primary,
         args
