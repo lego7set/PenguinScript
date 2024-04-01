@@ -434,7 +434,9 @@ export default class JSGenerator {
             list += this.getVariable(ident.symbol);
             list += ","
           }
-          return new TypedInput(`(function*(${list}){${stackSrc}})`, OutputType.TYPE_UNKNOWN)
+          let name = node2.symbol ?? "";
+          if (name) name = this.getVariable(node2.symbol);
+          return new TypedInput(`(function*${name}(${list}){${stackSrc}})`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.FunctionCall: {
           const node2 = node as unknown as FunctionCall;
