@@ -300,7 +300,9 @@ export default class Lexer {
             }
             // console.log(TokenType.NUMBER, num)
             yield* this.yieldToken(new Token(TokenType.NUMBER, num));
-          } /*else if (/^[\s]+$/.test(src[0])) {
+          } else {
+            throw new SyntaxError("Unknown character: ", src.shift());
+          }  /*else if (/^[\s]+$/.test(src[0])) {
             // console.log("Consume whitespace");
             // skip, consume the whitespace
             src.shift();
