@@ -278,7 +278,7 @@ export default class Parser {
   }
 
   protected parse_not_expr(): UnaryExpr | Expr {
-    if (this.at().raw === "not") {
+    if (this.at().raw === "not" && this.at().type === TokenType.UNARY_OPERATOR) { // bruh i forgor that strings can do this too
       this.eat(); // consume the not
       const operand = this.parse_not_expr();
       return {
@@ -293,7 +293,7 @@ export default class Parser {
   protected parse_and_expr(): BinaryExpr | Expr {
     let left = this.parse_xor_expr();
 
-    while (this.at().raw === "and") {
+    while (this.at().raw === "and" && this.at().type === TokenType.BINARY_OPERATOR) {
       const operator = this.eat().raw;
       const right = this.parse_xor_expr();
       left = {
@@ -310,7 +310,7 @@ export default class Parser {
   protected parse_xor_expr(): BinaryExpr | Expr {
     let left = this.parse_or_expr();
 
-    while (this.at().raw === "xor") {
+    while (this.at().raw === "xor" && this.at().type === TokenType.BINARY_OPERATOR) {
       const operator = this.eat().raw;
       const right = this.parse_or_expr();
       left = {
@@ -327,7 +327,7 @@ export default class Parser {
   protected parse_or_expr(): BinaryExpr | Expr {
     let left = this.parse_relational_expr();
 
-    while (this.at().raw === "or") {
+    while (this.at().raw === "or" && this.at().type === TokenType.BINARY_OPERATOR) {
       const operator = this.eat().raw;
       const right = this.parse_relational_expr();
       left = {
@@ -344,7 +344,7 @@ export default class Parser {
   protected parse_relational_expr(): BinaryExpr | Expr {
     let left = this.parse_not_expr();
 
-    while (this.at().raw === "<" || this.at().raw === ">" || this.at().raw === "==") {
+    while ((this.at().raw === "<" || this.at().raw === ">" || this.at().raw === "==") && this.at().type === TokenType.BINARY_OPERATOR) {
       let operator = this.eat().raw;
       if (operator === "<" || operator === ">") {
         if (this.at().type === TokenType.EQUALS) {
@@ -383,7 +383,7 @@ export default class Parser {
   protected parse_additive_expr(): BinaryExpr | Expr {
     let left = this.parse_multiplicative_expr();
 
-    while (this.at().raw === "+" || this.at().raw === "-") {
+    while ((this.at().raw === "+" || this.at().raw === "-") && this.at().type === TokenType.BINARY_OPERATOR) {
       const operator = this.eat().raw;
       const right = this.parse_multiplicative_expr();
       left = {
@@ -399,7 +399,7 @@ export default class Parser {
   protected parse_multiplicative_expr(): BinaryExpr | Expr {
     let left = this.parse_exponential_expr();
 
-    while (this.at().raw === "*" || this.at().raw === "/" || this.at().raw === "%") {
+    while ((this.at().raw === "*" || this.at().raw === "/" || this.at().raw === "%") && this.at().type === TokenType.BINARY_OPERATOR) {
       const operator = this.eat().raw;
       const right = this.parse_exponential_expr();
       left = {
@@ -415,7 +415,7 @@ export default class Parser {
   protected parse_exponential_expr(): BinaryExpr | Expr {
     let left = this.parse_function_call(); //
 
-    while (this.at().raw === "^") {
+    while (this.at().raw === "^" &&  && this.at().type === TokenType.BINARY_OPERATOR) {
       const operator = this.eat().raw;
       const right = this.parse_exponential_expr(); // 3 ^ 4 ^ 5 would be parsed as 3 (primary) ^, 4 (primary) ^ 5 (primary). so it would be 3^(4^5) instead of (3^4)^5
       left = {
