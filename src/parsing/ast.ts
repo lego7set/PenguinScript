@@ -204,11 +204,11 @@ export interface Continue extends Stmt {
 
 export interface Struct extends Expr {
   kind: NodeType.Struct;
-  body: [Identifier, Expr | null][],
+  body: [string, Expr | null][];
 }
 
 export interface Chaining extends Expr {
   kind: NodeType.Chaining;
   item: Expr;
-  index: Identifier;
+  index: string;
 }
