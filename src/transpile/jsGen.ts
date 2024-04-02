@@ -480,7 +480,7 @@ export default class JSGenerator {
             };
             structSrc += `${expr}};`
           }
-          structSrc += "})";
+          structSrc += "return struct;})";
           return new TypedInput(`(${structSrc})`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Target: {
