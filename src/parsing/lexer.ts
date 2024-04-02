@@ -20,6 +20,7 @@ export enum TokenType {
   TARGET,
   BREAK,
   CONTINUE,
+  STRUCT,
 
   // WAIT, // wait milliseconds, only available in pm (not yet)
 
@@ -38,6 +39,8 @@ export enum TokenType {
   CLOSE_BRACKET,
   //OPEN_ANGLE, // function invocation, so that its not confusing like js (nope, its been refactored)
   //CLOSE_ANGLE,
+
+  CHAINING,
 
   RESERVED,
 
@@ -87,7 +90,7 @@ export default class Lexer {
     for: TokenType.RESERVED,
     this: TokenType.RESERVED,
     self: TokenType.RESERVED,
-    struct: TokenType.RESERVED,
+    struct: TokenType.STRUCT,
     enum: TokenType.RESERVED,
     break: TokenType.BREAK,
     continue: TokenType.CONTINUE
@@ -148,10 +151,17 @@ export default class Lexer {
           yield token;
           break;
         }
+        case "-": {
+          // fall through if not chaining operator
+          if (src[1] === ">") {
+            // It's a chaining operator!!!
+            yield* this.yieldToken(new Token(TokenType.CHAINING, src.shift() + src.shift()));
+            break;
+          }
+        }
         case "<":
         case ">":
         case "+":
-        case "-":
         case "*":
         case "/":
         case "%":
