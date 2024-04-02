@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -429,7 +429,7 @@ export default class Parser {
   }
 
   protected parse_function_call() {
-    let primary = this.parse_primary_expr();
+    let primary = this.parse_chaining_expr();
     while (this.at().type === TokenType.OPEN_PAREN) {
       this.expect(TokenType.OPEN_PAREN);
       const args = [] as Expr[];
@@ -448,6 +448,41 @@ export default class Parser {
     }
       
     return primary;
+  }
+
+  protected parse_chaining_expr() {
+    // left-hand = anything, right-hand = identifier
+    let primary = parse_primary_expr();
+    while (this.at().type === TokenType.CHAINING) {
+      this.eat(); // eat chaining;
+      const ident = this.expect(TokenType.IDENTIFIER).raw;
+      primary = {
+        kind: NodeType.Chaining,
+        item: primary,
+        index: ident
+      } as Chaining
+    }
+    return primary
+  }
+
+  protected parse_struct() {
+    this.eat(); // eat struct keyword
+    this.expect(TokenType.OPEN_BRACKET); // expect bracket
+    const body = [] as [string, Expr | null][];
+    while (this.at().type !== CLOSE_BRACKET) {
+      const ident = this.expect(TokenType.IDENTIFIER).raw;
+      let expr = null;
+      if (this.at().type === TokenType.EQUALS) {
+        this.eat();
+        expr = this.parse_expr();
+      }
+      this.expect(TokenType.SEMICOLON);
+      body.push([ident, expr]);
+    }
+    return {
+      kind: NodeType.Struct,
+      body
+    } as Struct;
   }
 
   protected parse_primary_expr(): Expr {
@@ -491,6 +526,9 @@ export default class Parser {
       }
       case TokenType.FUNCTION: {
         return this.parse_function();
+      }
+      case TokenType.STRUCT: {
+        return this.parse_struct();
       }
       case TokenType.INLINE: {
         return this.parse_inline();
