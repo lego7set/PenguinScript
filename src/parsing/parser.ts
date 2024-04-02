@@ -477,6 +477,9 @@ export default class Parser {
         expr = this.parse_expr();
       }
       this.expect(TokenType.SEMICOLON);
+      body.forEach(value => {
+        if (ident === value[0]) throw new SyntaxError("Duplicate member name in struct.")
+      });
       body.push([ident, expr]);
     }
     return {
