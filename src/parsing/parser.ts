@@ -455,7 +455,10 @@ export default class Parser {
     let primary = parse_primary_expr();
     while (this.at().type === TokenType.CHAINING) {
       this.eat(); // eat chaining;
-      const ident = this.expect(TokenType.IDENTIFIER).raw;
+      let ident = "";
+      //const ident = this.expect(TokenType.IDENTIFIER).raw;
+      if (this.at().type === TokenType.STRING) ident = this.eat().raw;
+      else ident = this.expect(TokenType.IDENTIFIER).raw;
       primary = {
         kind: NodeType.Chaining,
         item: primary,
@@ -470,7 +473,9 @@ export default class Parser {
     this.expect(TokenType.OPEN_BRACKET); // expect bracket
     const body = [] as [string, Expr | null][];
     while (this.at().type !== CLOSE_BRACKET) {
-      const ident = this.expect(TokenType.IDENTIFIER).raw;
+      let ident =  "";
+      if (this.at().type ==== TokenType.STRING) ident = this.eat().raw;
+      else ident = this.expect(TokenType.IDENTIFIER).raw;
       let expr = null;
       if (this.at().type === TokenType.EQUALS) {
         this.eat();
