@@ -466,7 +466,7 @@ export default class JSGenerator {
           const node2 = node as unknown as Struct;
           let structSrc = "(function*(){const struct = {__proto__: null, isStruct: true};";
           for (const item of node2.body) {
-            stackSrc += `struct.${item[0]}={value:`
+            stackSrc += `struct[${JSON.stringify(item[0])}]={value:`
             let expr = "(null)";
             if (item[1]) {
               const itemExpr = item[1];
