@@ -21,7 +21,9 @@ export enum NodeType {
   Global,
   Target,
   Break,
-  Continue
+  Continue,
+  Struct,
+  Chaining
 }
 
 export enum OutputType { // going to be unused
@@ -198,4 +200,15 @@ export interface Break extends Stmt {
 
 export interface Continue extends Stmt {
   kind: NodeType.Continue;
+}
+
+export interface Struct extends Expr {
+  kind: NodeType.Struct;
+  body: [Identifier, Expr | null][],
+}
+
+export interface Chaining extends Expr {
+  kind: NodeType.Chaining;
+  item: Expr;
+  index: Identifier;
 }
