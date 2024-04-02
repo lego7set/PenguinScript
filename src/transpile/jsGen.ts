@@ -473,8 +473,8 @@ export default class JSGenerator {
               if (itemExpr.kind === NodeType.Function) {
                 // give special treatment to functions
                 const funcSrc = this.descendExpr(itemExpr).src;
-                expr = `(function*(...args){return yield*(this.func)(struct, ...args)}),`;
-                expr += `func: (${funcSrc})`
+                expr = `(function*(storedFunc){return function*(...args){return yield*(storedFunc)(struct, ...args)}})(${funcSrc})`;
+                //expr += `func: (${funcSrc})`
               }
               else expr = this.descendExpr(itemExpr).asUnknown();
             };
