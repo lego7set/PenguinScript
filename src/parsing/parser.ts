@@ -472,7 +472,7 @@ export default class Parser {
     this.eat(); // eat struct keyword
     this.expect(TokenType.OPEN_BRACKET); // expect bracket
     const body = [] as [string, Expr | null][];
-    while (this.at().type !== CLOSE_BRACKET) {
+    while (this.at().type !== TokenType.CLOSE_BRACKET) {
       let ident =  "";
       if (this.at().type ==== TokenType.STRING) ident = this.eat().raw;
       else ident = this.expect(TokenType.IDENTIFIER).raw;
@@ -487,6 +487,7 @@ export default class Parser {
       });
       body.push([ident, expr]);
     }
+    this.expect(TokenType.CLOSE_BRACKET);
     return {
       kind: NodeType.Struct,
       body
