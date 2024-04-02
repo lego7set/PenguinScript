@@ -1,4 +1,4 @@
-import type { Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline, Target } from "../parsing/ast.ts";
+import type { Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline, Target, Break, Continue, Struct, Chaining } from "../parsing/ast.ts";
 import { NodeType } from "../parsing/ast";
 
 export enum OutputType {
@@ -165,7 +165,7 @@ const GeneratorFunction = function*(){}.constructor as unknown as GeneratorFunct
 
 export default class JSGenerator {
   protected program;
-  protected src: string = "let _;let _2;let _3;let _4;"; // add some variables so we can use them inside expressions
+  protected src: string = "let _;let _2;let _3;let _4;let _5; let _6; let_7;"; // add some variables so we can use them inside expressions
   protected scriptName: string;
   protected _variablePool: Generator<string>;
   protected _cachedVariables: Record<string, string>;
@@ -452,6 +452,36 @@ export default class JSGenerator {
             args.push(this.descendExpr(arg).asUnknown());
           }
           return new TypedInput(`((yield* ${func}(${args.join(",")})) ?? null)`, OutputType.TYPE_UNKNOWN)
+        }
+        case NodeType.Chaining: {
+          // chaining expr.
+          const node2 = node as unknown as Chaining;
+          const item = this.descendExpr(node2.item).asUnknown();
+          const checkIsStruct = `(function(){if(!(_3?.props&&_3?.isStruct))throw new TypeError("Can only use chaining operator on struct instances.");if(!_3.props.${node2.index}){throw new TypeError("Struct does not have property, cannot chain.")};}()`
+          return new TypedInput(`((_3 = ${item}, ${checkIsStruct}, _3).${node2.index}.value)`) // work around to allow setting with a chain
+        }
+        case NodeType.Struct: {
+          // a struct is just a fancy function.
+          // structs give special treatment to functions, as their first argument is passed as the struct instance itself.
+          const node2 = node as unknown as Struct;
+          let structSrc = "(function*(){const struct = {__proto__: null, isStruct: true};";
+          for (const item of node2.body) {
+            stackSrc += `struct.${item[0]}={value:`
+            let expr = "(null)";
+            if (item[1]) {
+              const itemExpr = item[1];
+              if (itemExpr.kind === NodeType.Function) {
+                // give special treatment to functions
+                const funcSrc = this.descendExpr(itemExpr).src;
+                expr = `(function*(...args){return yield*(this.func)(struct, ...args)}),`;
+                expr += `func: (${funcSrc})`
+              }
+              else expr = this.descendExpr(itemExpr).asUnknown();
+            };
+            structSrc += `${expr}};`
+          }
+          structSrc += "})";
+          return new TypedInput(`(${structSrc})`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Target: {
           return new TypedInput(`(\$target)`, OutputType.TYPE_UNKNOWN)
