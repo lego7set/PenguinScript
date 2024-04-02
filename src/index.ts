@@ -115,6 +115,42 @@ _globalEnv.__env.set("concat", {
   get value() {return join}
 })
 
+function* createMethod(struct, storedFunc) {
+  if (!struct.isStruct) throw new TypeError()
+  return function*(...args) {
+    return yield*(storedFunc)(struct, ...args);
+  };
+};
+
+_globalEnv.__env.set("createMethod", {
+  get value() {return createMethod}
+})
+
+_globalEnv.__env.set("Object", {
+  const struct = {__proto__: null, isStruct: true, props:{__proto__:null}};
+  const props = {__proto__: null};
+  struct.props.get = function*(key){ // an object class, kinda
+    return props[key];
+  }
+  struct.props.set = function*(key, value) {
+    return props[key] = value;
+  }
+  struct.props.has = function*(key) {
+    return key in props
+  } 
+  struct.props.delete = function*(key) {
+    return delete props[key];
+  }
+  struct.props.remove = function*(key) {
+    delete props[key];
+    return struct;
+  }
+  struct.props.append = function*(key, value) {
+    props[key] = value;
+    return struct;
+  }
+})
+
 function supportsNullishCoalescing() {
   try {
     return eval("true ?? 0")
