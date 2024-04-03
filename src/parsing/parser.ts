@@ -452,7 +452,7 @@ export default class Parser {
 
   protected parse_chaining_expr() {
     // left-hand = anything, right-hand = identifier
-    let primary = parse_primary_expr();
+    let primary = this.parse_primary_expr();
     while (this.at().type === TokenType.CHAINING) {
       this.eat(); // eat chaining;
       let ident = "";
@@ -474,7 +474,7 @@ export default class Parser {
     const body = [] as [string, Expr | null][];
     while (this.at().type !== TokenType.CLOSE_BRACKET) {
       let ident =  "";
-      if (this.at().type ==== TokenType.STRING) ident = this.eat().raw;
+      if (this.at().type === TokenType.STRING) ident = this.eat().raw;
       else ident = this.expect(TokenType.IDENTIFIER).raw;
       let expr = null;
       if (this.at().type === TokenType.EQUALS) {
