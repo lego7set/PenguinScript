@@ -687,6 +687,80 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     get value() {return isSprite}
   })
 
+  // clones, touching, mouse, keyboard
+
+  function* isTouchingSprite(sprite1, sprite2) {
+    if (!(sprite1 instanceof Scratch.vm.exports.RenderedTarget) || !(sprite2 instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Both sprites for isTouchingSprite must be sprites");
+    if (!Scratch.vm.renderer) return false;
+    return Scratch.vm.renderer.isTouchingDrawables(sprite1.drawableID, [sprite2.drawableID]); // check if sprite1 is touching sprite2
+  }
+
+  function* isTouchingMouse(sprite) {
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot check if a non-sprite is touching the mouse");
+    if (!Scratch.vm.renderer) return false;
+    const mouse = Scratch.vm.runtime.ioDevices.mouse;
+    if (!mouse) return false;
+    return Scratch.vm.renderer.drawableTouching(sprite.drawableID, mouse.getClientX(), mouse.getClientY());
+  }
+
+  function* isTouchingXY(sprite, x, y) {
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot check if a non-sprite is touching a point");
+    if (!Scratch.vm.renderer) return false;
+    return Scratch.vm.renderer.drawableTouching(sprite.drawableID, x, y);
+  }
+
+  function* isTouchingEdge(sprite) {
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot check if a non-sprite is touching the edge");
+    return sprite.isTouchingEdge();
+  }
+
+  _globalEnv.__env.set("isTouchingSprite", {
+    get value() {return isTouchingSprite}
+  })
+
+  _globalEnv.__env.set("isTouchingMouse", {
+    get value() {return isTouchingMouse}
+  })
+  
+  _globalEnv.__env.set("isTouchingXY", {
+    get value() {return isTouchingXY}
+  })
+  
+  _globalEnv.__env.set("isTouchingEdge", {
+    get value() {return isTouchingEdge}
+  })
+
+  function mouseDown() {
+    if (!Scratch.vm.runtime.ioDevices.mouse) return false;
+    return Scratch.vm.runtime.ioDevices.mouse.getIsDown();
+  }
+
+  function mouseClicked() {
+    if (!Scratch.vm.runtime.ioDevices.mouse) return false;
+    return Scratch.vm.runtime.ioDevices.mouse.getIsClicked();
+  }
+
+  _globalEnv.__env.set("mouseDown", {
+    get value() {return mouseDown()}
+  })
+  
+  _globalEnv.__env.set("mouseClicked", {
+    get value() {return mouseClicked()}
+  })
+
+  _globalEnv.__env.set("mouseX", {
+    get value() {
+      if (!Scratch.vm.runtime.ioDevices.mouse) return 0;
+      return Scratch.vm.runtime.ioevices.mouse.getScratchX();
+    }
+  })
+
+  _globalEnv.__env.set("mouseY", {
+    get value() {
+      if (!Scratch.vm.runtime.ioDevices.mouse) return 0;
+      return Scratch.vm.runtime.ioevices.mouse.getScratchY();
+    }
+  })
   
   class PenguinScript {
     _globalEnv = _globalEnv;
