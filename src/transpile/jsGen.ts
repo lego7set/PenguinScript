@@ -312,7 +312,7 @@ export default class JSGenerator {
         }
         case NodeType.AssignmentExpr: {
           const node2 = node as unknown as AssignmentExpr;
-          if (node2.assigne.kind !== NodeType.Identifier && node2.assigne.kind !== NodeType.Global) throw new SyntaxError("Invalid left-hand in assignment")// add for member assignment later
+          if (node2.assigne.kind !== NodeType.Identifier && node2.assigne.kind !== NodeType.Global && node2.assigne.kind !== NodeType.Chaining) throw new SyntaxError("Invalid left-hand in assignment")// add for member assignment later
           const assigne = this.descendExpr(node2.assigne);
           const value = this.descendExpr(node2.value);
           return new TypedInput(`((${assigne.asIdent()}) = (${value.asUnknown()}))`, OutputType.TYPE_UNKNOWN);
