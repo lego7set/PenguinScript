@@ -489,7 +489,37 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     target.setCostume(target.currentCostume - 1);
     return null;
   }
+  function* getCostumeName(sprite) {
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to get current costume name of non-sprite");
+    return sprite.getCostumes()[sprite.currentCostume].name;
+  }
+  function* getCostumeNumber(sprite) {
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to get current costume number of non-sprite");
+    return sprite.currentCostume + 1;
+  }
+  function* getBackdropName() {
+    const sprite = Scratch.vm.runtime.getTargetForStage();
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to get current costume name of non-sprite");
+    return sprite.getCostumes()[sprite.currentCostume].name;
+  }
+  function* getBackdropNumber() {
+    const sprite = Scratch.vm.runtime.getTargetForStage();
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to get current costume number of non-sprite");
+    return sprite.currentCostume + 1;
+  }
   // Looks-related global functions.
+  _globalEnv.__env.set("getCostumeName", {
+    get value() {return getCostumeName}
+  })
+  _globalEnv.__env.set("getCostumeNumber", {
+    get value() {return getCostumeNumber}
+  })
+  _globalEnv.__env.set("getBackdropName", {
+    get value() {return getBackdropName}
+  })
+  _globalEnv.__env.set("getBackdropNumber", {
+    get value() {return getBackdropNumber}
+  })
   _globalEnv.__env.set("setCostume", {
     get value() {return setCostume}
   })
