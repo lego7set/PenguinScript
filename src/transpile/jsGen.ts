@@ -191,6 +191,7 @@ export default class JSGenerator {
     for (const node of program.body) {
       this.descendNode(node);
     }
+    this.src = `try{${this.src}}catch(error){if(error?.isExit)return error?.returnValue;throw error};`
     switch (type) {
       case "string": {
         return this.src;
