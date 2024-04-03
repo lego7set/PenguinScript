@@ -458,8 +458,8 @@ export default class JSGenerator {
           // chaining expr.
           const node2 = node as unknown as Chaining;
           const item = this.descendExpr(node2.item).asUnknown();
-          const checkIsStruct = `(function(){if(!(_3?.props&&_3?.isStruct))throw new TypeError("Can only use chaining operator on struct instances.");if(!_3.props[${JSON.stringifiy(node2.index)}]){throw new TypeError("Struct does not have property, cannot chain.")};}()`
-          return new TypedInput(`((_3 = ${item}, ${checkIsStruct}, _3).props[${JSON.stringifiy(node2.index)}].value)`) // work around to allow setting with a chain
+          const checkIsStruct = `(function(){if(!(_3?.props&&_3?.isStruct))throw new TypeError("Can only use chaining operator on struct instances.");if(!_3.props[${JSON.stringify(node2.index)}]){throw new TypeError("Struct does not have property, cannot chain.")};}()`
+          return new TypedInput(`((_3 = ${item}, ${checkIsStruct}, _3).props[${JSON.stringify(node2.index)}].value)`, OutputType.TYPE_UNKNOWN) // work around to allow setting with a chain
         }
         case NodeType.Struct: {
           // a struct is just a fancy function.
@@ -467,7 +467,7 @@ export default class JSGenerator {
           const node2 = node as unknown as Struct;
           let structSrc = "(function*(){const struct = {__proto__: null,isStruct: true,props:{__proto__:null}};";
           for (const item of node2.body) {
-            stackSrc += `struct.props[${JSON.stringify(item[0])}]={value:`
+            structSrc += `struct.props[${JSON.stringify(item[0])}]={value:`
             let expr = "(null)";
             if (item[1]) {
               const itemExpr = item[1];
