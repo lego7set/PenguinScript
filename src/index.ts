@@ -761,6 +761,26 @@ if (typeof window === "object" && window && typeof window.document === "object" 
       return Scratch.vm.runtime.ioevices.mouse.getScratchY();
     }
   })
+
+  function* isKeyDown(key) {
+    if (!Scratch.vm.runtime.ioDevices.keyboard) return false;
+    return Scratch.vm.runtime.ioDevices.keyboard.getKeyIsDown(key);
+  }
+
+  function* isKeyHit(key) {
+    if (!Scratch.vm.runtime.ioDevices.keyboard) return false;
+    return Scratch.vm.runtime.ioDevices.keyboard.getKeyIsHit(key);
+  }
+
+  _globalEnv.__env.set("isKeyDown", {
+    get value() {return isKeyDown}
+  })
+  
+  _globalEnv.__env.set("isKeyHit", {
+    get value() {return isKeyHit}
+  })
+
+  
   
   class PenguinScript {
     _globalEnv = _globalEnv;
