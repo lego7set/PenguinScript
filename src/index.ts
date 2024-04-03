@@ -810,7 +810,41 @@ if (typeof window === "object" && window && typeof window.document === "object" 
     get value() {return isKeyHit}
   })
 
+  function* createClone(sprite) {
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot create clone of a non-sprite");
+    const clone = sprite.makeClone();
+    if (clone) {
+      Scratch.vm.runtime.addTarget(clone);
+      clone.goBehindOther(sprite);
+    }
+    return clone;
+  }
+
+  function* getCloneWithVar(spriteOrName, varName, value) {
+    let sprite = spriteOrName;
+    if (typeof spriteOrName === "string") sprite = Scratch.vm.runtime.getSpriteTargetByName(spriteOrName);
+    if (!(spriteOrName instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("The sprite passed to getCloneWithVar is not a sprite name or sprite");
+    const clones = sprite.sprite.clones;
+    // i stole this from clones plus, its not my code.
+    for (let index = 1; index < clones.length; index++) {
+        const cloneVar = clones[index].lookupVariableByNameAndType(varName, "", true);
+        if (
+          cloneVar &&
+          Scratch.Cast.compare(cloneVar.value, value) === 0
+        ) {
+          return clones[index];
+        }
+      }
+      return null;
+  }
+
+  _globalEnv.__env.set("createClone", {
+    get value() {return createClone}
+  })
   
+  _globalEnv.__env.set("getCloneWithVar", {
+    get value() {return getCloneWithVar}
+  })
   
   class PenguinScript {
     _globalEnv = _globalEnv;
