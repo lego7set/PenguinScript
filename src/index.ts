@@ -46,6 +46,50 @@ _globalEnv.__env.set("Object", {
   get value() {return createObjectStruct}
 })
 
+function* createArrayStruct() {
+  const struct = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
+  const props = [];
+  struct.props.get = function*(key){
+    if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
+    return props[key];
+  }
+  struct.props.set = {value:function*(key, value) {
+    if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
+    return props[key] = value;
+  }}
+  struct.props.has = {value:function*(key) {
+    if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
+    return key in props
+  }}
+  struct.props.delete = {value:function*(key) {
+    if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
+    return delete props[key];
+  }}
+  struct.props.pop = {value:function*() {
+    return props.pop();
+  }}
+  struct.props.push = {value:function*(value) {
+    props.push(value);
+    return struct;
+  }}
+  struct.props.shift = {value:function*(){
+    return props.shift();
+  }}
+  struct.props.unshift = {value:function*(value){
+    props.unshift(value);
+    return struct;
+  }}
+  struct.props.length = {
+    get value() {return props.length;},
+    set value(val) {props.length = val;}
+  }
+  return struct;
+}
+
+_globalEnv.__env.set("Array", {
+  get value() {return createArrayStruct}
+})
+
 function* log(...args) {
   console.log(...args);
   return null;
@@ -118,6 +162,14 @@ function* type(value: any) {
 
 _globalEnv.__env.set("typeof", {
   get value() {return type}
+})
+
+function* exit(value: any) {
+  throw {isExit: true, returnValue: value}; // exits
+}
+
+_globalEnv.__env.set("exit", {
+  get value() {return exit}
 })
 
 function* getMathForPS(name: any) {
