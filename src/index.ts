@@ -17,8 +17,8 @@ function preCompile(code: string, warpTimer: boolean, isWarp: boolean): any {
 }
 
 function* createObjectStruct() {
-  const struct = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
-  const props = {__proto__: null};
+  const struct: {__proto__: null; isStruct: true; props:any; isObject: true} = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
+  const props: any = {__proto__: null};
   struct.props.get = function*(key){ // an object class, kinda
     return props[key];
   }
@@ -47,7 +47,7 @@ _globalEnv.__env.set("Object", {
 })
 
 function* createArrayStruct() {
-  const struct = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
+  const struct: {__proto__: null; isStruct: true; props: any; isArray: true} = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
   const props = [];
   struct.props.get = function*(key){
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
