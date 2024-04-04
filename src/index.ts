@@ -736,7 +736,7 @@ if (typeof window === "object" && window && typeof window.document === "object" 
   function* isTouchingXY(sprite, x, y) {
     if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot check if a non-sprite is touching a point");
     if (!Scratch.vm.renderer) return false;
-    return Scratch.vm.renderer.drawableTouching(sprite.drawableID, x, y);
+    return Scratch.vm.renderer.drawableTouching(sprite.drawableID, Number(x) || 0, Number(y) || 0);
   }
 
   function* isTouchingEdge(sprite) {
