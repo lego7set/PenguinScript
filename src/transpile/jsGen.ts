@@ -473,7 +473,7 @@ export default class JSGenerator {
               const itemExpr = item[1];
               if (itemExpr.kind === NodeType.Function) {
                 // give special treatment to functions
-                const funcSrc = this.descendExpr(itemExpr).src;
+                const funcSrc = (this.descendExpr(itemExpr) as unknown as TypedInput).src; // bro functions are guaranteed to have a src prop.
                 expr = `(function*(storedFunc){return function*(...args){return yield*(storedFunc)(struct, ...args)}})(${funcSrc})`;
                 //expr += `func: (${funcSrc})`
               }
