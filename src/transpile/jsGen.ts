@@ -163,13 +163,20 @@ export type TranspiledGenerator = ($globalEnv, $target, isStuck) => Generator<an
 
 const GeneratorFunction = function*(){}.constructor as unknown as GeneratorFunctionConstructor;
 
+export interface CompilerSettings {
+  referenceErrors: boolean;
+}
+
 export default class JSGenerator {
+  public static CompilerSettings: CompilerSettings = {
+    referenceErrors: true
+  };
   protected program;
   protected src: string = "let _;let _2;let _3;let _4;let _5; let _6; let_7;"; // add some variables so we can use them inside expressions
   protected scriptName: string;
   protected _variablePool: Generator<string>;
   protected _cachedVariables: Record<string, string>;
-  protected _globalEnv: GlobalEnv;
+  public static _globalEnv: GlobalEnv = _globalEnv;
   public warpTimer: boolean;
   public isWarp: boolean;
   public yields: boolean;
@@ -180,7 +187,6 @@ export default class JSGenerator {
     this._cachedVariables = {
       __proto__: null
     };
-    this._globalEnv = _globalEnv;
   }
 
   public transpile(type: "string" | "func" | "generator", yields?: boolean, warpTimer?: boolean, isWarp?: boolean): string | TranspiledFunction | TranspiledGenerator {
@@ -276,7 +282,9 @@ export default class JSGenerator {
         if (node2.value) {
           const value = this.descendExpr(node2.value);
           this.src += "=";
+          this.src += "{value:";
           this.src += value.asUnknown();
+          this.src += "}"
         }
         this.src += ";";
         break;
@@ -410,7 +418,14 @@ export default class JSGenerator {
         case NodeType.Identifier: {
           const node2 = node as unknown as Identifier;
           const ident = this.getVariable(node2.symbol);
-          return new TypedInput(`(${ident})`, OutputType.TYPE_UNKNOWN)
+          let errorHandler: string;
+          if (JSGenerator.CompilerSettings.referenceErrors) {
+            errorHandler = `if(e instanceof ReferenceError){throw new ReferenceError("${ident} is not defined.")};throw e;`;
+          } else {
+            errorHandler = `if(e instanceof ReferenceError){return {get value(){return null},set value(v){throw new ReferenceError("${ident} is not defined.")}}};throw e;`
+          }
+          const getIdent = `(function(){try{if(${ident}===globalThis.${ident}||typeof ${ident}!=="object")throw new ReferenceError("");return ${ident}}catch(e){${errorHandler}}})()`
+          return new TypedInput(`((${getIdent}).value)`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Inline: {
           const node2 = node as unknown as Inline;
