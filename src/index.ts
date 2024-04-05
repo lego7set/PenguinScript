@@ -220,7 +220,7 @@ const canNullish = supportsNullishCoalescing();
 
 let Scratch: any;
 // @ts-ignore
-if ((typeof window === "object" && window && typeof window.document === "object" && typeof (Scratch = window.Scratch) === "object" && Scratch) || (typeof LoadedAsCore === "object" && LoadedAsCore !== globalThis.LoadedAsCore && Scratch = LoadedAsCore)) {
+if ((typeof window === "object" && window && typeof window.document === "object" && typeof (Scratch = window.Scratch) === "object" && Scratch) || (typeof LoadedAsCore === "object" && LoadedAsCore !== globalThis.LoadedAsCore && (Scratch = LoadedAsCore))) {
   // Logic here
   if (!Scratch.extensions.isPenguinMod) throw "Please load PenguinScript in PenguinMod"; // i dnot need to explain tis
   function* getSprite(name: any) {
@@ -948,10 +948,12 @@ if ((typeof window === "object" && window && typeof window.document === "object"
       return _globalEnv
     }
   }
+  // @ts-ignore
   if (!(typeof LoadedAsCore === "object")) Scratch.extensions.register(new PenguinScript());
   else module.exports = PenguinScript;
 }
 
+// @ts-ignore
 if (!(typeof LoadedAsCore === "object" && LoadedAsCore !== globalThis.LoadedAsCore)) {
   module.exports = {
     Lexer,
