@@ -158,8 +158,8 @@ export const _globalEnv: GlobalEnv = {
   }
 }
 
-export type TranspiledFunction = ($globalEnv, $target, isStuck) => any;
-export type TranspiledGenerator = ($globalEnv, $target, isStuck) => Generator<any>;
+export type TranspiledFunction = ($globalEnv, $target, util) => any;
+export type TranspiledGenerator = ($globalEnv, $target, util) => Generator<any>;
 
 const GeneratorFunction = function*(){}.constructor as unknown as GeneratorFunctionConstructor;
 
@@ -203,10 +203,10 @@ export default class JSGenerator {
         return this.src;
       }
       case "func": {
-        return new Function("$globalEnv", "$target", "isStuck", this.src) as TranspiledFunction;
+        return new Function("$globalEnv", "$target", "util", this.src) as TranspiledFunction;
       }
       case "generator": {
-        return new GeneratorFunction("$globalEnv", "$target", "isStuck", this.src) as TranspiledGenerator;
+        return new GeneratorFunction("$globalEnv", "$target", "util", this.src) as TranspiledGenerator;
       }
     }
   }
@@ -219,7 +219,7 @@ export default class JSGenerator {
     if (!this.yields) return;
     if (this.warpTimer) {
       if (this.isWarp) {
-        this.src += "if (isStuck()) yield;"; 
+        this.src += "if (util.isStuck()) yield;"; 
       } else {
         this.src += "yield;";
       }
