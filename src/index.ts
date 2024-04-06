@@ -949,8 +949,8 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     }
   }
   // @ts-ignore
-  if (!(typeof LoadedAsCore === "object")) Scratch.extensions.register(new PenguinScript());
-  else module.exports = PenguinScript;
+  if (typeof LoadedAsCore === "object" && LoadedAsCore !== globalThis.LoadedAsCore) module.exports = PenguinScript;
+  else  Scratch.extensions.register(new PenguinScript());
 }
 
 // @ts-ignore
