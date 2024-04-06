@@ -93,7 +93,9 @@ export default class Lexer {
     struct: TokenType.STRUCT,
     enum: TokenType.RESERVED,
     break: TokenType.BREAK,
-    continue: TokenType.CONTINUE
+    continue: TokenType.CONTINUE,
+    async: TokenType.RESERVED,
+    await: TokenType.RESERVED
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
