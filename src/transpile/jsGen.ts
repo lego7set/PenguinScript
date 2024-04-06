@@ -424,7 +424,7 @@ export default class JSGenerator {
           } else {
             errorHandler = `if(e instanceof ReferenceError){return {get value(){return null},set value(v){throw new ReferenceError("${ident} is not defined.")}}};throw e;`
           }
-          const getIdent = `(function(){try{if(${ident}===globalThis.${ident}||typeof ${ident}!=="object")throw new ReferenceError("");return ${ident}}catch(e){${errorHandler}}})()`
+          const getIdent = `(function(){try{typeof ${ident}!=="object"||if(${ident}===globalThis.${ident})throw new ReferenceError("");return ${ident}}catch(e){${errorHandler}}})()`
           return new TypedInput(`((${getIdent}).value)`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Inline: {
