@@ -867,30 +867,30 @@ if ((typeof window === "object" && window && typeof window.document === "object"
           evalStack: (node, compiler, imports) => {
             const code = compiler.descendInput(node.code);
             let preCompiled;
-            try {
+            /*try {
               const tryCompile = JSON.parse(code.asString());
               preCompiled = preCompile(tryCompile, compiler.warpTimer, compiler.isWarp); // transpile at compile time to make it fast.
               //compiler.source += '"require waitPromise";'
               compiler.source += preCompiled + ";"
-            } catch(e) {
+            } catch(e) {*/
               //compiler.source += '"require waitPromise";'
               compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target, isStuck));`
-            }
+            //}
           },
           evalReporter: (node, compiler, imports) => {
             const code = compiler.descendInput(node.code);
             let preCompiled;
-            try {
+            /*try {
               const tryCompile = JSON.parse(code.asString());
               preCompiled = preCompile(tryCompile, compiler.warpTimer, compiler.isWarp); // transpile at compile time to make it fast.
               // compiler.src += preCompiled + ";"
               if (canNullish) return new (imports.TypedInput)(`(${preCompiled} ?? "null")`);
               return new (imports.TypedInput)(`nullish((${preCompiled}),"null")`, imports.TYPE_UNKNOWN);
-            } catch(e) {
+            } catch(e) {*/
               if (canNullish) return new (imports.TypedInput)(`((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target, isStuck))  ?? "null)"`, imports.TYPE_UNKNOWN);
               return new (imports.TypedInput)(`nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target, isStuck)),"null"))`, imports.TYPE_UNKNOWN);
               // compiler.src += `(yield* transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target));`
-            }
+            //}
           }
         }
       }
