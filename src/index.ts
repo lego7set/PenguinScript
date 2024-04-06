@@ -909,7 +909,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
             arguments: {
               code: {
                 type: Scratch.ArgumentType.STRING,
-                defaultValue: "let x = 5; x = 6 xor 5; global print<x>;"
+                defaultValue: `let x = "I am some text!"; global say(target, x);`
               }
             }
           },
@@ -922,7 +922,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
             arguments: {
               code: {
                 type: Scratch.ArgumentType.STRING,
-                defaultValue: "return 69;"
+                defaultValue: "const var = 69;return var;"
               }
             }
           }
