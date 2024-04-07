@@ -291,12 +291,12 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   function* turnRight(util, target: any, direction: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot set or change direction of a non-sprite");
     const dir = Number(direction) || 0;
-    return yield* setDirection(target, target.direction + dir)
+    return yield* setDirection(util, target, target.direction + dir)
   }
   function* turnLeft(util, target: any, direction: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot set or change direction of a non-sprite");
     const dir = Number(direction) || 0;
-    return yield* setDirection(target, target.direction - dir)
+    return yield* setDirection(util, target, target.direction - dir)
   }
   function* moveSteps(util, target: any, steps: any, direction?: any) {
     _moveSteps(target, steps, direction);
@@ -874,7 +874,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     get value() {return wait}
   })
 
-  _globalEnv.__env.set("waitUntil",
+  _globalEnv.__env.set("waitUntil", {
     get value() {return waitUntil}
   })
   
