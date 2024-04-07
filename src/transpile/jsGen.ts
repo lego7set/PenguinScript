@@ -461,7 +461,7 @@ export default class JSGenerator {
           }
           let name = node2.symbol ?? "";
           if (name) name = this.getVariable(node2.symbol);
-          return new TypedInput(`(function*${name}(${list}){${stackSrc}})`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`(function*${name}(unusedUtilVar,${list}){${stackSrc}})`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.FunctionCall: {
           const node2 = node as unknown as FunctionCall;
@@ -470,7 +470,7 @@ export default class JSGenerator {
           for (const arg of node2.args) {
             args.push(this.descendExpr(arg).asUnknown());
           }
-          return new TypedInput(`((yield* ${func}(${args.join(",")})) ?? null)`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`((yield* ${func}(util,${args.join(",")})) ?? null)`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Chaining: {
           // chaining expr.
