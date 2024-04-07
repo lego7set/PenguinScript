@@ -156,7 +156,22 @@ _globalEnv.__env.set("charToCodePoint", {
   get value() {return charToCodePoint}
 })
 
+const customObjectTypes = {}; // format: type: test
+
 function* type(util, value: any) {
+  if (value == null) return "null"; // use == purposefully so that undefined also returns null.
+  if (typeof value === "object") { // its not null, so its an actual object
+    for (const Type in customObjectTypes) {
+      const works = customObjectTypes[Type](value);
+      if (works) return Type;
+    }
+    if (value.isStruct && value.props) {
+      if (value.isObject) return "object";
+      if (value.isArray) return "array";
+      return "struct";
+    };
+    return "unknown";
+  }
   return typeof value;
 }
 
@@ -877,9 +892,12 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   _globalEnv.__env.set("waitUntil", {
     get value() {return waitUntil}
   })
+
+  customObjectTypes.sprite = (v) => v instanceof Scratch.vm.exports.RenderedTarget; // create a sprite type.
   
   class PenguinScript {
     _globalEnv = _globalEnv;
+    _customObjectTypes = customObjectTypes;
     constructor() {
       Scratch.vm.runtime.registerCompiledExtensionBlocks("vgspenguinscript", this.getCompiledInfo());
     }
