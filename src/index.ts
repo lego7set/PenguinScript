@@ -90,17 +90,17 @@ _globalEnv.__env.set("Array", {
   get value() {return createArrayStruct}
 })
 
-function* log(...args) {
+function* log(util, ...args) {
   console.log(...args);
   return null;
 }
 
-function* warn(...args) {
+function* warn(util, ...args) {
   console.warn(...args);
   return null;
 }
 
-function* error(...args) {
+function* error(util, ...args) {
   console.error(...args);
   return null;
 }
@@ -117,21 +117,21 @@ _globalEnv.__env.set("error", {
   get value() {return error}
 })
 
-function* convertToString(value: any) {
+function* convertToString(util, value: any) {
   return String(value);
 }
-function* convertToNumber(value: any) {
+function* convertToNumber(util, value: any) {
   return Number(value);
 }
-function* convertToBoolean(value: any) {
+function* convertToBoolean(util, value: any) {
   return Boolean(value);
 }
 
-function* charFromCodePoint(value: any) {
+function* charFromCodePoint(util, value: any) {
   return String.fromCodePoint(Number(value) || 0)
 }
 
-function* charToCodePoint(value: any) {
+function* charToCodePoint(util, value: any) {
   if (typeof value !== "string") throw new TypeError("Please pass in a string to charToCodePoint")
   return value.codePointAt(0) ?? null;
 }
@@ -156,7 +156,7 @@ _globalEnv.__env.set("charToCodePoint", {
   get value() {return charToCodePoint}
 })
 
-function* type(value: any) {
+function* type(util, value: any) {
   return typeof value;
 }
 
@@ -172,7 +172,7 @@ _globalEnv.__env.set("exit", {
   get value() {return exit}
 })
 
-function* getMathForPS(name: any) {
+function* getMathForPS(util, name: any) {
   if (typeof name !== "string") throw new TypeError("Expected math item to a string");
   if (!Object.hasOwn(Math, name)) throw new TypeError("Invalid math item");
   const item = Math[name];
@@ -197,7 +197,7 @@ _globalEnv.__env.set("concat", {
   get value() {return join}
 })
 
-function* createMethod(struct, storedFunc) {
+function* createMethod(util, struct, storedFunc) {
   if (!struct.isStruct) throw new TypeError()
   return function*(...args) {
     return yield*(storedFunc)(struct, ...args);
@@ -223,49 +223,49 @@ let Scratch: any;
 if ((typeof window === "object" && window && typeof window.document === "object" && typeof (Scratch = window.Scratch) === "object" && Scratch) || (typeof LoadedAsCore === "object" && LoadedAsCore !== globalThis.LoadedAsCore && (Scratch = LoadedAsCore))) {
   // Logic here
   if (!Scratch.extensions.isPenguinMod) throw "Please load PenguinScript in PenguinMod"; // i dnot need to explain tis
-  function* getSprite(name: any) {
+  function* getSprite(util, name: any) {
     if (typeof name !== "string") throw new TypeError("Attempted to get sprite with name, but name is not a string");
     return Scratch.vm.runtime.getSpriteTargetByName(name);
   }
-  function* setX(target: any, x: any) {
+  function* setX(util, target: any, x: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set x position of non-sprite to " + Number(x));
     const pos = Number(x) || 0;
     target.setXY(pos, target.y, false);
     return null;
   }
-  function* setY(target: any, y: any) {
+  function* setY(util, target: any, y: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set y position of non-sprite to " + Number(y));
     const pos = Number(y) || 0;
     target.setXY(target.x, pos, false);
     return null;
   }
-  function* setXY(target: any, x: any, y: any) {
+  function* setXY(util, target: any, x: any, y: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set x and y position of non-sprite to " + Number(x) + "and " + Number(y) + " respectively");
     const xPos = Number(x) || 0;
     const yPos = Number(y) || 0;
     target.setXY(xPos, yPos, false);
     return null;
   }
-  function* changeX(target: any, x: any) {
+  function* changeX(util, target: any, x: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change x position of non-sprite by " + Number(x));
     const pos = Number(x) || 0;
     target.setXY(target.x + pos, target.y, false);
     return null;
   }
-  function* changeY(target: any, y: any) {
+  function* changeY(util, target: any, y: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change y position of non-sprite by " + Number(y));
     const pos = Number(y) || 0;
     target.setXY(target.x, target.y + pos, false);
     return null;
   }
-  function* changeXY(target: any, x: any, y: any) {
+  function* changeXY(util, target: any, x: any, y: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change x and y position of non-sprite by " + Number(x) + "and " + Number(y) + " respectively");
     const xPos = Number(x) || 0;
     const yPos = Number(y) || 0;
     target.setXY(target.x + xPos, target.y + yPos, false);
     return null;
   }
-  function* degToRad(deg: number) {
+  function* degToRad(util, deg: number) {
     return deg * Math.PI / 180
   }
   function _moveSteps(target: any, steps: any, direction?: any) {
@@ -277,37 +277,37 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     const newDir = target.direction;
     target.setDirection(oldDir);
     // so newDir is the direction, and numOfSteps is the step count
-    const radians = degToRad(newDir).next().value;
+    const radians = degToRad(null, newDir).next().value;
     const dx = steps * Math.cos(radians);
     const dy = steps * Math.sin(radians);
     target.setXY(target.x + dx, target.y + dy); // we're done!
   }
-  function* setDirection(target: any, direction: any) {
+  function* setDirection(util, target: any, direction: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot set or change direction of a non-sprite");
     const dir = Number(direction) || 0;
     target.setDirection(dir);
     return null;
   }
-  function* turnRight(target: any, direction: any) {
+  function* turnRight(util, target: any, direction: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot set or change direction of a non-sprite");
     const dir = Number(direction) || 0;
     return yield* setDirection(target, target.direction + dir)
   }
-  function* turnLeft(target: any, direction: any) {
+  function* turnLeft(util, target: any, direction: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot set or change direction of a non-sprite");
     const dir = Number(direction) || 0;
     return yield* setDirection(target, target.direction - dir)
   }
-  function* moveSteps(target: any, steps: any, direction?: any) {
+  function* moveSteps(util, target: any, steps: any, direction?: any) {
     _moveSteps(target, steps, direction);
     return null;
   }
-  function* moveBackSteps(target: any, steps: any, direction?: any) {
+  function* moveBackSteps(util, target: any, steps: any, direction?: any) {
     const numOfSteps = Number(steps) || 0;
     _moveSteps(target, 0 - numOfSteps, direction);
     return null;
   }
-  function* moveUpSteps(target: any, steps: any, direction?: any) {
+  function* moveUpSteps(util, target: any, steps: any, direction?: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot move up non-sprite by " + Number(steps) + " steps");
     let dir = direction ?? target.direction;
     dir = Number(dir) || 0
@@ -318,7 +318,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     target.setDirection(oldDir);
     return null;
   }
-  function* moveDownSteps(target: any, steps: any, direction?: any) {
+  function* moveDownSteps(util, target: any, steps: any, direction?: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot move down non-sprite by " + Number(steps) + " steps");
     let dir = direction ?? target.direction;
     dir = Number(dir) || 0
@@ -329,92 +329,92 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     target.setDirection(oldDir);
     return null;
   }
-  function* getX(target: any) {
+  function* getX(util, target: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get x position of non-sprite");
     return target.x;
   }
-  function* getY(target: any) {
+  function* getY(util, target: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get y position of non-sprite");
     return target.y;
   }
-  function* getDirection(target: any) {
+  function* getDirection(util, target: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get direction of non-sprite");
     return target.direction;
   }
   
-  function* say(target: any, text: any) {
+  function* say(util, target: any, text: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot make a non-sprite say something");
     const msg = String(text);
     Scratch.vm.runtime.emit("SAY", target, 'say', msg);
     return null;
   }
-  function* think(target: any, text: any) {
+  function* think(util, target: any, text: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot make a non-sprite think something");
     const msg = String(text);
     Scratch.vm.runtime.emit("SAY", target, 'think', msg);
     return null;
   }
-  function* setSize(target: any, size: any) {
+  function* setSize(util, target: any, size: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot set size of non-sprite");
     const newSize = Math.max((Number(size) || 0), 0);
     target.setSize(newSize);
     return null;
   }
-  function* setVisible(target: any, visible: any) {
+  function* setVisible(util, target: any, visible: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot set visibility of non-sprite");
     const visibility = (visible ?? false) === false;
     target.setVisible(visibility);
     return null;
   }
-  function* getSize(target: any) {
+  function* getSize(util, target: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get size of non-sprite");
     return target.size
   }
-  function* getVisible(target: any) {
+  function* getVisible(util, target: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get visibility of non-sprite");
     return target.visible;
   }
-  function* setXStretch(target: any, x: any) {
+  function* setXStretch(util, target: any, x: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set x stretch of non-sprite to " + Number(x));
     const pos = Number(x) || 0;
     target.setStretch(pos, target.stretch[1]);
     return null;
   }
-  function* setYStretch(target: any, y: any) {
+  function* setYStretch(util, target: any, y: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set y stretch of non-sprite to " + Number(y));
     const pos = Number(y) || 0;
     target.setStretch(target.stretch[0], pos);
     return null;
   }
-  function* setXYStretch(target: any, x: any, y: any) {
+  function* setXYStretch(util, target: any, x: any, y: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set x and y stretch of non-sprite to " + Number(x) + "and " + Number(y) + " respectively");
     const xPos = Number(x) || 0;
     const yPos = Number(y) || 0;
     target.setStretch(xPos, yPos);
     return null;
   }
-  function* changeXStretch(target: any, x: any) {
+  function* changeXStretch(util, target: any, x: any) {
     // @ts-ignore
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change x stretch of non-sprite by " + Number(x));
     const pos = Number(x) || 0;
     target.setXY(target.stretch[0] + pos, target.stretch[1]);
     return null;
   }
-  function* changeYStretch(target: any, y: any) {
+  function* changeYStretch(util, target: any, y: any) {
     // @ts-ignore
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change y stretch of non-sprite by " + Number(y));
     const pos = Number(y) || 0;
     target.setXY(target.stretch[0], target.stretch[1] + pos);
     return null;
   }
-  function* changeXYStretch(target: any, x: any, y: any) {
+  function* changeXYStretch(util, target: any, x: any, y: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to change x and y stretch of non-sprite by " + Number(x) + "and " + Number(y) + " respectively");
     const xPos = Number(x) || 0;
     const yPos = Number(y) || 0;
     target.setXY(target.stretch[0] + xPos, target.stretch[1] + yPos);
     return null;
   }
-  function* setCostume(target: any, index: any) {
+  function* setCostume(util, target: any, index: any) {
     if (typeof index !== "string" && typeof index !== "number") throw new TypeError("Expected costume index to be a string or number");
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set costume of a non-sprite");
     const requestedCostume = index;
@@ -440,17 +440,17 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     }
     return null;
   }
-  function* nextCostume(target: any) {
+  function* nextCostume(util, target: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set costume of a non-sprite");
     target.setCostume(target.currentCostume + 1);
     return null;
   }
-  function* previousCostume(target: any) {
+  function* previousCostume(util, target: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set costume of a non-sprite");
     target.setCostume(target.currentCostume - 1);
     return null;
   }
-  function* setBackdrop(index: any) {
+  function* setBackdrop(util, index: any) {
     const target = Scratch.vm.runtime.getTargetForStage();
     if (typeof index !== "string" && typeof index !== "number") throw new TypeError("Expected costume index to be a string or number");
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to set costume of a non-sprite");
@@ -489,11 +489,11 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     target.setCostume(target.currentCostume - 1);
     return null;
   }
-  function* getCostumeName(sprite) {
+  function* getCostumeName(util, sprite) {
     if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to get current costume name of non-sprite");
     return sprite.getCostumes()[sprite.currentCostume].name;
   }
-  function* getCostumeNumber(sprite) {
+  function* getCostumeNumber(util, sprite) {
     if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Attempted to get current costume number of non-sprite");
     return sprite.currentCostume + 1;
   }
@@ -574,11 +574,11 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   _globalEnv.__env.set("changeXYStretch", {
     get value() {return changeXYStretch}
   })
-  function* getXStretch(target: any) {
+  function* getXStretch(util, target: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get x stretch of non-sprite")
     return target.stretch[0]
   }
-  function* getYStretch(target: any) {
+  function* getYStretch(util, target: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get y stretch of non-sprite")
     return target.stretch[1]
   }
@@ -644,11 +644,11 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   _globalEnv.__env.set("degToRad", {
     get value() {return degToRad}
   })
-  function* getVariableForTarget(target: any, name: any) {
+  function* getVariableForTarget(util, target: any, name: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
     return target.lookupVariableByNameAndType(name, "", true)?.value ?? null;
   }
-  function* setVariableForTarget(target: any, name: any, value: any) {
+  function* setVariableForTarget(util, target: any, name: any, value: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
     const variable = target.lookupVariableByNameAndType(name, "", true);
     if (variable) {
@@ -656,12 +656,12 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     }
     return null;
   }
-  function* getVariableForAll(name: any) {
+  function* getVariableForAll(util, name: any) {
     const target = Scratch.vm.runtime.getTargetForStage();
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
     return target.lookupVariableByNameAndType(name, "", true)?.value ?? null;
   }
-  function* setVariableForAll(name: any, value: any) {
+  function* setVariableForAll(util, name: any, value: any) {
     const target = Scratch.vm.runtime.getTargetForStage();
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
     const variable = target.lookupVariableByNameAndType(name, "", true);
@@ -684,7 +684,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     get value() {return setVariableForAll}
   })
 
-  function* broadcast(message: any) {
+  function* broadcast(util, message: any) {
     const msg = String(message);
     Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
       BROADCAST_OPTION: msg
@@ -692,7 +692,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     return null
   }
 
-  function* broadcastToSprite(message: any, target: any) {
+  function* broadcastToSprite(util, message: any, target: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot broadcast to a non-sprite")
     const msg = String(message);
     Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
@@ -701,7 +701,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     return null
   }
 
-  function* isSprite(value: any) {
+  function* isSprite(util, value: any) {
     return value instanceof Scratch.vm.exports.RenderedTarget;
   }
 
@@ -719,13 +719,13 @@ if ((typeof window === "object" && window && typeof window.document === "object"
 
   // clones, touching, mouse, keyboard
 
-  function* isTouchingSprite(sprite1, sprite2) {
+  function* isTouchingSprite(util, sprite1, sprite2) {
     if (!(sprite1 instanceof Scratch.vm.exports.RenderedTarget) || !(sprite2 instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Both sprites for isTouchingSprite must be sprites");
     if (!Scratch.vm.renderer) return false;
     return Scratch.vm.renderer.isTouchingDrawables(sprite1.drawableID, [sprite2.drawableID]); // check if sprite1 is touching sprite2
   }
 
-  function* isTouchingMouse(sprite) {
+  function* isTouchingMouse(util, sprite) {
     if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot check if a non-sprite is touching the mouse");
     if (!Scratch.vm.renderer) return false;
     const mouse = Scratch.vm.runtime.ioDevices.mouse;
@@ -733,13 +733,13 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     return Scratch.vm.renderer.drawableTouching(sprite.drawableID, mouse.getClientX(), mouse.getClientY());
   }
 
-  function* isTouchingXY(sprite, x, y) {
+  function* isTouchingXY(util, sprite, x, y) {
     if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot check if a non-sprite is touching a point");
     if (!Scratch.vm.renderer) return false;
     return Scratch.vm.renderer.drawableTouching(sprite.drawableID, Number(x) || 0, Number(y) || 0);
   }
 
-  function* isTouchingEdge(sprite) {
+  function* isTouchingEdge(util, sprite) {
     if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot check if a non-sprite is touching the edge");
     return sprite.isTouchingEdge();
   }
@@ -792,12 +792,12 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     }
   })
 
-  function* isKeyDown(key) {
+  function* isKeyDown(util, key) {
     if (!Scratch.vm.runtime.ioDevices.keyboard) return false;
     return Scratch.vm.runtime.ioDevices.keyboard.getKeyIsDown(key);
   }
 
-  function* isKeyHit(key) {
+  function* isKeyHit(util, key) {
     if (!Scratch.vm.runtime.ioDevices.keyboard) return false;
     return Scratch.vm.runtime.ioDevices.keyboard.getKeyIsHit(key);
   }
@@ -810,7 +810,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     get value() {return isKeyHit}
   })
 
-  function* createClone(sprite) {
+  function* createClone(util, sprite) {
     if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot create clone of a non-sprite");
     const clone = sprite.makeClone();
     if (clone) {
@@ -820,7 +820,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     return clone;
   }
 
-  function* getCloneWithVar(spriteOrName, varName, value) {
+  function* getCloneWithVar(util, spriteOrName, varName, value) {
     let sprite = spriteOrName;
     if (typeof spriteOrName === "string") sprite = Scratch.vm.runtime.getSpriteTargetByName(spriteOrName);
     if (!(spriteOrName instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("The sprite passed to getCloneWithVar is not a sprite name or sprite");
@@ -844,6 +844,38 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   
   _globalEnv.__env.set("getCloneWithVar", {
     get value() {return getCloneWithVar}
+  })
+
+  // waiting functions
+
+  function* wait({timer, isStuck, isWarp}, ms) {
+    if (typeof ms !== "number" || Object.is(ms, NaN)) throw new TypeError("ms in global wait must be a number (and not NaN).");
+    ms = Math.max(0, ms);
+    const waitTimer = new timer();
+    waitTimer.start(); // start timer
+    while (waitTimer.timeElapsed() < ms) {
+      if (!isWarp || isStuck()) yield; // yield so thingy doesnt freeze
+    }
+    return true; // so that you can do while global wait(10) doSomething
+  }
+
+  function* waitUntil(util, conditionFunction, ...argFuncs) {
+    if (typeof conditionFunction !== "function") throw new TypeError("The first arg to global waitUntil must be a function.");
+    for (const func of argFuncs) if (typeof func !== "function") throw new TypeError("All args after the first arg must be functions");
+    while (yield* wait(util, 4)) { // prevent freezing
+      // evaluate args.
+      const args = argFuncs.map(func => func(util)); // i almost forgor that all funcs take in the util object.
+      if ((conditionFunction(util, ...args) ?? false) === false) break;
+    }
+    return true; // why would i return false if the condition is true?
+  }
+
+  _globalEnv.__env.set("wait", {
+    get value() {return wait}
+  })
+
+  _globalEnv.__env.set("waitUntil",
+    get value() {return waitUntil}
   })
   
   class PenguinScript {
@@ -874,7 +906,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
               compiler.source += preCompiled + ";"
             } catch(e) {*/
               //compiler.source += '"require waitPromise";'
-              compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread}));`
+              compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}}));`
             //}
           },
           evalReporter: (node, compiler, imports) => {
@@ -887,8 +919,8 @@ if ((typeof window === "object" && window && typeof window.document === "object"
               if (canNullish) return new (imports.TypedInput)(`(${preCompiled} ?? "null")`);
               return new (imports.TypedInput)(`nullish((${preCompiled}),"null")`, imports.TYPE_UNKNOWN);
             } catch(e) {*/
-              if (canNullish) return new (imports.TypedInput)(`((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread}))  ?? "null)"`, imports.TYPE_UNKNOWN);
-              return new (imports.TypedInput)(`nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread})),"null"))`, imports.TYPE_UNKNOWN);
+              if (canNullish) return new (imports.TypedInput)(`((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}}))  ?? "null)"`, imports.TYPE_UNKNOWN);
+              return new (imports.TypedInput)(`nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}})),"null"))`, imports.TYPE_UNKNOWN);
               // compiler.src += `(yield* transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target));`
             //}
           }
