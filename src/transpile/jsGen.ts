@@ -158,8 +158,8 @@ export const _globalEnv: GlobalEnv = {
   }
 }
 
-export type TranspiledFunction = ($globalEnv, $target, util) => any;
-export type TranspiledGenerator = ($globalEnv, $target, util) => Generator<any>;
+export type TranspiledFunction = ($globalEnv, util) => any;
+export type TranspiledGenerator = ($globalEnv, util) => Generator<any>;
 
 const GeneratorFunction = function*(){}.constructor as unknown as GeneratorFunctionConstructor;
 
@@ -203,10 +203,10 @@ export default class JSGenerator {
         return this.src;
       }
       case "func": {
-        return new Function("$globalEnv", "$target", "util", this.src) as TranspiledFunction;
+        return new Function("$globalEnv", "util", this.src) as TranspiledFunction;
       }
       case "generator": {
-        return new GeneratorFunction("$globalEnv", "$target", "util", this.src) as TranspiledGenerator;
+        return new GeneratorFunction("$globalEnv", "util", this.src) as TranspiledGenerator;
       }
     }
   }
@@ -503,7 +503,7 @@ export default class JSGenerator {
           return new TypedInput(`(${structSrc})`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Target: {
-          return new TypedInput(`(\$target)`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`(util.target)`, OutputType.TYPE_UNKNOWN)
         }
       }
     }
