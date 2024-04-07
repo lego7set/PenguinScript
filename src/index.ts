@@ -10,11 +10,11 @@ function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
   return generator.transpile("generator", true, warpTimer, isWarp)
 }
 
-function preCompile(code: string, warpTimer: boolean, isWarp: boolean): any {
+/*function preCompile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
   const generator = new JSGenerator(program);
   return "(yield* (function*($globalEnv, $target, isStuck){" + generator.transpile("string", true, warpTimer, isWarp) + "})(runtime.ext_vgspenguinscript._globalEnv, {isStuck, target, waitPromise}))";
-}
+}*/ // dont use precompile
 
 function* createObjectStruct() {
   const struct: {__proto__: null; isStruct: true; props:any; isObject: true} = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
