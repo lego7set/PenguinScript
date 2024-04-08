@@ -1132,6 +1132,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
       return _globalEnv
     }
     createErrorStruct = createErrorStruct;
+  }
   // @ts-ignore
   if (((typeof LoadedAsCore === "object") && (LoadedAsCore !== globalThis.LoadedAsCore))) module.exports = PenguinScript;
   else Scratch.extensions.register(new PenguinScript());
