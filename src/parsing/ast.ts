@@ -23,7 +23,8 @@ export enum NodeType {
   Break,
   Continue,
   Struct,
-  Chaining
+  Chaining,
+  Try
 }
 
 export enum OutputType { // going to be unused
@@ -211,4 +212,12 @@ export interface Chaining extends Expr {
   kind: NodeType.Chaining;
   item: Expr;
   index: string;
+}
+
+export interface Try extends Stmt {
+  kind: NodeType.Try;
+  body: Stmt;
+  catch?: Stmt;
+  catchVar?: string;
+  finally?: Stmt
 }
