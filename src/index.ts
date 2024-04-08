@@ -19,6 +19,7 @@ function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
 function* createObjectStruct() {
   const struct: {__proto__: null; isStruct: true; props:any; isObject: true} = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
   const props: any = {__proto__: null};
+  struct.getActual = () => props;
   struct.props.get = function*(key){ // an object class, kinda
     return props[key];
   }
@@ -39,6 +40,22 @@ function* createObjectStruct() {
     props[key] = value;
     return struct;
   }}
+  struct.props.fromJSON = {value:function*(json) {
+    if (typeof json !== "string") throw new TypeError("Object.fromJSON must be passed a string")
+    for (const prop in props) {
+      if (Object.hasOwn(props, prop)) delete props[prop];
+    }
+    try {
+      const obj = JSON.parse(json);
+      if (typeof obj !== "object" || !obj || Array.isArray(obj)) throw new TypeError("Invalid JSON");
+      Object.assign(props, obj);
+    } catch(e) {
+      throw new TypeError("Invalid JSON")
+    }
+  }}
+  struct.props.toJSON = {value:function*(){
+    return JSON.stringify(props);
+  }}
   return struct;
 }
 
@@ -49,20 +66,25 @@ _globalEnv.__env.set("Object", {
 function* createArrayStruct() {
   const struct: {__proto__: null; isStruct: true; props: any; isArray: true} = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
   const props = [];
+  struct.getActual = () => props;
   struct.props.get = function*(key){
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
+    key = Math.round(key) || 0;
     return props[key];
   }
   struct.props.set = {value:function*(key, value) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
+    key = Math.round(key) || 0;
     return props[key] = value;
   }}
   struct.props.has = {value:function*(key) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
+    key = Math.round(key) || 0
     return key in props
   }}
   struct.props.delete = {value:function*(key) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
+    key = Math.round(key) || 0
     return delete props[key];
   }}
   struct.props.pop = {value:function*() {
@@ -81,8 +103,26 @@ function* createArrayStruct() {
   }}
   struct.props.length = {
     get value() {return props.length;},
-    set value(val) {props.length = val;}
+    set value(val) {
+      if (typeof val !== "number") throw new TypeError("Cannot reassign to the length of an array with a non number");
+      val = Math.round(val) || 0;
+      props.length = val;
+    }
   }
+  struct.props.fromJSON = {value:function*(json) {
+    if (typeof json !== "string") throw new TypeError("Array.fromJSON must be passed a string")
+    props.length = 0; // erase all properties
+    try {
+      const obj = JSON.parse(json);
+      if (!Array.isArray(obj)) throw new TypeError("Invalid JSON");
+      Object.assign(props, obj);
+    } catch(e) {
+      throw new TypeError("Invalid JSON")
+    }
+  }}
+  struct.props.toJSON = {value:function*(){
+    return JSON.stringify(props);
+  }}
   return struct;
 }
 
