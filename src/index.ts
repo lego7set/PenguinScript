@@ -196,7 +196,7 @@ _globalEnv.__env.set("charToCodePoint", {
   get value() {return charToCodePoint}
 })
 
-const customObjectTypes = {}; // format: type: test
+const customObjectTypes: Record<string, (v) => boolean> = {}; // format: type: test
 
 function* type(util, value: any) {
   if (value == null) return "null"; // use == purposefully so that undefined also returns null.
@@ -294,12 +294,12 @@ function* getRandomFloat(util, x, y) {
 
 const MathStruct = (function(){
   const struct: any = {isStruct: true, __proto__: null, isMath: true};
-  struct.props - new Proxy({__proto__: null}, {
+  struct.props = new Proxy({__proto__: null}, {
     get: (target, prop) =>  prop === "random" ? 
       {get value(){return getRandomFloat}} 
       : Object.hasOwn(target, prop) 
-      ? {get value(){const item = target[prop];return typeof item==="function"?function*(util, ...args){return item(...args)}:item;} 
-      : prop === "randomInt" 
+      ? {get value(){const item = target[prop];return typeof item==="function"?function*(util, ...args){return item(...args)}:item;}} 
+      : prop === "randomInt"
       ? {get value(){return getRandomInt}} 
       : {value: null}
   });
@@ -1027,7 +1027,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     get value() {return waitUntil}
   })
 
-  customObjectTypes.sprite = (v) => v instanceof Scratch.vm.exports.RenderedTarget; // create a sprite type.
+  customObjectTypes.sprite = (v: any) => v instanceof Scratch.vm.exports.RenderedTarget; // create a sprite type.
   
   class PenguinScript {
     _globalEnv = _globalEnv;
@@ -1133,8 +1133,8 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     }
     createErrorStruct = createErrorStruct;
   // @ts-ignore
-  if (typeof LoadedAsCore === "object" && LoadedAsCore !== globalThis.LoadedAsCore) module.exports = PenguinScript;
-  else  Scratch.extensions.register(new PenguinScript());
+  if (((typeof LoadedAsCore === "object") && (LoadedAsCore !== globalThis.LoadedAsCore))) module.exports = PenguinScript;
+  else Scratch.extensions.register(new PenguinScript());
 }
 
 // @ts-ignore
