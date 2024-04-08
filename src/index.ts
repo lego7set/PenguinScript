@@ -206,6 +206,7 @@ function* type(util, value: any) {
       if (works) return Type;
     }
     if (value.isStruct && value.props) {
+      if (value.isError) return "error";
       if (value.isObject) return "object";
       if (value.isArray) return "array";
       return "struct";
@@ -325,6 +326,25 @@ function* createMethod(util, struct, storedFunc) {
 _globalEnv.__env.set("createMethod", {
   get value() {return createMethod}
 })
+
+function* createErrorStruct(v) {
+  if (typeof v === "string") v = new Error(v);
+  if ((v ?? null) === null) v = new Error("");
+  if (!(v instanceof Error)) throw v;
+  const struct = {__proto__: null, isStruct: true, isError: true, props:{__proto__: null}};
+  struct.props.msg = {value:v.message};
+  struct.props.type = {value:v.name || "Error"};
+  struct.props.throw = {get value() {
+    return function*(){
+      const err = new Error(struct.props.msg);
+      err.name = struct.props.type;
+      throw err; // throws the error.
+    }
+  }}
+  return struct;
+}
+
+_globalEnv.__env.set("Error", {get value() {return createErrorStruct}}
 
 function supportsNullishCoalescing() {
   try {
@@ -1027,7 +1047,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
               compiler.source += preCompiled + ";"
             } catch(e) {*/
               //compiler.source += '"require waitPromise";'
-              compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}}));`
+              compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, createError: runtime.ext_vgspenguinscript.createErrorStruct}));`
             //}
           },
           evalReporter: (node, compiler, imports) => {
@@ -1040,8 +1060,8 @@ if ((typeof window === "object" && window && typeof window.document === "object"
               if (canNullish) return new (imports.TypedInput)(`(${preCompiled} ?? "null")`);
               return new (imports.TypedInput)(`nullish((${preCompiled}),"null")`, imports.TYPE_UNKNOWN);
             } catch(e) {*/
-              if (canNullish) return new (imports.TypedInput)(`((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}}))  ?? "null)"`, imports.TYPE_UNKNOWN);
-              return new (imports.TypedInput)(`nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}})),"null"))`, imports.TYPE_UNKNOWN);
+              if (canNullish) return new (imports.TypedInput)(`((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, createError: runtime.ext_vgspenguinscript.createErrorStruct}))  ?? "null)"`, imports.TYPE_UNKNOWN);
+              return new (imports.TypedInput)(`nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, createError: runtime.ext_vgspenguinscript.createErrorStruct})),"null"))`, imports.TYPE_UNKNOWN);
               // compiler.src += `(yield* transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target));`
             //}
           }
@@ -1100,7 +1120,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     getGlobalEnv() {
       return _globalEnv
     }
-  }
+    createErrorStruct = createErrorStruct;
   // @ts-ignore
   if (typeof LoadedAsCore === "object" && LoadedAsCore !== globalThis.LoadedAsCore) module.exports = PenguinScript;
   else  Scratch.extensions.register(new PenguinScript());
