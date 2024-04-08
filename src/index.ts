@@ -20,9 +20,9 @@ function* createObjectStruct() {
   const struct: {__proto__: null; isStruct: true; props:any; isObject: true} = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
   const props: any = {__proto__: null};
   struct.getActual = () => props;
-  struct.props.get = function*(key){ // an object class, kinda
+  struct.props.get = {value:function*(key){ // an object class, kinda
     return props[key];
-  }
+  }}
   struct.props.set = {value:function*(key, value) {
     return props[key] = value;
   }}
@@ -67,11 +67,11 @@ function* createArrayStruct() {
   const struct: {__proto__: null; isStruct: true; props: any; isArray: true} = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
   const props = [];
   struct.getActual = () => props;
-  struct.props.get = function*(key){
+  struct.props.get = {value:function*(key){
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
     key = Math.round(key) || 0;
     return props[key];
-  }
+  }}
   struct.props.set = {value:function*(key, value) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
     key = Math.round(key) || 0;
