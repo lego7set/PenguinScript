@@ -278,15 +278,22 @@ export default class JSGenerator {
       case NodeType.VariableDeclaration: {
         const node2 = node as unknown as VariableDeclaration;
         const ident = this.getVariable(node2.symbol);
-        node2.constant ? this.src += `/* Constant Declaration (var: ${this.getVariable(node2.symbol)}) */const ` : this.src += "/* Variable Declaration (var: ${this.getVariable(node2.symbol)}) */let ";
+        node2.constant ? this.src += `/* Constant Declaration (var: ${this.getVariable(node2.symbol)}) */const ` : this.src += "/* Variable Declaration (var: ${this.getVariable(node2.symbol)}) */const ";
         this.src += ident;
 
-        if (node2.value) {
+        if (node2.value && !this.constant) {
           const value = this.descendExpr(node2.value);
           this.src += "=";
           this.src += "{value:";
           this.src += value.asUnknown();
           this.src += "}"
+        }
+        if (node2.value && this.constant) {
+          const value = this.descendExpr(node2.value);
+          this.src += "=";
+          this.src += `(function(v){return {get value(){return v},set value(){throw new TypeError("Cannot reassign to a constant")}}})(`;
+          this.src += value.asUnknown();
+          this.src += ")"
         }
         this.src += ";";
         break;
@@ -316,7 +323,7 @@ export default class JSGenerator {
         this.descendNode(node2.body);
         this.src += "}";
         if (node2.catch) {
-          this.src += `catch(catchErrorVar){if(catchErrorVar?.isExit)throw catchErrorVar;const ${this.getVariable(node2.catchVar) || "thisShouldntHappen"} = util.createError(util, catchErrorVar).next().value;`;
+          this.src += `catch(catchErrorVar){if(catchErrorVar?.isExit)throw catchErrorVar;const ${this.getVariable(node2.catchVar) || "thisShouldntHappen"} = {value: util.createError(util, catchErrorVar).next().value};`;
           this.descendNode(node2.catch);
           this.src += "}";
         }
