@@ -169,7 +169,8 @@ export interface CompilerSettings {
 
 export default class JSGenerator {
   public static CompilerSettings: CompilerSettings = {
-    referenceErrors: true
+    referenceErrors: true,
+    debug: new URL(document.location.toString()).searchParams.has("psdebug")
   };
   protected program;
   protected src: string = "let _;let _2;let _3;let _4;let _5; let _6; let _7;"; // add some variables so we can use them inside expressions
@@ -489,14 +490,16 @@ export default class JSGenerator {
           for (const arg of node2.args) {
             args.push(this.descendExpr(arg).asUnknown());
           }
-          return new TypedInput(`/* Function Call */((yield* ${func}(util,${args.join(",")})) ?? null)`, OutputType.TYPE_UNKNOWN)
+          const debug = `(function(){debugger;})(),`
+          return new TypedInput(`/* Function Call */${JSGenerator.CompilerSettings.debug ? debug : ""}((yield* ${func}(util,${args.join(",")})) ?? null)`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Chaining: {
           // chaining expr.
           const node2 = node as unknown as Chaining;
           const item = this.descendExpr(node2.item).asUnknown();
-          const checkIsStruct = `(function(){if(!(_3?.props&&_3?.isStruct))throw new TypeError("Can only use chaining operator on struct instances.");if(!_3.props[${JSON.stringify(node2.index)}]){throw new TypeError("Struct does not have property, cannot chain.")};})()`
-          return new TypedInput(`/* Chaining */((_3 = ${item}, ${checkIsStruct}, _3).props[${JSON.stringify(node2.index)}].value)`, OutputType.TYPE_UNKNOWN) // work around to allow setting with a chain
+          const checkIsStruct = `(function(){if(!(_3?.props&&_3?.isStruct))throw new TypeError("Can only use chaining operator on struct instances.");if(!_3.props[${JSON.stringify(node2.index)}]){throw new TypeError("Struct does not have property, cannot chain.")};})()`;
+          const debug = `(function(){debugger;})(),`
+          return new TypedInput(`/* Chaining */${JSGenerator.CompilerSettings.debug ? debug : ""}((_3 = ${item}, ${checkIsStruct}, _3).props[${JSON.stringify(node2.index)}].value)`, OutputType.TYPE_UNKNOWN) // work around to allow setting with a chain
         }
         case NodeType.Struct: {
           // a struct is just a fancy function.
