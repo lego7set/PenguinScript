@@ -241,6 +241,7 @@ export default class JSGenerator {
   protected descendNode(node: Stmt): void {
     switch (node.kind) {
       case NodeType.NoOp: {
+        this.src += ";"; // empty statement
         break;
       }
       case NodeType.StmtBlock: {
