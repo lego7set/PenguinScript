@@ -442,9 +442,9 @@ export default class JSGenerator {
           const ident = this.getVariable(node2.symbol);
           let errorHandler: string;
           if (JSGenerator.CompilerSettings.referenceErrors) {
-            errorHandler = `if(e instanceof ReferenceError){throw new ReferenceError("${ident} is not defined.")};throw e;`;
+            errorHandler = `;if(e instanceof ReferenceError){throw new ReferenceError("${ident} is not defined.")};throw e;`;
           } else {
-            errorHandler = `if(e instanceof ReferenceError){return {get value(){return null},set value(v){throw new ReferenceError("${ident} is not defined.")}}};throw e;`
+            errorHandler = `;if(e instanceof ReferenceError){return {get value(){return null},set value(v){throw new ReferenceError("${ident} is not defined.")}}};throw e;`
           }
           const getIdent = `(function(){try{if(typeof ${ident}!=="object"||${ident}===globalThis.${ident})throw new ReferenceError("");return ${ident}}catch(e){${errorHandler}}})()`
           return new TypedInput(`((${getIdent}).value)`, OutputType.TYPE_UNKNOWN)
