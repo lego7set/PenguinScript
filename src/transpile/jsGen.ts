@@ -1,4 +1,4 @@
-import type { Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline, Target, Break, Continue, Struct, Chaining } from "../parsing/ast.ts";
+import type { Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline, Target, Break, Continue, Struct, Chaining, Try } from "../parsing/ast.ts";
 import { NodeType } from "../parsing/ast";
 
 export enum OutputType {
@@ -306,6 +306,24 @@ export default class JSGenerator {
       }
       case NodeType.Continue: {
         this.src += "continue;";
+        break;
+      }
+      case NodeType.Try: {
+        const node2 = node as unknown as Try;
+        this.src += "try{";
+        this.descendNode(node2.body);
+        this.src += "}";
+        if (node2.catch) {
+          this.src += `catch(catchErrorVar){if(catchErrorVar?.isExit)throw catchErrorVar;const ${this.getVariable(node2.catchVar) || "thisShouldntHappen"} = util.createError(catchErrorVar);`;
+          this.descendNode(node2.catch);
+          this.src += "}";
+        }
+        if (node2.finally) {
+          this.src += "finally{";
+          this.descendNode(node2.finally);
+          this.src += "}";
+        }
+        this.src += ";";
         break;
       }
       default: {
