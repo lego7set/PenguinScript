@@ -317,9 +317,10 @@ _globalEnv.__env.set("concat", {
 })
 
 function* createMethod(util, struct, storedFunc) {
-  if (!struct.isStruct) throw new TypeError()
-  return function*(...args) {
-    return yield*(storedFunc)(struct, ...args);
+  if (!struct.isStruct) throw new TypeError("You must pass in a struct to createMethod");
+  if (typeof storedFunc !== "function") throw new TypeError("You must pass in a function to createMethod")
+  return function*(util, ...args) {
+    return yield*(storedFunc)(util, struct, ...args);
   };
 };
 
