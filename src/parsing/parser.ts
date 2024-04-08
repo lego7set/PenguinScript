@@ -112,7 +112,7 @@ export default class Parser {
         } as Continue;
       }
       case TokenType.TRY: {
-        return this.parse_tryCatchFinally
+        return this.parse_tryCatchFinally()
       }
       default: {
         const expr = this.parse_expr();
