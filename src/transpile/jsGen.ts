@@ -495,7 +495,7 @@ export default class JSGenerator {
           // chaining expr.
           const node2 = node as unknown as Chaining;
           const item = this.descendExpr(node2.item).asUnknown();
-          const checkIsStruct = `(function(){if(!(_3?.props&&_3?.isStruct))throw new TypeError("Can only use chaining operator on struct instances.");if(!_3.props[${JSON.stringify(node2.index)}]){throw new TypeError("Struct does not have property, cannot chain.")};}()`
+          const checkIsStruct = `(function(){if(!(_3?.props&&_3?.isStruct))throw new TypeError("Can only use chaining operator on struct instances.");if(!_3.props[${JSON.stringify(node2.index)}]){throw new TypeError("Struct does not have property, cannot chain.")};})()`
           return new TypedInput(`((_3 = ${item}, ${checkIsStruct}, _3).props[${JSON.stringify(node2.index)}].value)`, OutputType.TYPE_UNKNOWN) // work around to allow setting with a chain
         }
         case NodeType.Struct: {
