@@ -314,7 +314,7 @@ export default class JSGenerator {
         this.descendNode(node2.body);
         this.src += "}";
         if (node2.catch) {
-          this.src += `catch(catchErrorVar){if(catchErrorVar?.isExit)throw catchErrorVar;const ${this.getVariable(node2.catchVar) || "thisShouldntHappen"} = util.createError(catchErrorVar);`;
+          this.src += `catch(catchErrorVar){if(catchErrorVar?.isExit)throw catchErrorVar;const ${this.getVariable(node2.catchVar) || "thisShouldntHappen"} = util.createError(catchErrorVar).next().value;`;
           this.descendNode(node2.catch);
           this.src += "}";
         }
