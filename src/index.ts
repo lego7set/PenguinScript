@@ -205,7 +205,7 @@ function* getRandomInt(util, x, y) {
   }
   if (arguments.length === 2) {
     y = Math.floor(Number(x));
-    x = 1
+    x = 0
   } else {
     x = Math.floor(Number(x));
     y = Math.floor(Number(y));
