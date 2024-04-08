@@ -344,7 +344,9 @@ function* createErrorStruct(v) {
   return struct;
 }
 
-_globalEnv.__env.set("Error", {get value() {return createErrorStruct}}
+_globalEnv.__env.set("Error", {
+  get value() {return createErrorStruct}
+})
 
 function supportsNullishCoalescing() {
   try {
