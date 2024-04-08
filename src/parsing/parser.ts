@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining, Try } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -29,10 +29,11 @@ export default class Parser {
     return this.tokens.shift() as Token;
   }
 
-  protected expect(type: TokenType): Token {
+  protected expect(...type: TokenType[]): Token {
     const token = this.eat();
-    if (!token || token.type !== type) {
-      throw new SyntaxError(`Expected ${TokenType[type]} token, got ${TokenType[token?.type]} instead`);
+    // if (!Array.isArray(type)) type = [type];
+    if (!token || type.indexOf(token.type) === -1) {
+      throw new SyntaxError(`Expected ${type.map(v => TokenType[v]).join(", ")} token, got ${TokenType[token?.type]} instead`);
     }
     return token;
   }
@@ -110,12 +111,41 @@ export default class Parser {
           kind: NodeType.Continue
         } as Continue;
       }
+      case TokenType.TRY: {
+        return this.parse_tryCatchFinally
+      }
       default: {
         const expr = this.parse_expr();
-        this.expect(TokenType.SEMICOLON); // expect a semicolon on every statement (except some)
+        if (!(expr.kind === NodeType.Inline)) this.expect(TokenType.SEMICOLON); // expect a semicolon on every statement (except some)
         return expr;
       }
     }
+  }
+
+  protected parse_tryCatchFinally() {
+    this.eat(); // consume the try keyword
+    const body = this.parse_stmt();
+    // expect either catch or finally
+    const catchFinally = this.expect(TokenType.CATCH, TokenType.FINALLY);
+    let catchBody;
+    let catchVar;
+    let finallyBody;
+    if (catchFinally.type === TokenType.CATCH) {
+      // parse an identifier
+      catchVar =  this.expect(TokenType.IDENTIFIER).raw;
+      catchBody = this.parse_stmt();
+      if (this.at().type === TokenType.FINALLY) this.eat(), finallyBody = this.parse_stmt();
+    } else {
+      finallyBody = this.parse_stmt();
+      if (this.at().type === TokenType.CATCH) this.eat(), catchVar = this.expect(TokenType.IDENTIFIER).raw, catchBody = this.parse_stmt();
+    }
+    return {
+      kind: NodeType.Try,
+      body,
+      catch: catchBody,
+      catchVar,
+      finally: finallyBody
+    } as Try;
   }
 
   protected parse_return() {
