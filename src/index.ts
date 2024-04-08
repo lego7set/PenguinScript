@@ -17,7 +17,7 @@ function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
 }*/ // dont use precompile
 
 function* createObjectStruct() {
-  const struct: {__proto__: null; isStruct: true; props:any; isObject: true} = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
+  const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
   const props: any = {__proto__: null};
   struct.getActual = () => props;
   struct.props.get = {value:function*(util, key){ // an object class, kinda
@@ -64,7 +64,7 @@ _globalEnv.__env.set("Object", {
 })
 
 function* createArrayStruct() {
-  const struct: {__proto__: null; isStruct: true; props: any; isArray: true} = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
+  const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
   const props = [];
   struct.getActual = () => props;
   struct.props.get = {value:function*(util, key){
@@ -294,7 +294,15 @@ function* getRandomFloat(util, x, y) {
 
 const MathStruct = (function(){
   const struct: any = {isStruct: true, __proto__: null, isMath: true};
-  struct.props - new Proxy({__proto__: null}, {get: (target, prop) =>  prop === "random" ? {get value(){return getRandomFloat}}: Object.hasOwn(target, prop) ? {get value(){const item = target[prop];return typeof item==="function"?function*(util, ...args){return item(...args)}:item;} : prop === "randomInt" ? {get value(){return getRandomInt}} : {value: null});
+  struct.props - new Proxy({__proto__: null}, {
+    get: (target, prop) =>  prop === "random" ? 
+      {get value(){return getRandomFloat}} 
+      : Object.hasOwn(target, prop) 
+      ? {get value(){const item = target[prop];return typeof item==="function"?function*(util, ...args){return item(...args)}:item;} 
+      : prop === "randomInt" 
+      ? {get value(){return getRandomInt}} 
+      : {value: null}
+  });
   // that was the longest statement ever also i used a proxy so that i dont have to waste space lol.
   return struct;
 })()
@@ -332,7 +340,7 @@ function* createErrorStruct(util, v) {
   if (typeof v === "string") v = new Error(v);
   if ((v ?? null) === null) v = new Error("");
   if (!(v instanceof Error)) throw v;
-  const struct = {__proto__: null, isStruct: true, isError: true, props:{__proto__: null}};
+  const struct: any = {__proto__: null, isStruct: true, isError: true, props:{__proto__: null}};
   struct.props.msg = {value:v.message};
   struct.props.type = {value:v.name || "Error"};
   struct.props.throw = {get value() {
