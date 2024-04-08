@@ -20,27 +20,27 @@ function* createObjectStruct() {
   const struct: {__proto__: null; isStruct: true; props:any; isObject: true} = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
   const props: any = {__proto__: null};
   struct.getActual = () => props;
-  struct.props.get = {value:function*(key){ // an object class, kinda
+  struct.props.get = {value:function*(util, key){ // an object class, kinda
     return props[key];
   }}
-  struct.props.set = {value:function*(key, value) {
+  struct.props.set = {value:function*(util, key, value) {
     return props[key] = value;
   }}
-  struct.props.has = {value:function*(key) {
+  struct.props.has = {value:function*(util, key) {
     return key in props
   }}
-  struct.props.delete = {value:function*(key) {
+  struct.props.delete = {value:function*(util, key) {
     return delete props[key];
   }}
-  struct.props.remove = {value:function*(key) {
+  struct.props.remove = {value:function*(util, key) {
     delete props[key];
     return struct;
   }}
-  struct.props.append = {value:function*(key, value) {
+  struct.props.append = {value:function*(util, key, value) {
     props[key] = value;
     return struct;
   }}
-  struct.props.fromJSON = {value:function*(json) {
+  struct.props.fromJSON = {value:function*(util, json) {
     if (typeof json !== "string") throw new TypeError("Object.fromJSON must be passed a string")
     for (const prop in props) {
       if (Object.hasOwn(props, prop)) delete props[prop];
@@ -67,22 +67,22 @@ function* createArrayStruct() {
   const struct: {__proto__: null; isStruct: true; props: any; isArray: true} = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
   const props = [];
   struct.getActual = () => props;
-  struct.props.get = {value:function*(key){
+  struct.props.get = {value:function*(util, key){
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
     key = Math.round(key) || 0;
     return props[key];
   }}
-  struct.props.set = {value:function*(key, value) {
+  struct.props.set = {value:function*(util, key, value) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
     key = Math.round(key) || 0;
     return props[key] = value;
   }}
-  struct.props.has = {value:function*(key) {
+  struct.props.has = {value:function*(util, key) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
     key = Math.round(key) || 0
     return key in props
   }}
-  struct.props.delete = {value:function*(key) {
+  struct.props.delete = {value:function*(util, key) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
     key = Math.round(key) || 0
     return delete props[key];
@@ -90,14 +90,14 @@ function* createArrayStruct() {
   struct.props.pop = {value:function*() {
     return props.pop();
   }}
-  struct.props.push = {value:function*(value) {
+  struct.props.push = {value:function*(util, value) {
     props.push(value);
     return struct;
   }}
   struct.props.shift = {value:function*(){
     return props.shift();
   }}
-  struct.props.unshift = {value:function*(value){
+  struct.props.unshift = {value:function*(util, value){
     props.unshift(value);
     return struct;
   }}
@@ -109,7 +109,7 @@ function* createArrayStruct() {
       props.length = val;
     }
   }
-  struct.props.fromJSON = {value:function*(json) {
+  struct.props.fromJSON = {value:function*(util, json) {
     if (typeof json !== "string") throw new TypeError("Array.fromJSON must be passed a string")
     props.length = 0; // erase all properties
     try {
@@ -327,7 +327,7 @@ _globalEnv.__env.set("createMethod", {
   get value() {return createMethod}
 })
 
-function* createErrorStruct(v) {
+function* createErrorStruct(util, v) {
   if (typeof v === "string") v = new Error(v);
   if ((v ?? null) === null) v = new Error("");
   if (!(v instanceof Error)) throw v;
