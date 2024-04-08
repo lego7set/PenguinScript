@@ -21,6 +21,9 @@ export enum TokenType {
   BREAK,
   CONTINUE,
   STRUCT,
+  TRY,
+  CATCH,
+  FINALLY,
 
   // WAIT, // wait milliseconds, only available in pm (not yet)
 
@@ -94,8 +97,11 @@ export default class Lexer {
     enum: TokenType.RESERVED,
     break: TokenType.BREAK,
     continue: TokenType.CONTINUE,
-    async: TokenType.RESERVED,
-    await: TokenType.RESERVED
+    try: TokenType.TRY,
+    catch: TokenType.CATCH,
+    finally: TokenType.FINALLY
+    // async: TokenType.RESERVED,
+    // await: TokenType.RESERVED
   };
   public constructor(sourceCode: string) {
     this.src = sourceCode;
