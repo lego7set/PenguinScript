@@ -339,19 +339,19 @@ export default class JSGenerator {
       switch (node.kind) {
         case NodeType.Global: {
           const node2 = node as unknown as Global;
-          return new TypedInput(`(\$globalEnv.get(${JSON.stringify(node2.symbol)}).value)`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`/* Global */(\$globalEnv.get(${JSON.stringify(node2.symbol)}).value)`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.AssignmentExpr: {
           const node2 = node as unknown as AssignmentExpr;
           if (node2.assigne.kind !== NodeType.Identifier && node2.assigne.kind !== NodeType.Global && node2.assigne.kind !== NodeType.Chaining) throw new SyntaxError("Invalid left-hand in assignment")// add for member assignment later
           const assigne = this.descendExpr(node2.assigne);
           const value = this.descendExpr(node2.value);
-          return new TypedInput(`((${assigne.asIdent()}) = (${value.asUnknown()}))`, OutputType.TYPE_UNKNOWN);
+          return new TypedInput(`/* Assignment Expression */((${assigne.asIdent()}) = (${value.asUnknown()}))`, OutputType.TYPE_UNKNOWN);
         }
         case NodeType.UnaryExpr: {
           const node2 = node as unknown as UnaryExpr;
           const operand = this.descendExpr(node2.operand);
-          if (node2.operator === "not") return new TypedInput(`(!(${operand.asBoolean()}))`, OutputType.TYPE_BOOLEAN);
+          if (node2.operator === "not") return new TypedInput(`/* Unary Expression */(!(${operand.asBoolean()}))`, OutputType.TYPE_BOOLEAN);
           throw new SyntaxError("Unknown unary operator");
         }
         case NodeType.BinaryExpr: {
@@ -361,74 +361,74 @@ export default class JSGenerator {
             case "and": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _ : _2)`, OutputType.TYPE_UNKNOWN)
+              return new TypedInput(`/* Binary Expression */(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _ : _2)`, OutputType.TYPE_UNKNOWN)
             }
             case "xor": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _2 : (((_2 ?? false) === false) && !((_ ?? false) === false)) ? _ : (!((_2 ?? false) === false) && !((_ ?? false) === false)) ? false : _2)`, OutputType.TYPE_UNKNOWN)
+              return new TypedInput(`/* Binary Expression */(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _2 : (((_2 ?? false) === false) && !((_ ?? false) === false)) ? _ : (!((_2 ?? false) === false) && !((_ ?? false) === false)) ? false : _2)`, OutputType.TYPE_UNKNOWN)
             }
             case "or": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (!((_ ?? false) === false) ? _ : _2)`, OutputType.TYPE_UNKNOWN)
+              return new TypedInput(`/* Binary Expression */(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (!((_ ?? false) === false) ? _ : _2))`, OutputType.TYPE_UNKNOWN)
             }
             // relational operators
             case "<": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(${left.asNumber()} < ${right.asNumber()})`, OutputType.TYPE_BOOLEAN)
+              return new TypedInput(`/* Binary Expression */(${left.asNumber()} < ${right.asNumber()})`, OutputType.TYPE_BOOLEAN)
             }
             case ">": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(${left.asNumber()} > ${right.asNumber()})`, OutputType.TYPE_BOOLEAN)
+              return new TypedInput(`(/* Binary Expression */${left.asNumber()} > ${right.asNumber()})`, OutputType.TYPE_BOOLEAN)
             }
             case "<=": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(${left.asNumber()} <= ${right.asNumber()})`, OutputType.TYPE_BOOLEAN)
+              return new TypedInput(`/* Binary Expression */(${left.asNumber()} <= ${right.asNumber()})`, OutputType.TYPE_BOOLEAN)
             }
             case ">=": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(${left.asNumber()} >= ${right.asNumber()})`, OutputType.TYPE_BOOLEAN)
+              return new TypedInput(`/* Binary Expression */(${left.asNumber()} >= ${right.asNumber()})`, OutputType.TYPE_BOOLEAN)
             }
             case "==": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(Object.is(${left.asUnknown()}, ${right.asUnknown()}))`, OutputType.TYPE_BOOLEAN)
+              return new TypedInput(`/* Binary Expression */(Object.is(${left.asUnknown()}, ${right.asUnknown()}))`, OutputType.TYPE_BOOLEAN)
             }
             // arithmetic operators
             case "+": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(${left.asNumber()} + ${right.asNumber()})`, OutputType.TYPE_NUMBER) // dont be like js, be more like pm (which is awesome!!!).
+              return new TypedInput(`/* Binary Expression */(${left.asNumber()} + ${right.asNumber()})`, OutputType.TYPE_NUMBER) // dont be like js, be more like pm (which is awesome!!!).
             }
             case "-": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(${left.asNumber()} - ${right.asNumber()})`, OutputType.TYPE_NUMBER)
+              return new TypedInput(/* Binary Expression */`(${left.asNumber()} - ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
             case "*": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(${left.asNumber()} * ${right.asNumber()})`, OutputType.TYPE_NUMBER)
+              return new TypedInput(`/* Binary Expression */(${left.asNumber()} * ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
             case "/": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(${left.asNumber()} / ${right.asNumber()})`, OutputType.TYPE_NUMBER)
+              return new TypedInput(`/* Binary Expression */(${left.asNumber()} / ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
             case "%": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(${left.asNumber()} % ${right.asNumber()})`, OutputType.TYPE_NUMBER)
+              return new TypedInput(`/* Binary Expression */(${left.asNumber()} % ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
             case "^": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(${left.asNumber()} ** ${right.asNumber()})`, OutputType.TYPE_NUMBER)
+              return new TypedInput(`/* Binary Expression */(${left.asNumber()} ** ${right.asNumber()})`, OutputType.TYPE_NUMBER)
             }
           }
         }
@@ -447,7 +447,7 @@ export default class JSGenerator {
             errorHandler = `;if(e instanceof ReferenceError){return {get value(){return null},set value(v){throw new ReferenceError("${ident} is not defined.")}}};throw e;`
           }
           const getIdent = `(function(){try{if(typeof ${ident}!=="object"||${ident}===globalThis.${ident})throw new ReferenceError("");return ${ident}}catch(e){${errorHandler}}})()`
-          return new TypedInput(`((${getIdent}).value)`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`/* Identifier */((${getIdent}).value)`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Inline: {
           const node2 = node as unknown as Inline;
@@ -462,7 +462,7 @@ export default class JSGenerator {
           src += stackSrc;
           src += "})()";
           if (this.yields) src += ")";
-          return new TypedInput(`(${src})`, OutputType.TYPE_UNKNOWN);
+          return new TypedInput(`/* Inline */(${src})`, OutputType.TYPE_UNKNOWN);
         }
         case NodeType.Function: {
           const node2 = node as unknown as Function;
@@ -480,7 +480,7 @@ export default class JSGenerator {
           }
           let name = node2.symbol ?? "";
           if (name) name = this.getVariable(node2.symbol);
-          return new TypedInput(`(function*${name}(unusedUtilVar,${list}){${stackSrc}})`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`/* Function Expression */(function*${name}(unusedUtilVar,${list}){${stackSrc}})`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.FunctionCall: {
           const node2 = node as unknown as FunctionCall;
@@ -489,14 +489,14 @@ export default class JSGenerator {
           for (const arg of node2.args) {
             args.push(this.descendExpr(arg).asUnknown());
           }
-          return new TypedInput(`((yield* ${func}(util,${args.join(",")})) ?? null)`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`/* Function Call */((yield* ${func}(util,${args.join(",")})) ?? null)`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Chaining: {
           // chaining expr.
           const node2 = node as unknown as Chaining;
           const item = this.descendExpr(node2.item).asUnknown();
           const checkIsStruct = `(function(){if(!(_3?.props&&_3?.isStruct))throw new TypeError("Can only use chaining operator on struct instances.");if(!_3.props[${JSON.stringify(node2.index)}]){throw new TypeError("Struct does not have property, cannot chain.")};})()`
-          return new TypedInput(`((_3 = ${item}, ${checkIsStruct}, _3).props[${JSON.stringify(node2.index)}].value)`, OutputType.TYPE_UNKNOWN) // work around to allow setting with a chain
+          return new TypedInput(`/* Chaining */((_3 = ${item}, ${checkIsStruct}, _3).props[${JSON.stringify(node2.index)}].value)`, OutputType.TYPE_UNKNOWN) // work around to allow setting with a chain
         }
         case NodeType.Struct: {
           // a struct is just a fancy function.
@@ -519,10 +519,10 @@ export default class JSGenerator {
             structSrc += `${expr}};`
           }
           structSrc += "return struct;})";
-          return new TypedInput(`(${structSrc})`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`/* Struct */(${structSrc})`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Target: {
-          return new TypedInput(`(util.target)`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`/* Target */(util.target)`, OutputType.TYPE_UNKNOWN)
         }
       }
     }
