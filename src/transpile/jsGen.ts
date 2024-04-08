@@ -241,19 +241,19 @@ export default class JSGenerator {
   protected descendNode(node: Stmt): void {
     switch (node.kind) {
       case NodeType.NoOp: {
-        this.src += ";"; // empty statement
+        this.src += "/* NoOp Semicolon */;"; // empty statement
         break;
       }
       case NodeType.StmtBlock: {
         const node2 = node as unknown as StmtBlock;
-        this.src += "{"
+        this.src += "/* Statement Block */{"
         for (const stmt of node2.body) this.descendNode(stmt);
         this.src += "}";
         break;
       }
       case NodeType.ReturnStatement: {
         const node2 = node as unknown as ReturnStatement;
-        this.src += "return(";
+        this.src += "/* Return Statement */return(";
         this.src += this.descendExpr(node2.value).asUnknown();
         this.src += ")"
         this.src += "?? null;"
@@ -261,7 +261,7 @@ export default class JSGenerator {
       }
       case NodeType.IfStatement: {
         const node2 = node as unknown as IfStatement;
-        this.src += "if(";
+        this.src += "/* If/Else Statement */if(";
         this.src += this.descendExpr(node2.condition).asBoolean();
         this.src += ")";
         if (node2.body.kind === NodeType.VariableDeclaration) throw new SyntaxError("Cannot declare a variable in a single-statement context")
@@ -277,7 +277,7 @@ export default class JSGenerator {
       case NodeType.VariableDeclaration: {
         const node2 = node as unknown as VariableDeclaration;
         const ident = this.getVariable(node2.symbol);
-        node2.constant ? this.src += "const " : this.src += "let ";
+        node2.constant ? this.src += `/* Constant Declaration (var: ${this.getVariable(node2.symbol)}) */const ` : this.src += "/* Variable Declaration (var: ${this.getVariable(node2.symbol)}) */let ";
         this.src += ident;
 
         if (node2.value) {
@@ -292,7 +292,7 @@ export default class JSGenerator {
       }
       case NodeType.While: {
         const node2 = node as unknown as While;
-        this.src += "while(";
+        this.src += "/* While/RepeatUntil/Forever Loop */while(";
         this.src += this.descendExpr(node2.condition).asBoolean();
         this.src += "){"; // luckily, variables cannot be defined in a single statement.
         if (node2.body.kind === NodeType.VariableDeclaration) throw new SyntaxError("Cannot declare a variable in a single-statement context")
@@ -302,16 +302,16 @@ export default class JSGenerator {
         break;
       }
       case NodeType.Break: {
-        this.src += "break;";
+        this.src += "/* Break Statement*/break;";
         break;
       }
       case NodeType.Continue: {
-        this.src += "continue;";
+        this.src += "/* Continue Statement */continue;";
         break;
       }
       case NodeType.Try: {
         const node2 = node as unknown as Try;
-        this.src += "try{";
+        this.src += `/* Try/Catch/Finally Statement (var: ${node2.catchVar ? this.getVariable(node2.catchVar) : "No Var"}})*/try{`;
         this.descendNode(node2.body);
         this.src += "}";
         if (node2.catch) {
@@ -339,7 +339,7 @@ export default class JSGenerator {
       switch (node.kind) {
         case NodeType.Global: {
           const node2 = node as unknown as Global;
-          return new TypedInput(`/* Global */(\$globalEnv.get(${JSON.stringify(node2.symbol)}).value)`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`/* Global (var: ${node2.symbol}) */(\$globalEnv.get(${JSON.stringify(node2.symbol)}).value)`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.AssignmentExpr: {
           const node2 = node as unknown as AssignmentExpr;
