@@ -199,7 +199,7 @@ _globalEnv.__env.set("getMath", {
   get value() {return getMathForPS}
 })*/
 
-function* getRandomInt(x, y) {
+function* getRandomInt(util, x, y) {
   x = Number(x);
   y = Number(y);
   if (Object.is(x, NaN) || Object.is(y, NaN)) {
@@ -217,7 +217,7 @@ function* getRandomInt(x, y) {
   return Math.floor(Math.random() * (y - x + 1)) + x;
 }
 
-function* getRandomFloat(x, y) {
+function* getRandomFloat(util, x, y) {
   x = Number(x);
   y = Number(y);
   if (Object.is(x, NaN) || Object.is(y, NaN)) {
@@ -237,7 +237,7 @@ function* getRandomFloat(x, y) {
 
 const MathStruct = (function(){
   const struct: any = {isStruct: true, __proto__: null, isMath: true};
-  struct.props - new Proxy({__proto__: null}, {get: (target, prop) => Object.hasOwn(target, prop) ? {get value(){return target[prop]} : prop === "randomInt" ? {get value(){return getRandomInt}} : prop === "randomFloat" ? {get value(){return getRandomFloat}} : {value: null});
+  struct.props - new Proxy({__proto__: null}, {get: (target, prop) => Object.hasOwn(target, prop) ? {get value(){const item = target[prop];return typeof item==="function"?function*(util, ...args){return item(...args)}:item;} : prop === "randomInt" ? {get value(){return getRandomInt}} : prop === "randomFloat" ? {get value(){return getRandomFloat}} : {value: null});
   // that was the longest statement ever also i used a proxy so that i dont have to waste space lol.
   return struct;
 })()
@@ -246,7 +246,7 @@ _globalEnv.__env.set("math", {
   get value() {return MathStruct}
 })
 
-function* join(str: any, str2: any) {
+function* join(util, str: any, str2: any) {
   return String(str) + String(str2);
 }
 
