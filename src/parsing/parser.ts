@@ -73,9 +73,9 @@ export default class Parser {
           stmts.push(stmt);
         }
         this.expect(TokenType.CLOSE_BRACE);
-        if (this.at().type === TokenType.SEMICOLON) { // you dont really need a semicolon after braces
+        /*if (this.at().type === TokenType.SEMICOLON) { // you dont really need a semicolon after braces
           this.eat();
-        }
+        }*/
         return {
           kind: NodeType.StmtBlock,
           body: stmts
@@ -116,7 +116,7 @@ export default class Parser {
       }
       default: {
         const expr = this.parse_expr();
-        if (!(expr.kind === NodeType.Inline)) this.expect(TokenType.SEMICOLON); // expect a semicolon on every statement (except some)
+        //if (!(expr.kind === NodeType.Inline)) this.expect(TokenType.SEMICOLON); // expect a semicolon on every statement (except some) // yeah no im longer expecting semicolons due to them being kinda weird.
         return expr;
       }
     }
@@ -298,7 +298,7 @@ export default class Parser {
       value: this.parse_expr()
     } as VariableDeclaration
 
-    this.expect(TokenType.SEMICOLON);
+    //this.expect(TokenType.SEMICOLON);
 
     return declaration;
   }
@@ -485,10 +485,7 @@ export default class Parser {
     let primary = this.parse_primary_expr();
     while (this.at().type === TokenType.CHAINING) {
       this.eat(); // eat chaining;
-      let ident = "";
-      //const ident = this.expect(TokenType.IDENTIFIER).raw;
-      if (this.at().type === TokenType.STRING) ident = this.eat().raw;
-      else ident = this.expect(TokenType.IDENTIFIER).raw;
+      let ident = this.expect(TokenType.STRING, TokenType.IDENTIFIER).raw;
       primary = {
         kind: NodeType.Chaining,
         item: primary,
