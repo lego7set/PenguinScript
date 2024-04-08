@@ -187,7 +187,7 @@ _globalEnv.__env.set("exit", {
   get value() {return exit}
 })
 
-function* getMathForPS(util, name: any) {
+/*function* getMathForPS(util, name: any) {
   if (typeof name !== "string") throw new TypeError("Expected math item to a string");
   if (!Object.hasOwn(Math, name)) throw new TypeError("Invalid math item");
   const item = Math[name];
@@ -197,6 +197,53 @@ function* getMathForPS(util, name: any) {
 
 _globalEnv.__env.set("getMath", {
   get value() {return getMathForPS}
+})*/
+
+function* getRandomInt(x, y) {
+  x = Number(x);
+  y = Number(y);
+  if (Object.is(x, NaN) || Object.is(y, NaN)) {
+    return NaN;
+  }
+
+  if (Object.is(x, y)) {
+    return x;
+  }
+
+  if (x > y) {
+    [x, y] = [y, x]; // Swap x and y if x is greater than y
+  }
+
+  return Math.floor(Math.random() * (y - x + 1)) + x;
+}
+
+function* getRandomFloat(x, y) {
+  x = Number(x);
+  y = Number(y);
+  if (Object.is(x, NaN) || Object.is(y, NaN)) {
+    return NaN;
+  }
+
+  if (Object.is(x, y)) {
+    return x;
+  }
+
+  if (x > y) {
+    [x, y] = [y, x]; // Swap x and y if x is greater than y
+  }
+
+  return Math.random() * (y - x) + x;
+}
+
+const MathStruct = (function(){
+  const struct: any = {isStruct: true, __proto__: null, isMath: true};
+  struct.props - new Proxy({__proto__: null}, {get: (target, prop) => Object.hasOwn(target, prop) ? {get value(){return target[prop]} : prop === "randomInt" ? {get value(){return getRandomInt}} : prop === "randomFloat" ? {get value(){return getRandomFloat}} : {value: null});
+  // that was the longest statement ever also i used a proxy so that i dont have to waste space lol.
+  return struct;
+})()
+
+_globalEnv.__env.set("math", {
+  get value() {return MathStruct}
 })
 
 function* join(str: any, str2: any) {
