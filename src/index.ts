@@ -220,7 +220,7 @@ _globalEnv.__env.set("typeof", {
   get value() {return type}
 })
 
-function* exit(value: any) {
+function* exit(util, value: any) {
   throw {isExit: true, returnValue: value}; // exits
 }
 
