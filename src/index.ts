@@ -1068,9 +1068,38 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     get value() {return applicationTime}
   })
 
-  
+  Scratch.vm.runtime.on("PROJECT_START", () => startApplicationTime = self.performance.now());
 
-  Scratch.vm.runtime.on("PROJECT_START", () => startApplicationTime = self.performance.now())
+  const soundsCategory = Scratch.vm.runtime.ext_scratch3_sound;
+  function* playSound(util, sprite, sound, seconds) { // lol theres a target prop on util, but we cant use that cuz no
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot play sound from a non-sprite");
+    if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
+    if (typeof seconds !== "number") seconds = Number(seconds) || 0;
+    soundsCategory._playSoundAtTimePosition({
+      sound: Scratch.Cast.toString(sound),
+      seconds
+    }, {target: sprite}, true); // dont wait for the promise.
+  }
+
+  function* playSoundAndWait(util, sprite, sound, seconds) { // lol theres a target prop on util, but we cant use that cuz no
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot play sound from a non-sprite");
+    if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
+    if (typeof seconds !== "number") seconds = Number(seconds) || 0;
+    util.waitPromise(soundsCategory._playSoundAtTimePosition({
+      sound: Scratch.Cast.toString(sound),
+      seconds
+    }, {target: sprite}, true)); // dont wait for the promise.
+  }
+
+  _globalEnv.__env.set("playSound", {
+    get value() {return playSound}
+  })
+
+  _globalEnv.__env.set("playSoundAndWait", {
+    get value() {return playSoundAndWait}
+  })
+
+  // https://github.com/lego7set/PenguinMod-Vm/blob/develop/src/blocks/scratch3_sound.js#L411
 
   customObjectTypes.sprite = (v: any) => v instanceof Scratch.vm.exports.RenderedTarget; // create a sprite type.
   
