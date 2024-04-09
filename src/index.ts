@@ -343,18 +343,46 @@ function* createErrorStruct(util, v) {
   const struct: any = {__proto__: null, isStruct: true, isError: true, props:{__proto__: null}};
   struct.props.msg = {value:v.message};
   struct.props.type = {value:v.name || "Error"};
-  struct.props.throw = {get value() {
-    return function*(){
-      const err = new Error(struct.props.msg);
-      err.name = struct.props.type;
-      throw err; // throws the error.
-    }
+  struct.props.throw = {value: function*(){
+    const err = new Error(struct.props.msg);
+    err.name = struct.props.type;
+    throw err; // throws the error.
   }}
   return struct;
 }
 
 _globalEnv.__env.set("Error", {
   get value() {return createErrorStruct}
+})
+
+function* deepClone(util, structToClone) {
+  const typeToClone = type(util, structToClone)
+  switch (typeToClone) {
+    case "error": {
+      let err: any;
+      try {structToClone.props.throw.value.next()} catch(e) {err = e;} // this is guaranteed.
+      return createErrorStruct(util, err);
+    }
+    case "object": {
+      const actualProps = structToClone.getActual();
+      const newStruct = createObjectStruct(util);
+      const newProps = Object.assign(newStruct.getActual(), actualProps);
+      return newStruct
+    }
+    case "array": {
+      const actualProps = structToClone.getActual();
+      const newStruct = createArrayStruct(util);
+      const newProps = Object.assign(newStruct.getActual(), actualProps);
+      return newStruct
+    }
+    default: {
+      throw new TypeError("Can only deep clone errors, objects, and arrays.")
+    }
+  }
+}
+
+_globalEnv.__env.set("deepClone", {
+  get value() {return deepClone}
 })
 
 function supportsNullishCoalescing() {
