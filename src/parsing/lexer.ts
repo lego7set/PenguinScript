@@ -319,17 +319,47 @@ export default class Lexer {
             }
             if (src.shift() !== '"') throw new SyntaxError("Expected closing quotes, got <EOF> instead."); // consume the closing quote and throw if not present.
             yield* this.yieldToken(new Token(TokenType.STRING, str))
-          } else if (/^[0-9]$.test(src[0])/) {
-            // This is a number
-            let num = "";
-            for (;typeof src[0] === "string" && /^[0-9]+$/.test(num + src[0]) && src.length > 0; num += src.shift());
-            if (src[0] === "." && /^[0-9]$/.test(String(src[1]))) {
-              num += src.shift();
-              num += src.shift();
-              for (;typeof src[0] === "string" && /^[0-9]+\.[0-9]+$/.test(num + src[0]) && src.length > 0; num += src.shift());
+          } else if (/^[0-9]$/.test(src[0])) {
+              // This is a number
+              let num = "";
+              if (src[0] === "0" && src[1] === "x") {
+                // Hexadecimal literal
+                src.shift(); // consume "0"
+                src.shift(); // consume "x"
+                for (; /^[0-9a-fA-F]$/.test(src[0]) && src.length > 0; num += src.shift());
+                yield* this.yieldToken(new Token(TokenType.NUMBER, "0x" + num));
+              } else if (src[0] === "0" && src[1] === "o") {
+                // Octal literal
+                src.shift(); // consume "0"
+                src.shift(); // consume "o"
+                for (; /^[0-7]$/.test(src[0]) && src.length > 0; num += src.shift());
+                yield* this.yieldToken(new Token(TokenType.NUMBER, "0o" + num));
+              } else if (src[0] === "0" && src[1] === "b") {
+                // Binary literal
+                src.shift(); // consume "0"
+                src.shift(); // consume "b"
+                for (; /^[01]$/.test(src[0]) && src.length > 0; num += src.shift());
+                yield* this.yieldToken(new Token(TokenType.NUMBER, "0b" + num));
+              } else {
+                // Decimal or exponential literal
+                for (; /^[0-9]$/.test(src[0]) && src.length > 0; num += src.shift());
+                if (src[0] === "." && /^[0-9]$/.test(String(src[1]))) {
+                  num += src.shift();
+                  num += src.shift();
+                  for (; /^[0-9]$/.test(src[0]) && src.length > 0; num += src.shift());
+                  if (src[0] === "e" || src[0] === "E") {
+                    num += src.shift();
+                    let sign = "";
+                    if (src[0] === "+" || src[0] === "-") {
+                      sign = src.shift();
+                    }
+                    let exponent = "";
+                    for (; /^[0-9]$/.test(src[0]) && src.length > 0; exponent += src.shift());
+                    num += sign + exponent;
+                  }
+              }
+              yield* this.yieldToken(new Token(TokenType.NUMBER, num));
             }
-            // console.log(TokenType.NUMBER, num)
-            yield* this.yieldToken(new Token(TokenType.NUMBER, num));
           } else {
             throw new SyntaxError("Unknown character: " + src.shift());
           }  /*else if (/^[\s]+$/.test(src[0])) {
