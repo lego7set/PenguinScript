@@ -1085,20 +1085,67 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot play sound from a non-sprite");
     if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
     if (typeof seconds !== "number") seconds = Number(seconds) || 0;
-    util.waitPromise(soundsCategory._playSoundAtTimePosition({
+    yield* util.waitPromise(soundsCategory._playSoundAtTimePosition({
       sound: Scratch.Cast.toString(sound),
       seconds
-    }, {target: sprite}, true)); // dont wait for the promise.
+    }, {target: sprite}, true)); // do wait for the promise.
+  }
+
+  function* stopSound(util, sprite, sound) {
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot stop sound from a non-sprite");
+    if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
+    soundsCategory.stopSpecificSound({
+      SOUND_MENU: sound
+    }, {
+      target: sprite
+    })
+  }
+
+  function* stopAllSoundsForSprite(util, sprite) {
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot stop all sound from a non-sprite");
+    soundsCategory._stopAllSoundsForTarget(sprite);
+  }
+
+  function* stopAllSounds(util) {
+    soundsCategory.stopAllSounds();
+  }
+
+  function* setFadeout(util, sprite, sound, fadeout) {
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot set fadeout of a sound from a non-sprite");
+    if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
+    fadeout = Number(fadeout) || 0;
+    soundsCategory.setStopFadeout({
+      SOUND_MENU: sound,
+      VALUE: fadeout
+    }, {
+      target: sprite
+    });
   }
 
   _globalEnv.__env.set("playSound", {
     get value() {return playSound}
   })
 
+  _globalEnv.__env.set("stopSound", {
+    get value() {return stopSound}
+  })
+
+  _globalEnv.__env.set("stopAllSoundsForSprite", {
+    get value() {return stopAllSoundsForSprite}
+  })
+
+  _globalEnv.__env.set("stopAllSounds", {
+    get value() {return stopAllSounds}
+  })
+
   _globalEnv.__env.set("playSoundAndWait", {
     get value() {return playSoundAndWait}
   })
 
+  globalEnv.__env.set("setFadeout", {
+    get value() {return setFadeout}
+  })
+  
   // https://github.com/lego7set/PenguinMod-Vm/blob/develop/src/blocks/scratch3_sound.js#L411
 
   customObjectTypes.sprite = (v: any) => v instanceof Scratch.vm.exports.RenderedTarget; // create a sprite type.
