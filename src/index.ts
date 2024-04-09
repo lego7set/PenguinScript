@@ -1055,6 +1055,23 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     get value() {return waitUntil}
   })
 
+  let startApplicationTime = self.performance.now();
+  function* applicationTime() { // time since green flag clicked in milliseconds.
+    return self.performance.now() - startApplicationTime;
+  }
+
+  _globalEnv.__env.set("applicationTime", {
+    get value() {return applicationTime}
+  })
+
+  _globalEnv.__env.set("timeSinceBlueFlag", { // i was gonna put green flag but its pm
+    get value() {return applicationTime}
+  })
+
+  
+
+  Scratch.vm.runtime.on("PROJECT_START", () => startApplicationTime = self.performance.now())
+
   customObjectTypes.sprite = (v: any) => v instanceof Scratch.vm.exports.RenderedTarget; // create a sprite type.
   
   class PenguinScript {
