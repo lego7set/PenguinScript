@@ -1091,6 +1091,34 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     }, {target: sprite}, true)); // do wait for the promise.
   }
 
+  function* playAllSounds(util, target) { // im not using that weird function on the sound category.
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot play all sounds from a non-sprite");
+    const sprite = target.sprite;
+    if (!sprite) return null;
+    for (let i = 0; i < sprite.sounds.length; i++) {
+      const { soundId } = sprite.sounds[i];
+      if (sprite.soundBank) {
+        sprite.soundBank.playSound(target, soundId);
+        soundsCategory._addWaitingSound(target.id, soundId);
+      }
+    }
+  }
+
+  function* playAllSoundsAndWait(util, target) { // im not using that weird function on the sound category.
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot play all sounds from a non-sprite");
+    const sprite = target.sprite;
+    if (!sprite) return null;
+    const playedSounds = [];
+    for (let i = 0; i < sprite.sounds.length; i++) {
+      const { soundId } = sprite.sounds[i];
+      if (sprite.soundBank) {
+        playedSounds.push(sprite.soundBank.playSound(target, soundId));
+        soundsCategory._addWaitingSound(target.id, soundId);
+      }
+    }
+    yield* util.waitPromise(Promise.all(playedSounds))
+  }
+
   function* stopSound(util, sprite, sound) {
     if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot stop sound from a non-sprite");
     if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
@@ -1140,6 +1168,15 @@ if ((typeof window === "object" && window && typeof window.document === "object"
 
   _globalEnv.__env.set("playSoundAndWait", {
     get value() {return playSoundAndWait}
+  })
+
+
+  _globalEnv.__env.set("playAllSounds", {
+    get value() {return playAllSounds}
+  })
+
+  _globalEnv.__env.set("playAllSoundsAndWait", {
+    get value() {return playAllSoundsAndWait}
   })
 
   globalEnv.__env.set("setFadeout", {
