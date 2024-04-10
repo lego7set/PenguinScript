@@ -99,7 +99,8 @@ export default class Lexer {
     continue: TokenType.CONTINUE,
     try: TokenType.TRY,
     catch: TokenType.CATCH,
-    finally: TokenType.FINALLY
+    finally: TokenType.FINALLY,
+    in: TokenType.BINARY_OPERATOR
     // async: TokenType.RESERVED,
     // await: TokenType.RESERVED
   };
