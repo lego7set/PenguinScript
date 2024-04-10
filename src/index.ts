@@ -33,7 +33,7 @@ function* createObjectStruct(...keysValues) {
     return props[key] = value;
   }}
   struct.props.has = {value:function*(util, key) {
-    return key in props
+    return props[key] != null; // != cuz it looks at undefined too.
   }}
   struct.props.delete = {value:function*(util, key) {
     return delete props[key];
@@ -86,12 +86,12 @@ function* createArrayStruct(...values) {
   struct.props.has = {value:function*(util, key) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
     key = Math.round(key) || 0
-    return key in props
+    return key >= 0 && key < props.length; 
   }}
   struct.props.delete = {value:function*(util, key) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
     key = Math.round(key) || 0
-    return delete props[key];
+    return props.length = key;
   }}
   struct.props.pop = {value:function*() {
     return props.pop();
