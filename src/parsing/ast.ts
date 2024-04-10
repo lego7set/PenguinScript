@@ -24,7 +24,8 @@ export enum NodeType {
   Continue,
   Struct,
   Chaining,
-  Try
+  Try,
+  In
 }
 
 export enum OutputType { // going to be unused
@@ -210,6 +211,12 @@ export interface Struct extends Expr {
 
 export interface Chaining extends Expr {
   kind: NodeType.Chaining;
+  item: Expr;
+  index: string;
+}
+
+export interface In extends Expr {
+  kind: NodeType.In;
   item: Expr;
   index: string;
 }
