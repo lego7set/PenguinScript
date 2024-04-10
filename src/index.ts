@@ -16,9 +16,24 @@ function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
   return "(yield* (function*($globalEnv, $target, isStuck){" + generator.transpile("string", true, warpTimer, isWarp) + "})(runtime.ext_vgspenguinscript._globalEnv, {isStuck, target, waitPromise}))";
 }*/ // dont use precompile
 
-function* createObjectStruct() {
+function* createObjectStruct(...keysValues) {
+  const splitArrayIntoEvenAndOdd = (arr) => {
+    if (arr.length % 2 !== 0) throw new TypeError("Each key must have a value in object structs");
+    const evenArray = [];
+    const oddArray = [];
+  
+    for (let i = 0; i < arr.length; i++) {
+      if (i % 2 === 0) {
+        evenArray.push(arr[i]);
+      } else {
+        oddArray.push(arr[i]);
+      }
+    }
+  
+    return [evenArray, oddArray];
+  };
   const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
-  const props: any = {__proto__: null};
+  const props: any = {__proto__: null, ...(Object.fromEntries(splitArrayIntoEvenAndOdd(keysValues)))};
   struct.getActual = () => props;
   struct.props.get = {value:function*(util, key){ // an object class, kinda
     return props[key];
