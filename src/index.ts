@@ -17,23 +17,14 @@ function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
 }*/ // dont use precompile
 
 function* createObjectStruct(...keysValues) {
-  const splitArrayIntoEvenAndOdd = (arr) => {
-    if (arr.length % 2 !== 0) throw new TypeError("Each key must have a value in object structs");
-    const evenArray = [];
-    const oddArray = [];
-  
-    for (let i = 0; i < arr.length; i++) {
-      if (i % 2 === 0) {
-        evenArray.push(arr[i]);
-      } else {
-        oddArray.push(arr[i]);
-      }
-    }
-  
-    return [evenArray, oddArray];
-  };
+  if (arr.length % 2 !== 0) throw new TypeError("Each key must have a value in object structs");
+  const entries = [];
+
+  for (let i = 0; i < arr.length; i += 2) {
+    entries.push([arr[i], arr[i + 1]])
+  }
   const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
-  const props: any = {__proto__: null, ...(Object.fromEntries(splitArrayIntoEvenAndOdd(keysValues)))};
+  const props: any = {__proto__: null, ...(Object.fromEntries(entries))};
   struct.getActual = () => props;
   struct.props.get = {value:function*(util, key){ // an object class, kinda
     return props[key];
@@ -78,9 +69,9 @@ _globalEnv.__env.set("Object", {
   get value() {return createObjectStruct}
 })
 
-function* createArrayStruct() {
+function* createArrayStruct(...values) {
   const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
-  const props = [];
+  const props = values;
   struct.getActual = () => props;
   struct.props.get = {value:function*(util, key){
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
