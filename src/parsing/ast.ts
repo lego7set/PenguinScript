@@ -25,7 +25,8 @@ export enum NodeType {
   Struct,
   Chaining,
   Try,
-  In
+  In,
+  Ternary
 }
 
 export enum OutputType { // going to be unused
@@ -84,6 +85,13 @@ export interface IfStatement extends Stmt {
   body: Stmt;
   condition: Expr;
   else?: ElseStatement;
+}
+
+export interface Ternary extends Expr {
+  kind: NodeType.Ternary;
+  body: Expr;
+  condition: Expr;
+  else?: Expr;
 }
 
 export interface ElseStatement extends Stmt {
