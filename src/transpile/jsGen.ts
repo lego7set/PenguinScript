@@ -1,4 +1,4 @@
-import type { Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline, Target, Break, Continue, Struct, Chaining, Try } from "../parsing/ast.ts";
+import type { Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline, Target, Break, Continue, Struct, Chaining, Try, In, Ternary } from "../parsing/ast.ts";
 import { NodeType } from "../parsing/ast";
 
 export enum OutputType {
@@ -507,6 +507,19 @@ export default class JSGenerator {
           const checkIsStruct = `(function(){if(!(_3?.props&&_3?.isStruct))throw new TypeError("Can only use chaining operator on struct instances.");if(!_3.props[${JSON.stringify(node2.index)}]){throw new TypeError("Struct does not have property, cannot chain.")};})()`;
           const debug = `(function(){debugger;})(),`
           return new TypedInput(`/* Chaining */${JSGenerator.CompilerSettings.debug ? debug : ""}((_3 = ${item}, ${checkIsStruct}, _3).props[${JSON.stringify(node2.index)}].value)`, OutputType.TYPE_UNKNOWN) // work around to allow setting with a chain
+        }
+        case NodeType.In: {
+          const node2 = node as unknown as In;
+          const item = this.descendExpr(node2.item).asUnknown();
+          const index = node2.index;
+          return new TypedInput(`/* In Operator */(_5 = ${item}, _5 && _5.props && typeof _5 === "object" && _5.isStruct && typeof _5.props === "object" && ${JSON.stringify(node2.index)} in _5.props)`)
+        }
+        case NodeType.Ternary: {
+          const node2 = node as unknown as Ternary;
+          const expr = this.descendExpr(node2.body).asUnknown();
+          const condition = this.descendExpr(node2.condition).asBoolean();
+          const elseExpr = node2.else ? this.descendExpr(node2.else).asUnknown() : "(null)";
+          return new TypedInput(`/* Ternary Operator */(${condition} ? ${expr} : ${elseExpr})`)
         }
         case NodeType.Struct: {
           // a struct is just a fancy function.
