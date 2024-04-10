@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining, Try } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining, Try, In } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -482,7 +482,7 @@ export default class Parser {
 
   protected parse_chaining_expr() {
     // left-hand = anything, right-hand = identifier
-    let primary = this.parse_primary_expr();
+    let primary = this.parse_in_expr();
     while (this.at().type === TokenType.CHAINING) {
       this.eat(); // eat chaining;
       let ident = this.expect(TokenType.STRING, TokenType.IDENTIFIER).raw;
@@ -493,6 +493,25 @@ export default class Parser {
       } as Chaining
     }
     return primary
+  }
+
+  protected parse_in_expr() {
+    const isStringOrIdent = this.at().type === TokenType.IDENTIFIER || this.at().type === TokenType.STRING;
+    let left = this.parse_primary_expr();
+  
+    while (this.at().type === TokenType.BINARY_OPERATOR && this.at().raw === "in") {
+      this.eat(); // eat 'in' keyword
+      // expect left to be a string or identifier.
+      if (!isStringOrIdent) throw new SyntaxError("Left side of in must be an identifier or string")
+      let right = this.parse_primary_expr();
+      left = {
+        kind: NodeType.In,
+        item: right,
+        index: left,
+      } as Chaining;
+    }
+  
+    return left;
   }
 
   protected parse_struct() {
