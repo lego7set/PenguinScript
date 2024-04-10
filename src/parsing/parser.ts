@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining, Try, In } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining, Try, In, Ternary } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -395,7 +395,7 @@ export default class Parser {
   }
   
   protected parse_assignment_expr(): AssignmentExpr | Expr {
-    const left = this.parse_and_expr();
+    const left = this.parse_ternary_expr();
 
     if (this.at().type === TokenType.EQUALS) {
       this.eat();
@@ -407,6 +407,28 @@ export default class Parser {
       } as AssignmentExpr
     }
 
+    return left;
+  }
+
+  protected parse_ternary_expr(): Ternary | Expr {
+    const isIf = this.at().type === TokenType.IF;
+    if (isIf) this.eat();
+    let left = this.parse_and_expr();
+    while (this.at().type === TokenType.IF) {
+      // if condition expr1 else if condition2 expr2 else...
+      const middle = this.parse_expr();
+      let right;
+      if (this.at().type === TokenType.ELSE) {
+        this.eat();
+        right = this.parse_expr();
+      };
+      left = {
+        kind: NodeType.Ternary,
+        body: middle,
+        condition: left,
+        else: right // if is not present, use null as default
+      }
+    }
     return left;
   }
 
