@@ -1588,31 +1588,62 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     }
     utilObject = {
       createError: createErrorStruct,
-      lt(a, b) {
+      *lt(a, b) {
+        if (a && a.isComplex && a.isStruct) return false;
+        if (b && b.isComplex && b.isStruct) return false;
         return Number(a) < Number(b)
       },
-      le(a, b) {
+      *le(a, b) {
+        if (a && a.isComplex && a.isStruct) return false;
+        if (b && b.isComplex && b.isStruct) return false;
         return Number(a) <= Number(b)
       },
-      gt(a, b) {
+      *gt(a, b) {
+        if (a && a.isComplex && a.isStruct) return false;
+        if (b && b.isComplex && b.isStruct) return false;
         return Number(a) > Number(b)
       },
-      ge(a, b) {
+      *ge(a, b) {
+        if (a && a.isComplex && a.isStruct) return false;
+        if (b && b.isComplex && b.isStruct) return false;
         return Number(a) >= Number(b)
       },
-      add(a, b) {
+      *is(a, b) {
+        if (a && b && a.isComplex && b.isComplex) return yield* a.props.__equals__(this, b);
+        if (a && a.isComplex && typeof b === "number") return yield* a.props.__equals(this, b);
+        if (b && b.isComplex && typeof a === "number") return yield* b.props.__equals(this, a);
+        return Object.is(a, b);
+      },
+      *add(a, b) {
+        if (a && a.isComplex && a.isStruct && yield* a.props.__isCompatible__(this, b)) return yield* a.props.__add__(this, b);
+        if (b && b.isComplex && b.isStruct && yield* b.props.__isCompatible__(this, a)) return yield* b.props.__add__(this, a);
+        if (a.isStruct && typeof a.props.__add__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__add__(this, b);
+        if (b.isStruct && typeof b.props.__add__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__add__(this, b);
         return Number(a) + Number(b)
       },
-      subtract(a, b) {
+      *subtract(a, b) {
+        if (a && a.isComplex && a.isStruct && yield* a.props.__isCompatible__(this, b)) return yield* a.props.__subtract__(this, b);
+        if (b && b.isComplex && b.isStruct && yield* b.props.__isCompatible__(this, a)) return yield* b.props.__subtract__(this, a);
+        if (a.isStruct && typeof a.props.__subtract__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__subtract__(this, b);
+        if (b.isStruct && typeof b.props.__subtract__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__subtract__(this, b);
         return Number(a) - Number(b)
       },
-      multiply(a, b) {
+      *multiply(a, b) {
+        if (a && a.isComplex && a.isStruct && yield* a.props.__isCompatible__(this, b)) return yield* a.props.__multiply__(this, b);
+        if (b && b.isComplex && b.isStruct && yield* b.props.__isCompatible__(this, a)) return yield* b.props.__multiply__(this, a);
+        if (a.isStruct && typeof a.props.__multiply__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__multiply__(this, b);
+        if (b.isStruct && typeof b.props.__multiply__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__multiply__(this, b);
         return Number(a) * Number(b)
       },
-      divide(a, b) {
+      *divide(a, b) {
+        if (a && a.isComplex && a.isStruct && yield* a.props.__isCompatible__(this, b)) return yield* a.props.__divide__(this, b);
+        if (b && b.isComplex && b.isStruct && yield* b.props.__isCompatible__(this, a)) return yield* b.props.__divide__(this, a);
+        if (a.isStruct && typeof a.props.__divide__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) return yield* a.props.__divide__(this, b);
+        if (b.isStruct && typeof b.props.__divide__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) return yield* a.props.__divide__(this, b);
         return Number(a) / Number(b)
       },
-      mod(a, b) {
+      *mod(a, b) {
+        if ((a && a.isComplex) || (b && b.isComplex)) throw new TypeError("Complex operation not implemented")
         // this is basically the code from the pm vm
         const n = Number(a);
         const modulus = Number(b);
@@ -1620,7 +1651,11 @@ if ((typeof window === "object" && window && typeof window.document === "object"
         if (result / modulus < 0) result += modulus;
         return result; 
       },
-      power(a, b) {
+      *power(a, b) {
+        if (a && a.isComplex && a.isStruct && yield* a.props.__isCompatible__(this, b)) return yield* a.props.__power__(this, b);
+        if (b && b.isComplex && b.isStruct && yield* b.props.__isCompatible__(this, a)) return yield* b.props.__power__(this, a);
+        if (a.isStruct && typeof a.props.__power__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) return yield* a.props.__power__(this, b);
+        if (b.isStruct && typeof b.props.__power__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) return yield* a.props.__power__(this, b);
         return Number(a) ** Number(b)
       },
     };
