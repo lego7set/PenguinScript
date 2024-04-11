@@ -4,6 +4,8 @@ import Lexer from "./parsing/lexer";
 
 import JSGenerator, { _globalEnv } from "./transpile/jsGen";
 
+import Complex from "complex.js"; // hopefully this works and i dont have to require it
+
 function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
   const generator = new JSGenerator(program);
@@ -300,13 +302,18 @@ function* getRandomFloat(util, x, y) {
 
 const MathStruct = (function(){
   const struct: any = {isStruct: true, __proto__: null, isMath: true};
+  const overwritten = 
+  {
+    __proto__: null,
+    random: getRandomFloat,
+    randomInt: getRandomInt
+    // implement some stuff here later
+  };
   struct.props = new Proxy({__proto__: null}, {
-    get: (target, prop) =>  prop === "random" ? 
-      {get value(){return getRandomFloat}} 
+    get: (target, prop) =>  Object.hasOwn(overwritten, prop) 
+      ? overwritten[prop]
       : Object.hasOwn(target, prop) 
       ? {get value(){const item = target[prop];return typeof item==="function"?function*(util, ...args){return item(...args)}:item;}} 
-      : prop === "randomInt"
-      ? {get value(){return getRandomInt}} 
       : {value: null}
   });
   // that was the longest statement ever also i used a proxy so that i dont have to waste space lol.
