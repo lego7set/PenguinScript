@@ -89,7 +89,6 @@ export default class Lexer {
     inline: TokenType.INLINE,
     global: TokenType.GLOBAL,
     target: TokenType.TARGET,
-    in: TokenType.RESERVED,
     for: TokenType.RESERVED,
     this: TokenType.RESERVED,
     self: TokenType.RESERVED,
@@ -349,6 +348,7 @@ export default class Lexer {
                   num += src.shift();
                   for (; /^[0-9]$/.test(src[0]) && src.length > 0; num += src.shift());
                   if (src[0] === "e" || src[0] === "E") {
+                    // @ts-ignore
                     num += src.shift();
                     let sign = "";
                     if (src[0] === "+" || src[0] === "-") {
