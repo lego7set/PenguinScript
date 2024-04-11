@@ -427,7 +427,7 @@ export default class Parser {
         body: middle,
         condition: left,
         else: right // if is not present, use null as default
-      }
+      } as Ternary; // typescript is so annoying
     }
     return left;
   }
@@ -530,7 +530,7 @@ export default class Parser {
         kind: NodeType.In,
         item: right,
         index: left,
-      } as Chaining;
+      } as In;
     }
   
     return left;
