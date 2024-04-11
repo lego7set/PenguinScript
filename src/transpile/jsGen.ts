@@ -165,6 +165,7 @@ const GeneratorFunction = function*(){}.constructor as unknown as GeneratorFunct
 
 export interface CompilerSettings {
   referenceErrors: boolean;
+  debug: boolean;
 }
 
 export default class JSGenerator {
@@ -281,14 +282,14 @@ export default class JSGenerator {
         node2.constant ? this.src += `/* Constant Declaration (var: ${this.getVariable(node2.symbol)}) */const ` : this.src += "/* Variable Declaration (var: ${this.getVariable(node2.symbol)}) */const ";
         this.src += ident;
 
-        if (node2.value && !this.constant) {
+        if (node2.value && !node2.constant) {
           const value = this.descendExpr(node2.value);
           this.src += "=";
           this.src += "{value:";
           this.src += value.asUnknown();
           this.src += "}"
         }
-        if (node2.value && this.constant) {
+        if (node2.value && node2.constant) {
           const value = this.descendExpr(node2.value);
           this.src += "=";
           this.src += `(function(v){return {get value(){return v},set value(){throw new TypeError("Cannot reassign to a constant")}}})(`;
@@ -512,14 +513,14 @@ export default class JSGenerator {
           const node2 = node as unknown as In;
           const item = this.descendExpr(node2.item).asUnknown();
           const index = node2.index;
-          return new TypedInput(`/* In Operator */(_5 = ${item}, _5 && _5.props && typeof _5 === "object" && _5.isStruct && typeof _5.props === "object" && ${JSON.stringify(node2.index)} in _5.props)`)
+          return new TypedInput(`/* In Operator */(_5 = ${item}, _5 && _5.props && typeof _5 === "object" && _5.isStruct && typeof _5.props === "object" && ${JSON.stringify(node2.index)} in _5.props)`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Ternary: {
           const node2 = node as unknown as Ternary;
           const expr = this.descendExpr(node2.body).asUnknown();
           const condition = this.descendExpr(node2.condition).asBoolean();
           const elseExpr = node2.else ? this.descendExpr(node2.else).asUnknown() : "(null)";
-          return new TypedInput(`/* Ternary Operator */(${condition} ? ${expr} : ${elseExpr})`)
+          return new TypedInput(`/* Ternary Operator */(${condition} ? ${expr} : ${elseExpr})`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Struct: {
           // a struct is just a fancy function.
