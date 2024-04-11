@@ -421,7 +421,7 @@ const MathStruct = (function(){
       if (typeof v !== "number" && (!v || !v.isComplex)) throw new TypeError("Math operations can only be used on complex and numbers");
       return typeof v === "number" ? Math.abs(v) : yield* createComplexStruct(util, new Complex(v.props.re.value, v.props.im.value).abs());
     },
-    abs: function* (util, v) {
+    sign: function* (util, v) {
       if (typeof v !== "number" && (!v || !v.isComplex)) throw new TypeError("Math operations can only be used on complex and numbers");
       return typeof v === "number" ? Math.sign(v) : yield* createComplexStruct(util, new Complex(v.props.re.value, v.props.im.value).sign());
     },
@@ -499,7 +499,7 @@ const MathStruct = (function(){
     },
     tanh: function* (util, v) {
       if (typeof v !== "number" && (!v || !v.isComplex)) throw new TypeError("Math operations can only be used on complex and numbers");
-      return typeof v === "number" ? Math.tanh(v) : yield* createComplexStruct(util, new Complex(v.props.re.value, v.props.im.value).tanj());
+      return typeof v === "number" ? Math.tanh(v) : yield* createComplexStruct(util, new Complex(v.props.re.value, v.props.im.value).tanh());
     },
     coth: function* (util, v) {
       if (typeof v !== "number" && (!v || !v.isComplex)) throw new TypeError("Math operations can only be used on complex and numbers");
@@ -567,15 +567,15 @@ const MathStruct = (function(){
     },
     ceil: function* (util, v) {
       if (typeof v !== "number" && (!v || !v.isComplex)) throw new TypeError("Math operations can only be used on complex and numbers");
-      return typeof v === "number" ? Math.ceil(v) : yield* createComplexStruct(util, new Complex(v.props.re.value, v.props.im.value).ceil());
+      return typeof v === "number" ? Math.ceil(v) : yield* createComplexStruct(util, new Complex(v.props.re.value, v.props.im.value).ceil(0));
     },
     floor: function* (util, v) {
       if (typeof v !== "number" && (!v || !v.isComplex)) throw new TypeError("Math operations can only be used on complex and numbers");
-      return typeof v === "number" ? Math.floor(v) : yield* createComplexStruct(util, new Complex(v.props.re.value, v.props.im.value).floor());
+      return typeof v === "number" ? Math.floor(v) : yield* createComplexStruct(util, new Complex(v.props.re.value, v.props.im.value).floor(0));
     },
     round: function* (util, v) {
       if (typeof v !== "number" && (!v || !v.isComplex)) throw new TypeError("Math operations can only be used on complex and numbers");
-      return typeof v === "number" ? Math.round(v) : yield* createComplexStruct(util, new Complex(v.props.re.value, v.props.im.value).round());
+      return typeof v === "number" ? Math.round(v) : yield* createComplexStruct(util, new Complex(v.props.re.value, v.props.im.value).round(0));
     },
     arg: function* (util, v) {
       if (!v || !v.isComplex) throw new TypeError("Arg can only be used on a complex number because it isn't useful for real numbers");
