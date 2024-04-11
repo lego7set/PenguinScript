@@ -19,11 +19,11 @@ function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
 }*/ // dont use precompile
 
 function* createObjectStruct(...keysValues) {
-  if (arr.length % 2 !== 0) throw new TypeError("Each key must have a value in object structs");
+  if (keysValues.length % 2 !== 0) throw new TypeError("Each key must have a value in object structs");
   const entries = [];
 
-  for (let i = 0; i < arr.length; i += 2) {
-    entries.push([arr[i], arr[i + 1]])
+  for (let i = 0; i < keysValues.length; i += 2) {
+    entries.push([keysValue[i], keysValues[i + 1]])
   }
   const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
   const props: any = {__proto__: null, ...(Object.fromEntries(entries))};
@@ -277,14 +277,14 @@ function* getRandomInt(util, x, y) {
   return Math.floor(Math.random() * (y - x + 1)) + x;
 }
 
-function* createComplexStruct(util, x, y) {
+function* createComplexStruct(util, x?, y?) {
   let complex;
   try {
     complex = new Complex(x, y);
   } catch {
     throw new TypeError("Invalid arguments passed to Complex")
   }
-  const struct = {__proto__: null, isStruct: true, isComplex: true, props: {__proto__: null}};
+  const struct: any = {__proto__: null, isStruct: true, isComplex: true, props: {__proto__: null}};
   let im = complex.im;
   let re = complex.re;
   struct.props.re = {get value(){return re}, set value(v){
@@ -347,7 +347,7 @@ function* createComplexStruct(util, x, y) {
   struct.props.arg = {
     get value() {
       return new Complex(struct.props.re.value, struct.props.im.value).toPolar().phi;
-    }
+    },
     set value(v) {
       const complex = new Complex({arg: v, abs: struct.props.abs.value})
       struct.props.re.value = complex.re;
@@ -357,7 +357,7 @@ function* createComplexStruct(util, x, y) {
   struct.props.modulus = {
     get value() {
       return new Complex(struct.props.re.value, struct.props.im.value).toPolar().r;
-    }
+    },
     set value(v) {
       const complex = new Complex({arg: struct.props.arg.value, abs: v})
       struct.props.re.value = complex.re;
@@ -463,7 +463,7 @@ const MathStruct = (function(){
       const num1 = typeof v === "number" ? v : new Complex(v.props.re.value, v.props.im.value);
       const num2 = typeof other === "number" ? v : new Complex(other.props.re.value, other.props.im.value);
       if (typeof v === "number" && typeof other === "number") return Math.pow(v, other);
-      return yield* createComplexStruct(util, new Complex().add(num1).pow(num2));
+      return yield* createComplexStruct(util, new Complex(0, 0).add(num1).pow(num2));
     },
     asin: function* (util, v) {
       if (typeof v !== "number" && (!v || !v.isComplex)) throw new TypeError("Math operations can only be used on complex and numbers");
@@ -543,7 +543,7 @@ const MathStruct = (function(){
       const num1 = typeof v === "number" ? v : new Complex(v.props.re.value, v.props.im.value);
       const num2 = typeof other === "number" ? v : new Complex(other.props.re.value, other.props.im.value);
       if (typeof v === "number" && typeof other === "number") return Math.atan2(v, other);
-      return yield* createComplexStruct(util, new Complex().add(num1).div(num2).atan()); // this is literally how atan2 works
+      return yield* createComplexStruct(util, new Complex(0, 0).add(num1).div(num2).atan()); // this is literally how atan2 works
     },
     log: function* (util, v) {
       if (typeof v !== "number" && (!v || !v.isComplex)) throw new TypeError("Math operations can only be used on complex and numbers");
@@ -652,17 +652,17 @@ function* deepClone(util, structToClone) {
     case "error": {
       let err: any;
       try {structToClone.props.throw.value.next()} catch(e) {err = e;} // this is guaranteed.
-      return createErrorStruct(util, err);
+      return yield* createErrorStruct(util, err);
     }
     case "object": {
       const actualProps = structToClone.getActual();
-      const newStruct = createObjectStruct(util);
+      const newStruct = yield* createObjectStruct(util);
       const newProps = Object.assign(newStruct.getActual(), actualProps);
       return newStruct
     }
     case "array": {
       const actualProps = structToClone.getActual();
-      const newStruct = createArrayStruct(util);
+      const newStruct = yield* createArrayStruct(util);
       const newProps = Object.assign(newStruct.getActual(), actualProps);
       return newStruct
     }
@@ -1476,7 +1476,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     get value() {return playAllSoundsAndWait}
   })
 
-  globalEnv.__env.set("setFadeout", {
+  _globalEnv.__env.set("setFadeout", {
     get value() {return setFadeout}
   })
   
@@ -1615,29 +1615,29 @@ if ((typeof window === "object" && window && typeof window.document === "object"
         return Object.is(a, b);
       },
       *add(a, b) {
-        if (a && a.isComplex && a.isStruct && yield* a.props.__isCompatible__(this, b)) return yield* a.props.__add__(this, b);
-        if (b && b.isComplex && b.isStruct && yield* b.props.__isCompatible__(this, a)) return yield* b.props.__add__(this, a);
+        if (a && a.isComplex && a.isStruct && (yield* a.props.__isCompatible__(this, b))) return yield* a.props.__add__(this, b);
+        if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__(this, a))) return yield* b.props.__add__(this, a);
         if (a.isStruct && typeof a.props.__add__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__add__(this, b);
         if (b.isStruct && typeof b.props.__add__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__add__(this, b);
         return Number(a) + Number(b)
       },
       *subtract(a, b) {
-        if (a && a.isComplex && a.isStruct && yield* a.props.__isCompatible__(this, b)) return yield* a.props.__subtract__(this, b);
-        if (b && b.isComplex && b.isStruct && yield* b.props.__isCompatible__(this, a)) return yield* b.props.__subtract__(this, a);
+        if (a && a.isComplex && a.isStruct && (yield* a.props.__isCompatible__(this, b))) return yield* a.props.__subtract__(this, b);
+        if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__(this, a))) return yield* b.props.__subtract__(this, a);
         if (a.isStruct && typeof a.props.__subtract__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__subtract__(this, b);
         if (b.isStruct && typeof b.props.__subtract__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__subtract__(this, b);
         return Number(a) - Number(b)
       },
       *multiply(a, b) {
-        if (a && a.isComplex && a.isStruct && yield* a.props.__isCompatible__(this, b)) return yield* a.props.__multiply__(this, b);
-        if (b && b.isComplex && b.isStruct && yield* b.props.__isCompatible__(this, a)) return yield* b.props.__multiply__(this, a);
+        if (a && a.isComplex && a.isStruct && (yield* a.props.__isCompatible__(this, b))) return yield* a.props.__multiply__(this, b);
+        if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__(this, a))) return yield* b.props.__multiply__(this, a);
         if (a.isStruct && typeof a.props.__multiply__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__multiply__(this, b);
         if (b.isStruct && typeof b.props.__multiply__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__multiply__(this, b);
         return Number(a) * Number(b)
       },
       *divide(a, b) {
-        if (a && a.isComplex && a.isStruct && yield* a.props.__isCompatible__(this, b)) return yield* a.props.__divide__(this, b);
-        if (b && b.isComplex && b.isStruct && yield* b.props.__isCompatible__(this, a)) return yield* b.props.__divide__(this, a);
+        if (a && a.isComplex && a.isStruct && (yield* a.props.__isCompatible__(this, b))) return yield* a.props.__divide__(this, b);
+        if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__(this, a))) return yield* b.props.__divide__(this, a);
         if (a.isStruct && typeof a.props.__divide__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) return yield* a.props.__divide__(this, b);
         if (b.isStruct && typeof b.props.__divide__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) return yield* a.props.__divide__(this, b);
         return Number(a) / Number(b)
@@ -1652,8 +1652,8 @@ if ((typeof window === "object" && window && typeof window.document === "object"
         return result; 
       },
       *power(a, b) {
-        if (a && a.isComplex && a.isStruct && yield* a.props.__isCompatible__(this, b)) return yield* a.props.__power__(this, b);
-        if (b && b.isComplex && b.isStruct && yield* b.props.__isCompatible__(this, a)) return yield* b.props.__power__(this, a);
+        if (a && a.isComplex && a.isStruct && (yield* a.props.__isCompatible__(this, b))) return yield* a.props.__power__(this, b);
+        if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__(this, a))) return yield* b.props.__power__(this, a);
         if (a.isStruct && typeof a.props.__power__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) return yield* a.props.__power__(this, b);
         if (b.isStruct && typeof b.props.__power__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) return yield* a.props.__power__(this, b);
         return Number(a) ** Number(b)
