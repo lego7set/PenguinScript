@@ -14,7 +14,8 @@
   "repository": "https://github.com/lego7set/PenguinScript.git",
   "dependencies": {
     "path": "latest",
-    "fs": "latest"
+    "fs": "latest",
+    "complex.js": "latest"
   },
   "devDependencies": {
     "webpack-cli": "latest",
