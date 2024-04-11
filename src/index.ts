@@ -1222,7 +1222,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
               compiler.source += preCompiled + ";"
             } catch(e) {*/
               //compiler.source += '"require waitPromise";'
-              compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, createError: runtime.ext_vgspenguinscript.createErrorStruct}));`
+              compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, ...runtime.ext_vgspenguinscript.utilObject}));`
             //}
           },
           evalReporter: (node, compiler, imports) => {
@@ -1235,8 +1235,8 @@ if ((typeof window === "object" && window && typeof window.document === "object"
               if (canNullish) return new (imports.TypedInput)(`(${preCompiled} ?? "null")`);
               return new (imports.TypedInput)(`nullish((${preCompiled}),"null")`, imports.TYPE_UNKNOWN);
             } catch(e) {*/
-              if (canNullish) return new (imports.TypedInput)(`((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, createError: runtime.ext_vgspenguinscript.createErrorStruct}))  ?? "null")`, imports.TYPE_UNKNOWN);
-              return new (imports.TypedInput)(`nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, createError: runtime.ext_vgspenguinscript.createErrorStruct})),"null")`, imports.TYPE_UNKNOWN);
+              if (canNullish) return new (imports.TypedInput)(`((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, ...runtime.ext_vgspenguinscript.utilObject}))  ?? "null")`, imports.TYPE_UNKNOWN);
+              return new (imports.TypedInput)(`nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, ...runtime.ext_vgspenguinscript.utilObject})),"null")`, imports.TYPE_UNKNOWN);
               // compiler.src += `(yield* transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target));`
             //}
           }
@@ -1295,7 +1295,44 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     getGlobalEnv() {
       return _globalEnv
     }
-    createErrorStruct = createErrorStruct;
+    utilObject = {
+      createError: createErrorStruct,
+      lt(a, b) {
+        return Number(a) < Number(b)
+      },
+      le(a, b) {
+        return Number(a) <= Number(b)
+      },
+      gt(a, b) {
+        return Number(a) > Number(b)
+      },
+      ge(a, b) {
+        return Number(a) >= Number(b)
+      },
+      add(a, b) {
+        return Number(a) + Number(b)
+      },
+      subtract(a, b) {
+        return Number(a) - Number(b)
+      },
+      multiply(a, b) {
+        return Number(a) * Number(b)
+      },
+      divide(a, b) {
+        return Number(a) / Number(b)
+      },
+      mod(a, b) {
+        // this is basically the code from the pm vm
+        const n = Number(a);
+        const modulus = Number(b);
+        let result = n % modulus;
+        if (result / modulus < 0) result += modulus;
+        return result; 
+      },
+      power(a, b) {
+        return Number(a) ** Number(b)
+      },
+    };
   }
   // @ts-ignore
   if (((typeof LoadedAsCore === "object") && (LoadedAsCore !== globalThis.LoadedAsCore))) module.exports = PenguinScript;
