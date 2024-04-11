@@ -385,58 +385,58 @@ export default class JSGenerator {
             case "<": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`/* Binary Expression */(util.lt(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_BOOLEAN)
+              return new TypedInput(`/* Binary Expression */(yield* util.lt(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_BOOLEAN)
             }
             case ">": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`(/* Binary Expression */(util.gt(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_BOOLEAN)
+              return new TypedInput(`(/* Binary Expression */(yield* util.gt(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_BOOLEAN)
             }
             case "<=": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`/* Binary Expression */(util.le(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_BOOLEAN)
+              return new TypedInput(`/* Binary Expression */(yield* util.le(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_BOOLEAN)
             }
             case ">=": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`/* Binary Expression */(util.ge(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_BOOLEAN)
+              return new TypedInput(`/* Binary Expression */(yield* util.ge(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_BOOLEAN)
             }
             case "==": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`/* Binary Expression */(Object.is(${left.asUnknown()}, ${right.asUnknown()}))`, OutputType.TYPE_BOOLEAN)
+              return new TypedInput(`/* Binary Expression */(yield* util.is(${left.asUnknown()}, ${right.asUnknown()}))`, OutputType.TYPE_BOOLEAN)
             }
             // arithmetic operators
             case "+": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`/* Binary Expression */(util.add(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_NUMBER) // dont be like js, be more like pm (which is awesome!!!).
+              return new TypedInput(`/* Binary Expression */(yield* util.add(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_NUMBER) // dont be like js, be more like pm (which is awesome!!!).
             }
             case "-": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(/* Binary Expression */`(util.subtract(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_NUMBER)
+              return new TypedInput(`/* Binary Expression */(yield* util.subtract(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_NUMBER)
             }
             case "*": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`/* Binary Expression */(util.multiply(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_NUMBER)
+              return new TypedInput(`/* Binary Expression */(yield* util.multiply(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_NUMBER)
             }
             case "/": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`/* Binary Expression */(util.divide(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_NUMBER)
+              return new TypedInput(`/* Binary Expression */(yield* util.divide(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_NUMBER)
             }
             case "%": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`/* Binary Expression */(util.mod(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_NUMBER)
+              return new TypedInput(`/* Binary Expression */(yield* util.mod(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_NUMBER)
             }
             case "^": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`/* Binary Expression */(util.power(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_NUMBER)
+              return new TypedInput(`/* Binary Expression */(yield* util.power(${left.asUnknown()}, ${right.asUnknown()})`, OutputType.TYPE_NUMBER)
             }
           }
         }
