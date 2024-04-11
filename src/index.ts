@@ -344,6 +344,27 @@ function* createComplexStruct(util, x, y) {
       return (other && other.isComplex) || typeof other === "number";
     }
   }
+  struct.props.arg = {
+    get value() {
+      return new Complex(struct.props.re.value, struct.props.im.value).toPolar().phi;
+    }
+    set value(v) {
+      const complex = new Complex({arg: v, abs: struct.props.abs.value})
+      struct.props.re.value = complex.re;
+      struct.props.im.value = complex.im;
+    }
+  }
+  struct.props.modulus = {
+    get value() {
+      return new Complex(struct.props.re.value, struct.props.im.value).toPolar().r;
+    }
+    set value(v) {
+      const complex = new Complex({arg: struct.props.arg.value, abs: v})
+      struct.props.re.value = complex.re;
+      struct.props.im.value = complex.im;
+    }
+  }
+  
   return struct;
 }
 
