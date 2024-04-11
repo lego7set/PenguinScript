@@ -23,7 +23,7 @@ function* createObjectStruct(...keysValues) {
   const entries = [];
 
   for (let i = 0; i < keysValues.length; i += 2) {
-    entries.push([keysValue[i], keysValues[i + 1]])
+    entries.push([keysValues[i], keysValues[i + 1]])
   }
   const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
   const props: any = {__proto__: null, ...(Object.fromEntries(entries))};
@@ -346,7 +346,7 @@ function* createComplexStruct(util, x?, y?) {
   }
   struct.props.arg = {
     get value() {
-      return new Complex(struct.props.re.value, struct.props.im.value).toPolar().phi;
+      return Math.atan(struct.props.im.value, struct.props.re.value);
     },
     set value(v) {
       const complex = new Complex({arg: v, abs: struct.props.abs.value})
@@ -356,7 +356,7 @@ function* createComplexStruct(util, x?, y?) {
   }
   struct.props.modulus = {
     get value() {
-      return new Complex(struct.props.re.value, struct.props.im.value).toPolar().r;
+      return Math.sqrt(struct.props.re.value ** 2 + struct.props.im.value ** 2);
     },
     set value(v) {
       const complex = new Complex({arg: struct.props.arg.value, abs: v})
