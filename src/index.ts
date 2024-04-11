@@ -1617,29 +1617,29 @@ if ((typeof window === "object" && window && typeof window.document === "object"
       *add(a, b) {
         if (a && a.isComplex && a.isStruct && (yield* a.props.__isCompatible__(this, b))) return yield* a.props.__add__(this, b);
         if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__(this, a))) return yield* b.props.__add__(this, a);
-        if (a.isStruct && typeof a.props.__add__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__add__(this, b);
-        if (b.isStruct && typeof b.props.__add__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__add__(this, b);
+        //if (a.isStruct && typeof a.props.__add__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__add__(this, b);
+        //if (b.isStruct && typeof b.props.__add__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__add__(this, b);
         return Number(a) + Number(b)
       },
       *subtract(a, b) {
         if (a && a.isComplex && a.isStruct && (yield* a.props.__isCompatible__(this, b))) return yield* a.props.__subtract__(this, b);
         if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__(this, a))) return yield* b.props.__subtract__(this, a);
-        if (a.isStruct && typeof a.props.__subtract__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__subtract__(this, b);
-        if (b.isStruct && typeof b.props.__subtract__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__subtract__(this, b);
+        //if (a.isStruct && typeof a.props.__subtract__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__subtract__(this, b);
+        //if (b.isStruct && typeof b.props.__subtract__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__subtract__(this, b);
         return Number(a) - Number(b)
       },
       *multiply(a, b) {
         if (a && a.isComplex && a.isStruct && (yield* a.props.__isCompatible__(this, b))) return yield* a.props.__multiply__(this, b);
         if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__(this, a))) return yield* b.props.__multiply__(this, a);
-        if (a.isStruct && typeof a.props.__multiply__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__multiply__(this, b);
-        if (b.isStruct && typeof b.props.__multiply__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__multiply__(this, b);
+        //if (a.isStruct && typeof a.props.__multiply__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__multiply__(this, b);
+        //if (b.isStruct && typeof b.props.__multiply__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__multiply__(this, b);
         return Number(a) * Number(b)
       },
       *divide(a, b) {
         if (a && a.isComplex && a.isStruct && (yield* a.props.__isCompatible__(this, b))) return yield* a.props.__divide__(this, b);
         if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__(this, a))) return yield* b.props.__divide__(this, a);
-        if (a.isStruct && typeof a.props.__divide__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) return yield* a.props.__divide__(this, b);
-        if (b.isStruct && typeof b.props.__divide__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) return yield* a.props.__divide__(this, b);
+        //if (a.isStruct && typeof a.props.__divide__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) return yield* a.props.__divide__(this, b);
+        // if (b.isStruct && typeof b.props.__divide__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) return yield* a.props.__divide__(this, b);
         return Number(a) / Number(b)
       },
       *mod(a, b) {
@@ -1654,8 +1654,8 @@ if ((typeof window === "object" && window && typeof window.document === "object"
       *power(a, b) {
         if (a && a.isComplex && a.isStruct && (yield* a.props.__isCompatible__(this, b))) return yield* a.props.__power__(this, b);
         if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__(this, a))) return yield* b.props.__power__(this, a);
-        if (a.isStruct && typeof a.props.__power__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) return yield* a.props.__power__(this, b);
-        if (b.isStruct && typeof b.props.__power__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) return yield* a.props.__power__(this, b);
+        //if (a.isStruct && typeof a.props.__power__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) return yield* a.props.__power__(this, b);
+        //if (b.isStruct && typeof b.props.__power__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) return yield* a.props.__power__(this, b);
         return Number(a) ** Number(b)
       },
     };
