@@ -1488,7 +1488,28 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   _globalEnv.__env.set("setFadeout", {
     get value() {return setFadeout}
   })
-  
+
+  function* setTempVar(util, name, v) {
+    return util.tempVars[String(name)] = v;
+  }
+
+  function* getTempVar(util, name, v) {
+    return util.tempVars[String(name)];
+  }
+
+  function* tempVarExists(util, name, v) {
+    return !!util.tempVars[String(name)]; // this is literally what the pm compiler uses
+  }
+
+  _globalEnv.__env.set("setTempVar", {
+    get value() {return setTempVar}
+  })
+  _globalEnv.__env.set("getTempVar", {
+    get value() {return setTempVar}
+  })
+  _globalEnv.__env.set("tempVarExists", {
+    get value() {return tempVarExists}
+  })
   // https://github.com/lego7set/PenguinMod-Vm/blob/develop/src/blocks/scratch3_sound.js#L411
 
   customObjectTypes.sprite = (v: any) => v instanceof Scratch.vm.exports.RenderedTarget; // create a sprite type.
@@ -1522,7 +1543,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
               compiler.source += preCompiled + ";"
             } catch(e) {*/
               //compiler.source += '"require waitPromise";'
-              compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, ...runtime.ext_vgspenguinscript.utilObject}));`
+              compiler.source += `(yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, tempVars, ...runtime.ext_vgspenguinscript.utilObject}));`
             //}
           },
           evalReporter: (node, compiler, imports) => {
@@ -1535,8 +1556,8 @@ if ((typeof window === "object" && window && typeof window.document === "object"
               if (canNullish) return new (imports.TypedInput)(`(${preCompiled} ?? "null")`);
               return new (imports.TypedInput)(`nullish((${preCompiled}),"null")`, imports.TYPE_UNKNOWN);
             } catch(e) {*/
-              if (canNullish) return new (imports.TypedInput)(`((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, ...runtime.ext_vgspenguinscript.utilObject}))  ?? "null")`, imports.TYPE_UNKNOWN);
-              return new (imports.TypedInput)(`nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, ...runtime.ext_vgspenguinscript.utilObject})),"null")`, imports.TYPE_UNKNOWN);
+              if (canNullish) return new (imports.TypedInput)(`((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, tempVars, ...runtime.ext_vgspenguinscript.utilObject}))  ?? "null")`, imports.TYPE_UNKNOWN);
+              return new (imports.TypedInput)(`nullish((yield* runtime.ext_vgspenguinscript.transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, {target, isStuck, waitPromise, thread: globalState.thread, timer: globalState.Timer, warpTimer: ${compiler.warpTimer}, isWarp: ${compiler.isWarp}, tempVars, ...runtime.ext_vgspenguinscript.utilObject})),"null")`, imports.TYPE_UNKNOWN);
               // compiler.src += `(yield* transpile(${code.asString()}, ${compiler.warpTimer}, ${compiler.isWarp})(runtime.ext_vgspenguinscript._globalEnv, target));`
             //}
           }
