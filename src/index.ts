@@ -346,7 +346,7 @@ function* createComplexStruct(util, x?, y?) {
   }
   struct.props.arg = {
     get value() {
-      return Math.atan(struct.props.im.value, struct.props.re.value);
+      return Math.atan2(struct.props.im.value, struct.props.re.value);
     },
     set value(v) {
       const complex = new Complex({arg: v, abs: struct.props.abs.value})
@@ -647,11 +647,11 @@ _globalEnv.__env.set("Error", {
 })
 
 function* deepClone(util, structToClone) {
-  const typeToClone = type(util, structToClone)
+  const typeToClone = yield* type(util, structToClone)
   switch (typeToClone) {
     case "error": {
       let err: any;
-      try {structToClone.props.throw.value.next()} catch(e) {err = e;} // this is guaranteed.
+      try {yield* structToClone.props.throw.value()} catch(e) {err = e;} // this is guaranteed.
       return yield* createErrorStruct(util, err);
     }
     case "object": {
