@@ -11,7 +11,10 @@ export default class Parser {
     if (Array.isArray(src)) this.tokens = src;
     else {
       const tokens = new Lexer(src).tokenizeNonGen();
-      if (tokens.error) throw tokens.error;
+      if (tokens.error) { 
+        if (tokens.error instanceof Error) tokens.error.name = "(PenguinScript Parsing Error) " + tokens.error.name;
+        throw tokens.error
+      };
       this.tokens = tokens.tokens;
     }
   }
@@ -49,8 +52,13 @@ export default class Parser {
       body: []
     };
 
-    while (this.not_eof()) {
-      program.body.push(this.parse_stmt())
+    try {
+      while (this.not_eof()) {
+        program.body.push(this.parse_stmt())
+      }
+    } catch(e) {
+      if (e instanceof Error) e.name = "(PenguinScript.Parsing Error) " + e.name;
+      throw e;
     }
 
     return program
