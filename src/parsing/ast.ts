@@ -26,7 +26,12 @@ export enum NodeType {
   Chaining,
   Try,
   In,
-  Ternary
+  Ternary,
+  Object,
+  Array,
+  RegExp, // unused as of now
+  Complex,
+  ErrorLiteral
 }
 
 export enum OutputType { // going to be unused
@@ -235,4 +240,26 @@ export interface Try extends Stmt {
   catch?: Stmt;
   catchVar?: string;
   finally?: Stmt
+}
+
+export interface Object extends Expr {
+  kind: NodeType.Object; // [...] or [o; ...]
+  body: [Expr, Expr][];
+}
+
+export interface Array extends Expr {
+  kind: NodeType.Array; // [a; ...]
+  body: Expr[]
+}
+
+export interface Complex extends Expr {
+  kind: NodeType.Complex;
+  re?: Expr; // [c; 1, 5] is valid but [c; "13 + 5i"] is also valid. [c;] is also valid.
+  im?: Expr;
+}
+
+export interface ErrorLiteral extends Expr {
+  kind: NodeType.ErrorLiteral; // [er; type, msg]
+  msg: Expr;
+  type: Expr;
 }
