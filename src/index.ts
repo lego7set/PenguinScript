@@ -18,7 +18,7 @@ function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
   return "(yield* (function*($globalEnv, $target, isStuck){" + generator.transpile("string", true, warpTimer, isWarp) + "})(runtime.ext_vgspenguinscript._globalEnv, {isStuck, target, waitPromise}))";
 }*/ // dont use precompile
 
-function* createObjectStruct(...keysValues) {
+function* createObjectStruct(util, ...keysValues) {
   if (keysValues.length % 2 !== 0) throw new TypeError("Each key must have a value in object structs");
   const entries = [];
 
@@ -71,7 +71,7 @@ _globalEnv.__env.set("Object", {
   get value() {return createObjectStruct}
 })
 
-function* createArrayStruct(...values) {
+function* createArrayStruct(util, ...values) {
   const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
   const props = values;
   struct.getActual = () => props;
@@ -589,7 +589,7 @@ const MathStruct = (function(){
   };
   struct.props = new Proxy({__proto__: null}, {
     get: (target, prop) =>  Object.hasOwn(overwritten, prop) 
-      ? overwritten[prop]
+      ? {get value(){return overwritten[prop]}}
       : Object.hasOwn(target, prop) 
       ? {get value(){const item = target[prop];return typeof item==="function"?function*(util, ...args){return item(...args)}:item;}} 
       : {value: null}
