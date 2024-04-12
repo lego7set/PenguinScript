@@ -499,7 +499,9 @@ export default class JSGenerator {
             args.push(this.descendExpr(arg).asUnknown());
           }
           const debug = `(function(){debugger;})(),`
-          return new TypedInput(`/* Function Call */${JSGenerator.CompilerSettings.debug ? debug : ""}((yield* ${func}(util,${args.join(",")})) ?? null)/* End Function Call */`, OutputType.TYPE_UNKNOWN)
+          const src = `((yield* _6(util,${args.join(",")})) ?? null)`;
+          const checkIsFunc = `(_6 = ${func}, (function(){if(typeof _6 !== "function" || typeof _6().next !== "function")throw new TypeError("Cannot call non-function")})(), ${src})`; // we can safely call _6 because generator functions dont actually do anything when .next isnt called or yield* isnt used.
+          return new TypedInput(`/* Function Call */${JSGenerator.CompilerSettings.debug ? debug : ""}${checkIsFunc}/* End Function Call */`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Chaining: {
           // chaining expr.
