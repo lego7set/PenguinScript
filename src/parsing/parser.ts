@@ -498,13 +498,13 @@ export default class Parser {
         args
       } as FunctionCall;
     }
-      
+    if (this.at().type === TokenType.CHAINING) primary = this.parse_chaining_expr(primary);
     return primary;
   }
 
-  protected parse_chaining_expr() {
+  protected parse_chaining_expr(fromFunctionCallPrimary?) {
     // left-hand = anything, right-hand = identifier
-    let primary = this.parse_in_expr();
+    let primary = fromFunctionCallPrimary || this.parse_in_expr();
     while (this.at().type === TokenType.CHAINING) {
       this.eat(); // eat chaining;
       let ident = this.expect(TokenType.STRING, TokenType.IDENTIFIER).raw;
@@ -512,7 +512,8 @@ export default class Parser {
         kind: NodeType.Chaining,
         item: primary,
         index: ident
-      } as Chaining
+      } as Chaining;
+      // handle function calls after chaining expressions as well later if i can
     }
     return primary
   }
