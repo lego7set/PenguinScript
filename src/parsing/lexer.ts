@@ -171,7 +171,7 @@ export default class Lexer {
             break;
           }
         }
-        catch "+": {
+        case "+": { // IM SO FUCKING DUMB
           if (src[1] === "+") {
             yield* this.yieldToken(new Token(TokenType.RESERVED, src.shift() + src.shift()));
             break;
