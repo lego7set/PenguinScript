@@ -205,10 +205,20 @@ export default class JSGenerator {
         return this.src;
       }
       case "func": {
-        return new Function("$globalEnv", "util", this.src) as TranspiledFunction;
+        try {
+          return new Function("$globalEnv", "util", this.src) as TranspiledFunction;
+        } catch(e) {
+          if (e instanceof Error) e.name = "(PenguinScript Transpilation Error)" + e.name;
+          throw e;
+        }
       }
       case "generator": {
-        return new GeneratorFunction("$globalEnv", "util", this.src) as TranspiledGenerator;
+        try {
+          return new GeneratorFunction("$globalEnv", "util", this.src) as TranspiledGenerator;
+        } catch(e) {
+          if (e instanceof Error) e.name = "(PenguinScript Transpilation Error)" + e.name;
+          throw e;
+        }
       }
     }
   }
