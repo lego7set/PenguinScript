@@ -347,6 +347,8 @@ export default class Lexer {
                   num += src.shift();
                   num += src.shift();
                   for (; /^[0-9]$/.test(src[0]) && src.length > 0; num += src.shift());
+                  // what is typescript yapping about?
+                  // @ts-ignore
                   if (src[0] === "e" || src[0] === "E") {
                     // @ts-ignore
                     num += src.shift();
