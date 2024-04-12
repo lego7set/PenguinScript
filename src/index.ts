@@ -4,7 +4,8 @@ import Lexer from "./parsing/lexer";
 
 import JSGenerator, { _globalEnv } from "./transpile/jsGen";
 
-import Complex from "complex.js"; // hopefully this works and i dont have to require it
+// @ts-ignore
+import * as Complex from "complex.js"; // fuck you webpack or typescript. im trying to get the require export and not the fucking require().default export. so yeah as far as i know * as directly returns the import
 
 function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
@@ -638,7 +639,7 @@ function* createErrorStruct(util, v, type?) {
   if (typeof type === "string") v.name = type;
   const struct: any = {__proto__: null, isStruct: true, isError: true, props:{__proto__: null}};
   struct.toString = () => "<PenguinScript Error>"
-  struct.props.msg = {value:v.message};
+  struct.props.msg = {value:v.message || ""};
   struct.props.type = {value:v.name || "Error"};
   struct.props.throw = {value: function*(){
     const err = new Error(struct.props.msg.value);
