@@ -252,7 +252,7 @@ export interface Array extends Expr {
   body: Expr[]
 }
 
-export interface Complex extends Expr {
+export interface ComplexLiteral extends Expr {
   kind: NodeType.Complex;
   re?: Expr; // [c; 1, 5] is valid but [c; "13 + 5i"] is also valid. [c;] is also valid.
   im?: Expr;
