@@ -630,9 +630,9 @@ export default class Parser {
         let im;
         if (this.at().type !== TokenType.CLOSE_BRACKET) {
           re = this.parse_expr();
-          this.expect(TokenType.SEMICOLON); // semicolon cuz why not
         }
         if (this.at().type !== TokenType.CLOSE_BRACKET) {
+          this.expect(TokenType.SEMICOLON); // semicolon cuz why not
           im = this.parse_expr();
           this.optional(TokenType.SEMICOLON);
         }
@@ -644,9 +644,9 @@ export default class Parser {
         let type: Expr = { kind: NodeType.PrimitiveLiteral, value: "Error" } as StringLiteral;
         if (this.at().type !== TokenType.CLOSE_BRACKET) {
           msg = this.parse_expr();
-          this.expect(TokenType.SEMICOLON);
         }
         if (this.at().type !== TokenType.CLOSE_BRACKET) {
+          this.expect(TokenType.SEMICOLON);
           type = this.parse_expr();
           this.optional(TokenType.SEMICOLON);
         }
