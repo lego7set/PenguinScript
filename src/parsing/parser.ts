@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining, Try, In, Ternary, Object, Array, Complex } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining, Try, In, Ternary, Object, Array, ComplexLiteral, ErrorLiteral } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -596,7 +596,7 @@ export default class Parser {
           const isGlobal = this.at().type === TokenType.GLOBAL;
           let key = this.parse_expr(); // would be a identifier if isIdent, and global if isGlobal.
           if (this.at().type === TokenType.CHAINING) {
-             if (isIdent) key = {kind: NodeType.PrimitiveLiteral, value: (key as unknown as Identifier).symbol}; // they can use (x) instead of x.
+             if (isIdent) key = {kind: NodeType.PrimitiveLiteral, value: (key as unknown as Identifier).symbol} as StringLiteral; // they can use (x) instead of x.
             pair.push(key); // push key (also change this to use parse assignment expr when i implement comma expression)
             // non shorthand property.
             this.eat();
@@ -605,7 +605,7 @@ export default class Parser {
             // expect key to be an identifier.
             if (!isIdent && !isGlobal) throw new SyntaxError("Invalid shorthand property or missing -> arrow");
             const ident = key as unknown as Identifier; // technically it can be global too but who cares since they share the symbol prop?
-            pair.push(({kind: NodeType.PrimitiveLiteral, value: key.symbol} as String));
+            pair.push(({kind: NodeType.PrimitiveLiteral, value: key.symbol} as StringLiteral));
             pair.push(ident); // value here is an ident or global.
           }
           if (this.at().type !== TokenType.CLOSE_BRACKET) this.expect(TokenType.COMMA);
@@ -634,8 +634,27 @@ export default class Parser {
         }
         if (this.at().type !== TokenType.CLOSE_BRAKCET) {
           im = this.parse_expr();
+          this.optional(TokenType.SEMICOLON);
         }
         this.expect(TokenType.CLOSE_BRACKET);
+        return ({ kind: NodeType.Complex, re, im } as ComplexLiteral)
+      }
+      case "er": {
+        let msg = { kind: NodeType.PrimitiveLiteral, value: "" } as StringLiteral;
+        let type = { kind: NodeType.PrimitiveLiteral, value: "Error" } as StringLiteral;
+        if (this.at().type !== TokenType.CLOSE_BRACKET) {
+          msg = this.parse_expr();
+          this.expect(TokenType.SEMICOLON);
+        }
+        if (this.at().type !== TokenType.CLOSE_BRAKCET) {
+          type = this.parse_expr();
+          this.optional(TokenType.SEMICOLON);
+        }
+        this.expect(TokenType.CLOSE_BRACKET);
+        return ({ kind: NodeType.ErrorLiteral, msg, type } as ErrorLiteral);
+      }
+      default: {
+        throw new SyntaxError("Unknown special literal type: " + literalType);
       }
     }
   }
