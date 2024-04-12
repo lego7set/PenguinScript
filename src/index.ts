@@ -304,31 +304,31 @@ function* createComplexStruct(util, x?, y?) {
   struct.props.__add__ = {
     value: function*(util, other) {
       // must be compatible.
-      const otherArg = (typeof other === "number") ? other : new Complex(other.props.re.value, other.props.im.value);
+      const otherArg = (typeof other === "number") ? new Complex(other) : new Complex(other.props.re.value, other.props.im.value);
       return yield* createComplexStruct(util, new Complex(struct.props.re.value, struct.props.im.value).add(otherArg));
     }
   }
   struct.props.__subtract__ = {
     value: function*(util, other) {
-      const otherArg = (typeof other === "number") ? other : new Complex(other.props.re.value, other.props.im.value);
+      const otherArg = (typeof other === "number") ? new Complex(other) : new Complex(other.props.re.value, other.props.im.value);
       return yield* createComplexStruct(util, new Complex(struct.props.re.value, struct.props.im.value).sub(otherArg));
     }
   }
   struct.props.__multiply__ = {
     value: function*(util, other) {
-      const otherArg = (typeof other === "number") ? other : new Complex(other.props.re.value, other.props.im.value);
+      const otherArg = (typeof other === "number") ? new Complex(other) : new Complex(other.props.re.value, other.props.im.value);
       return yield* createComplexStruct(util, new Complex(struct.props.re.value, struct.props.im.value).mul(otherArg));
     }
   }
   struct.props.__divide__ = {
     value: function*(util, other) {
-      const otherArg = (typeof other === "number") ? other : new Complex(other.props.re.value, other.props.im.value);
+      const otherArg = (typeof other === "number") ? new Complex(other) : new Complex(other.props.re.value, other.props.im.value);
       return yield* createComplexStruct(util, new Complex(struct.props.re.value, struct.props.im.value).div(otherArg));
     }
   }
   struct.props.__power__ = {
     value: function*(util, other) {
-      const otherArg = (typeof other === "number") ? other : new Complex(other.props.re.value, other.props.im.value);
+      const otherArg = (typeof other === "number") ? new Complex(other) : new Complex(other.props.re.value, other.props.im.value);
       return yield* createComplexStruct(util, new Complex(struct.props.re.value, struct.props.im.value).pow(otherArg));
     }
   }
