@@ -5,7 +5,9 @@ import Lexer from "./parsing/lexer";
 import JSGenerator, { _globalEnv } from "./transpile/jsGen";
 
 // @ts-ignore
-import * as Complex from "complex.js"; // fuck you webpack or typescript. im trying to get the require export and not the fucking require().default export. so yeah as far as i know * as directly returns the import
+import * as ComplexConstructor from "complex.js"; // fuck you webpack or typescript. im trying to get the require export and not the fucking require().default export. so yeah as far as i know * as directly returns the import
+
+const Complex = ComplexConstructor as unknown as any; // idk man
 
 function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
