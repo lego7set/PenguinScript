@@ -1594,7 +1594,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     }
     utilObject = {
       createError: createErrorStruct,
-      createObject: createObjectStruct
+      createObject: createObjectStruct,
       createArray: createArrayStruct,
       createComplex: createComplexStruct,
       *negate(a) {
