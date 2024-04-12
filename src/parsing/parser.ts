@@ -520,16 +520,19 @@ export default class Parser {
   protected parse_in_expr() {
     const isStringOrIdent = this.at().type === TokenType.IDENTIFIER || this.at().type === TokenType.STRING;
     let left = this.parse_primary_expr();
-  
-    while (this.at().type === TokenType.BINARY_OPERATOR && this.at().raw === "in") {
+
+    // i dont think this would be useful to chain as all this returns is a boolean
+    // so we only eat one in.
+    if (this.at().type === TokenType.BINARY_OPERATOR && this.at().raw === "in") {
       this.eat(); // eat 'in' keyword
       // expect left to be a string or identifier.
-      if (!isStringOrIdent) throw new SyntaxError("Left side of in must be an identifier or string")
+      if (!isStringOrIdent) throw new SyntaxError("Left side of in must be an identifier or string");
       let right = this.parse_primary_expr();
       left = {
         kind: NodeType.In,
         item: right,
-        index: left,
+        // @ts-ignore
+        index: left.symbol || left.value,
       } as In;
     }
   
