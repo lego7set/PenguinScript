@@ -465,7 +465,7 @@ export default class Parser {
   }
 
   protected parse_exponential_expr(): BinaryExpr | Expr {
-    let left = this.parse_function_call(); 
+    let left = this.parse_chaining_function_call_expr(); // such a long name but it works.
 
     while (this.at().raw === "^" && this.at().type === TokenType.BINARY_OPERATOR) {
       const operator = this.eat().raw;
@@ -480,8 +480,8 @@ export default class Parser {
     return left;
   }
 
-  protected parse_function_call() {
-    let primary = this.parse_chaining_expr();
+  protected parse_chaining_function_call_expr() {
+    let primary = this.parse_in_expr();
     while (this.at().type === TokenType.OPEN_PAREN) {
       this.expect(TokenType.OPEN_PAREN);
       const args = [] as Expr[];
@@ -497,15 +497,9 @@ export default class Parser {
         func: primary,
         args
       } as FunctionCall;
-    }
-    if (this.at().type === TokenType.CHAINING) primary = this.parse_chaining_expr(primary);
-    return primary;
-  }
-
-  protected parse_chaining_expr(fromFunctionCallPrimary?) {
-    // left-hand = anything, right-hand = identifier
-    let primary = fromFunctionCallPrimary || this.parse_in_expr();
-    while (this.at().type === TokenType.CHAINING) {
+    } // parse all function calls first. so we can capture things like x()()()()
+    
+    while (this.at().type === TokenType.CHAINING) { // handle chaining. so that if -> comes after things like x()()()() we can get values of it.
       this.eat(); // eat chaining;
       let ident = this.expect(TokenType.STRING, TokenType.IDENTIFIER).raw;
       primary = {
@@ -513,9 +507,24 @@ export default class Parser {
         item: primary,
         index: ident
       } as Chaining;
-      // handle function calls after chaining expressions as well later if i can
+      while (this.at().type === TokenType.OPEN_PAREN) {
+        this.expect(TokenType.OPEN_PAREN);
+        const args = [] as Expr[];
+        while (this.at().type !== TokenType.CLOSE_PAREN && this.not_eof()) {
+          const val = this.parse_expr();
+          if (this.at().type !== TokenType.CLOSE_PAREN) this.expect(TokenType.COMMA);
+          else if (this.at().type === TokenType.COMMA) this.eat(); // consume one trailing comma, if it exists
+          args.push(val);
+        }
+        this.expect(TokenType.CLOSE_PAREN);
+        primary = {
+          kind: NodeType.FunctionCall,
+          func: primary,
+          args
+        } as FunctionCall;
+      } // nested loops to catch things like x()()()() -> doStuff()()() -> doStuff(2, 5) -> doStuff(someRandomVar)()
     }
-    return primary
+    return primary;
   }
 
   protected parse_in_expr() {
