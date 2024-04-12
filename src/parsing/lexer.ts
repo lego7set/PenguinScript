@@ -166,6 +166,16 @@ export default class Lexer {
             yield* this.yieldToken(new Token(TokenType.CHAINING, src.shift() + src.shift()));
             break;
           }
+          if (src[1] === "-") {
+            yield* this.yieldToken(new Token(TokenType.RESERVED, src.shift() + src.shift()));
+            break;
+          }
+        }
+        catch "+": {
+          if (src[1] === "+") {
+            yield* this.yieldToken(new Token(TokenType.RESERVED, src.shift() + src.shift()));
+            break;
+          }
         }
         case "<":
         case ">":
@@ -181,6 +191,7 @@ export default class Lexer {
         case "=": {
           let token;
           if (src[1] === "=") token = new Token(TokenType.BINARY_OPERATOR, src.shift() + src.shift());
+          else if (src[1] === ">") token = new Token(TokenType.RESERVED, src.shift() + src.shift()); // capture arrow and make reserved.
           else token = new Token(TokenType.EQUALS, src.shift());
           yield* this.yieldToken(token);
           break;
