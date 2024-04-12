@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining, Try, In, Ternary } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining, Try, In, Ternary, Object, Array, Complex } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -574,6 +574,42 @@ export default class Parser {
     } as Struct;
   }
 
+  protected parse_complicated_literals(): Expr {
+    this.eat(); // consume the opening bracket.
+    let literalType = "o";
+    if (this.at().type === TokenType.IDENTIFIER || this.at().type === TokenType.STRING) {
+      literalType = this.eat().raw;
+      this.expect(TokenType.SEMICOLON);
+    }
+    switch (literalType) {
+      case "o": {
+        // object
+        const exprs = [];
+        while (this.at().type !== TokenType.CLOSE_BRACKET && this.not_eof()) {
+          const pair = [];
+          const isIdent = this.at().type === TokenType.IDENTIFIER || this.at().type === TokenType.GLOBAL;
+          const key = this.parse_expr();
+          pair.push(key); // push key (also change this to use parse assignment expr when i implement comma expression)
+          if (this.at().type === TokenType.CHAINING) {
+            // non shorthand property.
+            this.eat();
+            pair.push(this.parse_expr());
+          } else {
+            // expect key to be an identifier.
+            if (!isIdent) throw new SyntaxError("Invalid shorthand property or missing -> arrow");
+            const ident = key as unknown as Identifier; // technically it can be global too but who cares?
+            pair.push(({kind: NodeType.PrimitiveLiteral, value: key.symbol} as String));
+            pair.push(ident); // value here is an ident.
+          }
+          if (this.at().type !== TokenType.CLOSE_BRACKET) this.expect(TokenType.COMMA);
+          exprs.push(pair)
+        }
+        this.expect(TokenType.CLOSE_BRACKET);
+        return ({ kind: NodeType.Object; body: exprs } as Object);
+      }
+    }
+  }
+
   protected parse_primary_expr(): Expr {
     const token = this.at().type;
     switch (token) {
@@ -584,6 +620,10 @@ export default class Parser {
       }
       case TokenType.IDENTIFIER: {
         return { kind: NodeType.Identifier, symbol: this.eat().raw } as Identifier
+      }
+      case TokenType.OPEN_BRACKET: {
+        // use brackets [] for all kinds of literals like array, object, complex, and maybe regexp later.
+        return this.parse_complicated_literals();
       }
       case TokenType.GLOBAL: {
         this.eat();
