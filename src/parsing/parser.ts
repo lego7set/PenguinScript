@@ -38,6 +38,11 @@ export default class Parser {
     return token;
   }
 
+  protected optional(type: TokenType): Token | null {
+    if (this.at().type === type) return this.eat();
+    return null;
+  }
+
   public produceAST(): Program {
     const program: Program = {
       kind: NodeType.Program,
@@ -587,25 +592,50 @@ export default class Parser {
         const exprs = [];
         while (this.at().type !== TokenType.CLOSE_BRACKET && this.not_eof()) {
           const pair = [];
-          const isIdent = this.at().type === TokenType.IDENTIFIER || this.at().type === TokenType.GLOBAL;
-          const key = this.parse_expr();
-          pair.push(key); // push key (also change this to use parse assignment expr when i implement comma expression)
+          const isIdent = this.at().type === TokenType.IDENTIFIER;
+          const isGlobal = this.at().type === TokenType.GLOBAL;
+          let key = this.parse_expr(); // would be a identifier if isIdent, and global if isGlobal.
           if (this.at().type === TokenType.CHAINING) {
+             if (isIdent) key = {kind: NodeType.PrimitiveLiteral, value: (key as unknown as Identifier).symbol}; // they can use (x) instead of x.
+            pair.push(key); // push key (also change this to use parse assignment expr when i implement comma expression)
             // non shorthand property.
             this.eat();
             pair.push(this.parse_expr());
           } else {
             // expect key to be an identifier.
-            if (!isIdent) throw new SyntaxError("Invalid shorthand property or missing -> arrow");
-            const ident = key as unknown as Identifier; // technically it can be global too but who cares?
+            if (!isIdent && !isGlobal) throw new SyntaxError("Invalid shorthand property or missing -> arrow");
+            const ident = key as unknown as Identifier; // technically it can be global too but who cares since they share the symbol prop?
             pair.push(({kind: NodeType.PrimitiveLiteral, value: key.symbol} as String));
-            pair.push(ident); // value here is an ident.
+            pair.push(ident); // value here is an ident or global.
           }
           if (this.at().type !== TokenType.CLOSE_BRACKET) this.expect(TokenType.COMMA);
+          else this.optional(TokenType.COMMA);
           exprs.push(pair)
         }
         this.expect(TokenType.CLOSE_BRACKET);
-        return ({ kind: NodeType.Object; body: exprs } as Object);
+        return ({ kind: NodeType.Object, body: exprs } as Object);
+      }
+      case "a": {
+        const exprs = [];
+        while (this.at().type !== TokenType.CLOSE_BRACKET && this.not_eof()) {
+          exprs.push(this.parse_expr()); // change to assignment expr (cuz comma is used as a separator here) later when i implement comma expression.
+          if (this.at().type !== TokenType.CLOSE_BRACKET) this.expect(TokenType.COMMA);
+          else this.optional(TokenType.COMMA);
+        }
+        this.expect(TokenType.CLOSE_BRACKET);
+        return ({ kind: NodeType.Array, body: exprs } as Array);
+      }
+      case "c": {
+        let re;
+        let im;
+        if (this.at().type !== TokenType.CLOSE_BRACKET) {
+          re = this.parse_expr();
+          this.expect(TokenType.SEMICOLON); // semicolon cuz why not
+        }
+        if (this.at().type !== TokenType.CLOSE_BRAKCET) {
+          im = this.parse_expr();
+        }
+        this.expect(TokenType.CLOSE_BRACKET);
       }
     }
   }
