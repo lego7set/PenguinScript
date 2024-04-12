@@ -292,7 +292,7 @@ export default class JSGenerator {
         if (node2.value && node2.constant) {
           const value = this.descendExpr(node2.value);
           this.src += "=";
-          this.src += `(function(v){return {get value(){return v},set value(){throw new TypeError("Cannot reassign to a constant")}}})(`;
+          this.src += `(function(v){return {get value(){return v},set value(v){throw new TypeError("Cannot reassign to a constant")}}})(`;
           this.src += value.asUnknown();
           this.src += ")"
         }
