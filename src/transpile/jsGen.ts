@@ -528,7 +528,7 @@ export default class JSGenerator {
           // a struct is just a fancy function.
           // structs give special treatment to functions, as their first argument is passed as the struct instance itself.
           const node2 = node as unknown as Struct;
-          let structSrc = "(function*(){const struct = {__proto__: null,isStruct: true,props:{__proto__:null}};";
+          let structSrc = "(function*(){const struct = {__proto__: null,isStruct: true,props:{__proto__:null}};struct.toString=()=>\"<PenguinScript Struct>\"";
           for (const item of node2.body) {
             structSrc += `struct.props[${JSON.stringify(item[0])}]={value:`
             let expr = "(null)";
