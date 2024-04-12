@@ -577,6 +577,11 @@ export default class Parser {
   protected parse_primary_expr(): Expr {
     const token = this.at().type;
     switch (token) {
+      case TokenType.BINARY_OPERATOR: { // more like unary operator but who cares?
+        if (this.eat().raw !== "-") throw new SyntaxError(`Invalid or unexpected token ${TokenType[token]}.`);
+        return { kind: NodeType.UnaryExpr, operand: this.parse_primary_expr(), operator: "-" } // cmon -4 + 3 isnt -7 so we use parse primary expr.
+        // we're going to reserve a bunch of other symbols like ++, --. += and other assignment operators we dont need to reserve cuz thats invalid syntax.
+      }
       case TokenType.IDENTIFIER: {
         return { kind: NodeType.Identifier, symbol: this.eat().raw } as Identifier
       }
@@ -623,7 +628,7 @@ export default class Parser {
         return this.parse_inline();
       }
       case TokenType.RESERVED: {
-        throw new SyntaxError(`Unexpected reserved word ${this.at().raw}`);
+        throw new SyntaxError(`Unexpected reserved word or symbol ${this.at().raw}`);
       }
       default: {
         throw new SyntaxError(`Invalid or unexpected token ${TokenType[token]}.`)
