@@ -1,4 +1,4 @@
-import type { Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline, Target, Break, Continue, Struct, Chaining, Try, In, Ternary } from "../parsing/ast.ts";
+import type { Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline, Target, Break, Continue, Struct, Chaining, Try, In, Ternary, Object, Array, ComplexLiteral, ErrorLiteral } from "../parsing/ast.ts";
 import { NodeType } from "../parsing/ast";
 
 export enum OutputType {
@@ -361,6 +361,7 @@ export default class JSGenerator {
           const node2 = node as unknown as UnaryExpr;
           const operand = this.descendExpr(node2.operand);
           if (node2.operator === "not") return new TypedInput(`/* Unary Expression */(!(${operand.asBoolean()}))/* End Unary Expression */`, OutputType.TYPE_BOOLEAN);
+          if (node2.operator === "-") return new TypedInput(`/* Unary Expression */yield* util.negate(${operand.asUnknown()})/* End Unary Expression */`, OutputType.TYPE_NUMBER)
           throw new SyntaxError("Unknown unary operator");
         }
         case NodeType.BinaryExpr: {
@@ -445,6 +446,35 @@ export default class JSGenerator {
           const node2 = node as unknown as PrimitiveLiteral;
           const value = node2.value;
           return new ConstantInput(value);
+        }
+        case NodeType.Object: {
+          const node2 = node as unknown as Object;
+          const list = ["util"];
+          for (const item of node2.body) {
+            list.push(this.descendExpr(item[0]).asUnknown());
+            list.push(this.descendExpr(item[1]).asUnknown());
+          }
+          return new TypedInput(`/* Object */yield* util.createObject(${list.join(",")})/* End Object */`, OutputType.TYPE_UNKNOWN);
+        }
+        case NodeType.Array: {
+          const node2 = node as unknown as Array;
+          const list = ["util"];
+          for (const item of node2.body) {
+            list.push(this.descendExpr(item).asUnknown());
+          }
+          return new TypedInput(`/* Array */yield* util.createObject(${list.join(",")})/* End Array */`, OutputType.TYPE_UNKNOWN);
+        }
+        case NodeType.Complex: {
+          const node2 = node as unknown as ComplexLiteral;
+          const re = node2.re ? this.descendExpr(node2.re).asUnknown() + "," : "";
+          const im = node2.im ? this.descendExpr(node2.im).asUnknown() : "";
+          return new TypedInput(`/* Complex */yield* util.createComplex(util, ${re}${im})/* End Complex */`, OutputType.TYPE_UNKNOWN);
+        }
+        case NodeType.ErrorLiteral: {
+          const node2 = node as unknown as ErrorLiteral;
+          const msg = node2.msg ? this.descendExpr(node2.msg).asUnknown() + "," : "";
+          const type = node2.type ? this.descendExpr(node2.type).asUnknown() : "";
+          return new TypedInput(`/* Error */yield* util.createError(util, ${msg}${type})/* End Error */`, OutputType.TYPE_UNKNOWN);
         }
         case NodeType.Identifier: {
           const node2 = node as unknown as Identifier;
