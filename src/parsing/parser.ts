@@ -605,7 +605,7 @@ export default class Parser {
             // expect key to be an identifier.
             if (!isIdent && !isGlobal) throw new SyntaxError("Invalid shorthand property or missing -> arrow");
             const ident = key as unknown as Identifier; // technically it can be global too but who cares since they share the symbol prop?
-            pair.push(({kind: NodeType.PrimitiveLiteral, value: key.symbol} as StringLiteral));
+            pair.push(({kind: NodeType.PrimitiveLiteral, value: ident.symbol} as StringLiteral));
             pair.push(ident); // value here is an ident or global.
           }
           if (this.at().type !== TokenType.CLOSE_BRACKET) this.expect(TokenType.COMMA);
@@ -632,7 +632,7 @@ export default class Parser {
           re = this.parse_expr();
           this.expect(TokenType.SEMICOLON); // semicolon cuz why not
         }
-        if (this.at().type !== TokenType.CLOSE_BRAKCET) {
+        if (this.at().type !== TokenType.CLOSE_BRACKET) {
           im = this.parse_expr();
           this.optional(TokenType.SEMICOLON);
         }
@@ -640,13 +640,13 @@ export default class Parser {
         return ({ kind: NodeType.Complex, re, im } as ComplexLiteral)
       }
       case "er": {
-        let msg = { kind: NodeType.PrimitiveLiteral, value: "" } as StringLiteral;
-        let type = { kind: NodeType.PrimitiveLiteral, value: "Error" } as StringLiteral;
+        let msg: Expr = { kind: NodeType.PrimitiveLiteral, value: "" } as StringLiteral;
+        let type: Expr = { kind: NodeType.PrimitiveLiteral, value: "Error" } as StringLiteral;
         if (this.at().type !== TokenType.CLOSE_BRACKET) {
           msg = this.parse_expr();
           this.expect(TokenType.SEMICOLON);
         }
-        if (this.at().type !== TokenType.CLOSE_BRAKCET) {
+        if (this.at().type !== TokenType.CLOSE_BRACKET) {
           type = this.parse_expr();
           this.optional(TokenType.SEMICOLON);
         }
@@ -664,7 +664,7 @@ export default class Parser {
     switch (token) {
       case TokenType.BINARY_OPERATOR: { // more like unary operator but who cares?
         if (this.eat().raw !== "-") throw new SyntaxError(`Invalid or unexpected token ${TokenType[token]}.`);
-        return { kind: NodeType.UnaryExpr, operand: this.parse_primary_expr(), operator: "-" } // cmon -4 + 3 isnt -7 so we use parse primary expr.
+        return { kind: NodeType.UnaryExpr, operand: this.parse_primary_expr(), operator: "-" } as UnaryExpr // cmon -4 + 3 isnt -7 so we use parse primary expr.
         // we're going to reserve a bunch of other symbols like ++, --. += and other assignment operators we dont need to reserve cuz thats invalid syntax.
       }
       case TokenType.IDENTIFIER: {
