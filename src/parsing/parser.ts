@@ -330,7 +330,7 @@ export default class Parser {
         operator: "not"
       } as UnaryExpr
     }
-    return this.parse_additive_expr()
+    return this.parse_primary_expr()
   }
 
   protected parse_and_expr(): BinaryExpr | Expr {
@@ -385,7 +385,7 @@ export default class Parser {
   }
 
   protected parse_relational_expr(): BinaryExpr | Expr {
-    let left = this.parse_not_expr();
+    let left = this.parse_additive_expr();
 
     while ((this.at().raw === "<" || this.at().raw === ">" || this.at().raw === "==") && this.at().type === TokenType.BINARY_OPERATOR) {
       let operator = this.eat().raw;
@@ -395,7 +395,7 @@ export default class Parser {
         }
         operator += "=";
       }
-      const right = this.parse_not_expr();
+      const right = this.parse_additive_expr();
       left = {
         kind: NodeType.BinaryExpr,
         left,
@@ -681,6 +681,10 @@ export default class Parser {
       case TokenType.OPEN_BRACKET: {
         // use brackets [] for all kinds of literals like array, object, complex, and maybe regexp later.
         return this.parse_complicated_literals();
+      }
+      case TokenType.UNARY_OPERATOR: {
+        if (this.at().raw === "not") return this.parse_not_expr(); // make not expression have the highest precedence cuz why not.
+        throw new SyntaxError("Unknown unary operator " + this.at().raw);
       }
       case TokenType.GLOBAL: {
         this.eat();
