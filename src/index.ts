@@ -1510,6 +1510,9 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   _globalEnv.__env.set("tempVarExists", {
     get value() {return tempVarExists}
   })
+  _globalEnv.__env.set("RegExp", {
+    get value() {return null} // nonexistent for now
+  })
   // https://github.com/lego7set/PenguinMod-Vm/blob/develop/src/blocks/scratch3_sound.js#L411
 
   customObjectTypes.sprite = (v: any) => v instanceof Scratch.vm.exports.RenderedTarget; // create a sprite type.
