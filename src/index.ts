@@ -28,6 +28,7 @@ function* createObjectStruct(util, ...keysValues) {
   const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
   const props: any = {__proto__: null, ...(Object.fromEntries(entries))};
   struct.getActual = () => props;
+  struct.toString = () => "<PenguinScript Object>"
   struct.props.get = {value:function*(util, key){ // an object class, kinda
     return props[key];
   }}
@@ -75,6 +76,7 @@ function* createArrayStruct(util, ...values) {
   const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
   const props = values;
   struct.getActual = () => props;
+  struct.toString = () => "<PenguinScript Array>"
   struct.props.get = {value:function*(util, key){
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
     key = Math.round(key) || 0;
@@ -287,6 +289,7 @@ function* createComplexStruct(util, x?, y?) {
   const struct: any = {__proto__: null, isStruct: true, isComplex: true, props: {__proto__: null}};
   let im = complex.im;
   let re = complex.re;
+  struct.toString = () => new Complex(struct.props.re.value, struct.props.im.value).toString()
   struct.props.re = {get value(){return re}, set value(v){
     if (typeof v !== "number") throw new TypeError("Can only set real or imaginary part of complex to a number.");
     re = v;
@@ -412,6 +415,7 @@ function* getRandomFloat(util, x, y) {
 
 const MathStruct = (function(){
   const struct: any = {isStruct: true, __proto__: null, isMath: true};
+  struct.toString = () => "<PenguinScript Math>"
   const overwritten = 
   {
     __proto__: null,
@@ -632,6 +636,7 @@ function* createErrorStruct(util, v) {
   if ((v ?? null) === null) v = new Error("");
   if (!(v instanceof Error)) throw v;
   const struct: any = {__proto__: null, isStruct: true, isError: true, props:{__proto__: null}};
+  struct.toString = () => "<PenguinScript Error>"
   struct.props.msg = {value:v.message};
   struct.props.type = {value:v.name || "Error"};
   struct.props.throw = {value: function*(){
