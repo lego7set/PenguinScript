@@ -381,7 +381,7 @@ Object.assign(createComplexStruct, {
 });
 
 _globalEnv.__env.set("Complex", {
-  value: {get value() {return createComplexStruct}}
+  get value() {return createComplexStruct}
 })
 
 function* getRandomFloat(util, x, y) {
