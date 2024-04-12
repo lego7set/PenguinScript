@@ -1597,6 +1597,10 @@ if ((typeof window === "object" && window && typeof window.document === "object"
       createObject: createObjectStruct
       createArray: createArrayStruct,
       createComplex: createComplexStruct,
+      *negate(v) {
+        if (a && a.isComplex && a.isStruct) return yield* createComplexStruct(this, new Complex(a.props.re.value, a.props.im.value).neg()); // im too lazy to create a new method or check if one already exists
+        return -Number(a);
+      }
       *lt(a, b) {
         if (a && a.isComplex && a.isStruct) return false;
         if (b && b.isComplex && b.isStruct) return false;
