@@ -643,7 +643,7 @@ function* createErrorStruct(util, v, type?) {
   struct.props.type = {value:v.name || "Error"};
   struct.props.throw = {value: function*(){
     const err = new Error(struct.props.msg.value);
-    err.name = struct.props.type.value;
+    err.name = String(struct.props.type.value);
     throw err; // throws the error.
   }}
   return struct;
