@@ -631,10 +631,11 @@ _globalEnv.__env.set("createMethod", {
   get value() {return createMethod}
 })
 
-function* createErrorStruct(util, v) {
+function* createErrorStruct(util, v, type?) {
   if (typeof v === "string") v = new Error(v);
   if ((v ?? null) === null) v = new Error("");
   if (!(v instanceof Error)) throw v;
+  if (typeof type === "string") v.name = type;
   const struct: any = {__proto__: null, isStruct: true, isError: true, props:{__proto__: null}};
   struct.toString = () => "<PenguinScript Error>"
   struct.props.msg = {value:v.message};
@@ -1593,6 +1594,9 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     }
     utilObject = {
       createError: createErrorStruct,
+      createObject: createObjectStruct
+      createArray: createArrayStruct,
+      createComplex: createComplexStruct,
       *lt(a, b) {
         if (a && a.isComplex && a.isStruct) return false;
         if (b && b.isComplex && b.isStruct) return false;
