@@ -82,22 +82,25 @@ function* createArrayStruct(util, ...values) {
   struct.toString = () => "<PenguinScript Array>"
   struct.props.get = {value:function*(util, key){
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
-    key = Math.round(key) || 0;
-    return props[key];
+     if (key < 1) throw new TypeError("Key to array must be larger than or equal to 1");
+    key = Math.round(key) || 1;
+    return props[key - 1]; // match scratch behavior.
   }}
   struct.props.set = {value:function*(util, key, value) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
-    key = Math.round(key) || 0;
-    return props[key] = value;
+    if (key < 1) throw new TypeError("Key to array must be larger than or equal to 1");
+    key = Math.round(key) || 1;
+    return props[key - 1] = value;
   }}
-  struct.props.has = {value:function*(util, key) {
+  /*struct.props.has = {value:function*(util, key) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
-    key = Math.round(key) || 0
-    return key >= 0 && key < props.length; 
-  }}
+    key = Math.round(key) || 1;
+    return key >= 1 && key <= props.length; 
+  }}*/
   struct.props.delete = {value:function*(util, key) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
-    key = Math.round(key) || 0
+     if (key < 1) throw new TypeError("Key to array must be larger than or equal to 1");
+    key = Math.round(key) || 1;
     return props.length = key;
   }}
   struct.props.pop = {value:function*() {
@@ -645,6 +648,51 @@ _globalEnv.__env.set("stringContains", {
 
 _globalEnv.__env.set("stringHas", {
   get value() {return inStr}
+});
+
+function* strLen(util, str) {
+  str = String(str ?? "null");
+  return str.length;
+}
+
+function* letterOf(util, str, index) {
+  if (typeof index !== "number") throw new TypeError("Invalid letter position passed to letterOf");
+  if (index < 1) throw new TypeError("Letter position must be larger than or equal to 1");
+  str = String(str ?? "null");
+  return str[Math.floor(Math.abs(index)) - 1]; // subtract 1 to mimic scratch behavior
+}
+
+function* lettersOf(util, str, index, index2) {
+  if (typeof index !== "number") throw new TypeError("Invalid letter position passed to lettersOf");
+  if (typeof index2 !== "number") throw new TypeError("Invalid letter position passed to lettersOf");
+  if (index < 1) throw new TypeError("Letter position must be larger than or equal to 1");
+  if (index2 < 1) throw new TypeError("Letter position must be larger than or equal to 1");
+  str = String(str ?? "null");
+  return str.substring(Math.floor(Math.abs(index)) - 1, Math.floor(Math.abs(index2))); // subtract 1 to mimic scratch behavior, and dont subtract 1 for the second one cuz the second one is EXclusive.
+}
+
+_globalEnv.__env.set("lengthOfString", {
+  get value() {return strLen}
+});
+
+_globalEnv.__env.set("strLen", {
+  get value() {return strLen}
+});
+
+_globalEnv.__env.set("letterOf", {
+  get value() {return letterOf}
+});
+
+_globalEnv.__env.set("charAt", {
+  get value() {return letterOf}
+});
+
+_globalEnv.__env.set("lettersOf", {
+  get value() {return lettersOf}
+});
+
+_globalEnv.__env.set("substring", {
+  get value() {return substring}
 });
 
 function* createMethod(util, struct, storedFunc) {
