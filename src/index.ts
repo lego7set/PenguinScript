@@ -749,6 +749,7 @@ function* deepClone(util, structToClone) {
       return newStruct
     }
     default: {
+      // we dont need to let users deepClone complex due to the fact that simply adding zero returns a new instance
       throw new TypeError("Can only deep clone errors, objects, and arrays.")
     }
   }
@@ -757,6 +758,11 @@ function* deepClone(util, structToClone) {
 _globalEnv.__env.set("deepClone", {
   get value() {return deepClone}
 })
+
+// NOTE TO SELF: CREATE SERIALIZATION FOLDER WITH MULTIPLE SERIALIZE / DESERIALIZE MODULES THAT WE IMPORT HERE AND IMPLEMENT THE MAIN SERIALIZATION CLASS WHICH ALSO ADDS CUSTOM SERIALIZEATION FOR SPRITES
+_globalEnv.__env.set("Serialization", { // reserve global serialization so that people can serialize object, arrays, errors, complex objects, user-defined structs, and sprite (if used in pm)
+    get value() {return null}
+  })
 
 function supportsNullishCoalescing() {
   try {
