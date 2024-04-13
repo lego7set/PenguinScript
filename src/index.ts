@@ -424,6 +424,7 @@ const MathStruct = (function(){
     __proto__: null,
     random: getRandomFloat,
     randomInt: getRandomInt,
+    complex: createComplexStruct
     abs: function* (util, v) {
       if (typeof v !== "number" && (!v || !v.isComplex)) throw new TypeError("Math operations can only be used on complex and numbers");
       return typeof v === "number" ? Math.abs(v) : yield* createComplexStruct(util, new Complex(v.props.re.value, v.props.im.value).abs());
@@ -610,7 +611,7 @@ _globalEnv.__env.set("math", {
 })
 
 function* join(util, str: any, str2: any) {
-  return String(str) + String(str2);
+  return String(str ?? "null") + String(str2 ?? "null");
 }
 
 
@@ -621,6 +622,30 @@ _globalEnv.__env.set("join", {
 _globalEnv.__env.set("concat", {
   get value() {return join}
 })
+
+function* repeatStr(util, str, times) {
+  const times = Number(times) || 0;
+  str = String(str ?? "null");
+  return str.repeat(Math.floor(Math.abs(times)))
+}
+
+_globalEnv.__env.set("repeatString", {
+  get value() {return repeatStr}
+});
+
+function* inStr(util, str1, str2) {
+  str1 = String(str1 ?? "null");
+  str2 = String(str2 ?? "null");
+  return str1.includes(str2);
+}
+
+_globalEnv.__env.set("stringContains", {
+  get value() {return inStr}
+});
+
+_globalEnv.__env.set("stringHas", {
+  get value() {return inStr}
+});
 
 function* createMethod(util, struct, storedFunc) {
   if (!struct.isStruct) throw new TypeError("You must pass in a struct to createMethod");
