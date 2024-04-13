@@ -1541,6 +1541,28 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   _globalEnv.__env.set("tempVarExists", {
     get value() {return tempVarExists}
   })
+
+  function* ask(util, sprite, toAsk) {
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot ask something as a non-sprite")
+    let result: string = "";
+    yield* util.waitPromise(async function(){
+      await Scratch.vm.runtime.ext_scratch3_sensing.askAndWait({
+        QUESTION: String(toAsk)
+      }, {target: sprite});
+      result = Scratch.vm.runtime.ext_scratch3.sensing._answer;
+      return result; // the return value here is unused but whatever
+    }());
+    return result;
+  }
+
+  _globalEnv.__env.set("ask", {
+    get value() {return ask}
+  })
+
+  _globalEnv.__env.set("askAndWait", {
+    get value() {return askAndWait}
+  })
+  
   _globalEnv.__env.set("RegExp", {
     get value() {return null} // nonexistent for now
   })
