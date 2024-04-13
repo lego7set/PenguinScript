@@ -99,7 +99,18 @@ export default class Lexer {
     try: TokenType.TRY,
     catch: TokenType.CATCH,
     finally: TokenType.FINALLY,
-    in: TokenType.BINARY_OPERATOR
+    in: TokenType.BINARY_OPERATOR,
+    class: TokenType.RESERVED,
+    public: TokenType.RESERVED,
+    private: TokenType.RESERVED,
+    protected: TokenType.RESERVED,
+    internal: TokenType.RESERVED, // this is where the scriptname for jsgen gets in handy.
+    static: TokenType.RESERVED,
+    extends: TokenType.RESERVED,
+    switch: TokenType.RESERVED,
+    case: TokenType.RESERVED,
+    default: TokenType.RESERVED,
+    do: TokenType.RESERVED
     // async: TokenType.RESERVED,
     // await: TokenType.RESERVED
   };
