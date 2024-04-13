@@ -824,13 +824,13 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   
   function* say(util, target: any, text: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot make a non-sprite say something");
-    const msg = String(text);
+    const msg = String(text ?? "null");
     Scratch.vm.runtime.emit("SAY", target, 'say', msg);
     return null;
   }
   function* think(util, target: any, text: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot make a non-sprite think something");
-    const msg = String(text);
+    const msg = String(text ?? "null");
     Scratch.vm.runtime.emit("SAY", target, 'think', msg);
     return null;
   }
@@ -1129,27 +1129,27 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   })
   function* getVariableForTarget(util, target: any, name: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
-    return target.lookupVariableByNameAndType(name, "", true)?.value ?? null;
+    return target.lookupVariableByNameAndType(name ?? "null", "", true)?.value ?? null;
   }
   function* setVariableForTarget(util, target: any, name: any, value: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
-    const variable = target.lookupVariableByNameAndType(name, "", true);
+    const variable = target.lookupVariableByNameAndType(name ?? "null", "", true);
     if (variable) {
-      return variable.value = String(value) // force into string because there can be some weird things like setting a variable to a sprite.
+      return variable.value = String(value ?? "null") // force into string because there can be some weird things like setting a variable to a sprite.
     }
     return null;
   }
   function* getVariableForAll(util, name: any) {
     const target = Scratch.vm.runtime.getTargetForStage();
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
-    return target.lookupVariableByNameAndType(name, "", true)?.value ?? null;
+    return target.lookupVariableByNameAndType(name ?? "null", "", true)?.value ?? null;
   }
   function* setVariableForAll(util, name: any, value: any) {
     const target = Scratch.vm.runtime.getTargetForStage();
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
-    const variable = target.lookupVariableByNameAndType(name, "", true);
+    const variable = target.lookupVariableByNameAndType(name ?? "null", "", true);
     if (variable) {
-      return variable.value = String(value) // force into string because there can be some weird things like setting a variable to a sprite.
+      return variable.value = String(value ?? "null") // force into string because there can be some weird things like setting a variable to a sprite.
     }
     return null;
   }
@@ -1168,7 +1168,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   })
 
   function* broadcast(util, message: any) {
-    const msg = String(message);
+    const msg = String(message ?? "null");
     Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
       BROADCAST_OPTION: msg
     });
@@ -1177,7 +1177,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
 
   function* broadcastToSprite(util, message: any, target: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot broadcast to a non-sprite")
-    const msg = String(message);
+    const msg = String(message ?? "null");
     Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
       BROADCAST_OPTION: msg
     }, target);
@@ -1185,7 +1185,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   }
 
   function* broadcastAndWait(util, message: any) {
-    const msg = String(message);
+    const msg = String(message ?? "null");
     const started = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
       BROADCAST_OPTION: msg
     });
@@ -1197,7 +1197,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
 
   function* broadcastToSpriteAndWait(util, message: any, target: any) {
     if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot broadcast to a non-sprite")
-    const msg = String(message);
+    const msg = String(message ?? "null");
     const started = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
       BROADCAST_OPTION: msg
     }, target);
@@ -1239,6 +1239,20 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     return Scratch.vm.renderer.isTouchingDrawables(sprite1.drawableID, [sprite2.drawableID]); // check if sprite1 is touching sprite2
   }
 
+  function* isTouchingColor(util, sprite, color) {
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot check if non-sprite is touching color");
+    if (!color.isColor) throw new TypeError("Please pass a color into isTouchingColor")
+    if (!Scratch.vm.renderer) return false;
+    return sprite.isTouchingColor([color.props.r.value, color.props.g.value, color.props.b.value]);
+  }
+
+  function* isColorTouchingColor(util, sprite, color1, color2) {
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot check if non-sprite's color is touching color");
+    if (!color1.isColor || !color2.isColor) throw new TypeError("Please pass two colors into isColorTouchingColor")
+    if (!Scratch.vm.renderer) return false;
+    return sprite.colorIsTouchingColor([color2.props.r.value, color2.props.g.value, color2.props.b.value], [color1.props.r.value, color1.props.g.value, color1.props.b.value]);
+  }
+
   function* isTouchingMouse(util, sprite) {
     if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot check if a non-sprite is touching the mouse");
     if (!Scratch.vm.renderer) return false;
@@ -1264,6 +1278,22 @@ if ((typeof window === "object" && window && typeof window.document === "object"
 
   _globalEnv.__env.set("isTouchingMouse", {
     get value() {return isTouchingMouse}
+  })
+
+  _globalEnv.__env.set("isTouchingColor", {
+    get value() {return isTouchingColor}
+  })
+
+  _globalEnv.__env.set("isTouchingColour", {
+    get value() {return isTouchingColor}
+  })
+
+  _globalEnv.__env.set("isColorTouchingColor", {
+    get value() {return isColorTouchingColor}
+  })
+
+  _globalEnv.__env.set("isColourTouchingColour", {
+    get value() {return isColorTouchingColor}
   })
   
   _globalEnv.__env.set("isTouchingXY", {
@@ -1547,7 +1577,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     let result: string = "";
     yield* util.waitPromise(async function(){
       await Scratch.vm.runtime.ext_scratch3_sensing.askAndWait({
-        QUESTION: String(toAsk)
+        QUESTION: String(toAsk ?? "null")
       }, {target: sprite});
       result = Scratch.vm.runtime.ext_scratch3.sensing._answer;
       return result; // the return value here is unused but whatever
@@ -1566,7 +1596,153 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   _globalEnv.__env.set("RegExp", {
     get value() {return null} // nonexistent for now
   })
-  // https://github.com/lego7set/PenguinMod-Vm/blob/develop/src/blocks/scratch3_sound.js#L411
+
+  function hsvToRgb(h, s, v) {
+    // Normalize hue to range [0, 360]
+    h = h % 360;
+  
+    // Calculate chroma
+    const c = v * s;
+  
+    // Calculate hue sector
+    const sector = Math.floor(h / 60);
+  
+    // Calculate fractional part of hue
+    const f = h / 60 - sector;
+  
+    // Calculate x and y
+    const x = c * (1 - f);
+    const y = c * (1 - f * 6);
+    const z = c * (1 - (f * 6 - 1));
+  
+    // Calculate RGB components based on hue sector
+    let r, g, b;
+    switch (sector) {
+      case 0:
+        r = c;
+        g = z;
+        b = 0;
+        break;
+      case 1:
+        r = y;
+        g = c;
+        b = 0;
+        break;
+      case 2:
+        r = 0;
+        g = c;
+        b = x;
+        break;
+      case 3:
+        r = 0;
+        g = y;
+        b = c;
+        break;
+      case 4:
+        r = x;
+        g = 0;
+        b = c;
+        break;
+      case 5:
+        r = c;
+        g = 0;
+        b = z;
+        break;
+    }
+  
+    // Calculate RGB components based on value
+    r = (r + v - c) * 255;
+    g = (g + v - c) * 255;
+    b = (b + v - c) * 255;
+  
+    return { r: Math.round(r), g: Math.round(g), b: Math.round(b) };
+  }
+
+  function rgbToHsv(r, g, b) {
+    // Normalize RGB values to range [0, 1]
+    r = r / 255;
+    g = g / 255;
+    b = b / 255;
+  
+    // Find the maximum and minimum values
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+  
+    // Calculate the hue
+    let h;
+    if (max === min) {
+      h = 0;
+    } else if (max === r) {
+      h = 60 * (0 + (g - b) / (max - min));
+    } else if (max === g) {
+      h = 60 * (2 + (b - r) / (max - min));
+    } else if (max === b) {
+      h = 60 * (4 + (r - g) / (max - min));
+    }
+  
+    // Calculate the saturation
+    const s = max === 0 ? 0 : (max - min) / max;
+  
+    // Calculate the value
+    const v = max;
+  
+    return { h, s, v };
+  }
+
+  function* createColorStruct(util, format?, rh?, gs?, bv?) {
+    const struct: any = {__proto__: null, isStruct: true, isColor: true, props:{__proto__:null}};
+    let r = 0; // default to just black cuz why not
+    let g = 0;
+    let b = 0;
+    format = String(format ?? "null");
+    if (format && rh != undefined && gs != undefined && bv != undefined) {
+      if (format.toLowerCase() === "rgb") {
+        r = rh || 0;
+        g = gs || 0;
+        b = bv || 0;
+      } else if (format.toLowerCase() === "hsv") {
+        const rgb = hsvToRgb(rh || 0, gs || 0, bv || 0);
+        r = rgb.r;
+        g = rgb.g;
+        b = rgb.b;
+      }
+    }
+
+    struct.props.r = {
+      get value() {return r}
+      set value(v) {return r = v}
+    }
+    struct.props.g = {
+      get value() {return g}
+      set value(v) {return g = v}
+    }
+    struct.props.b = {
+      get value() {return b}
+      set value(v) {return b = v}
+    }
+
+    struct.props.h = {
+      get value() {return rgbToHsv(r, g, b).h}
+      set value(v) {const rgb = hsvToRgb(v, struct.props.s.value, struct.props.v.value); r = rgb.r; g = rgb.g; b = rgb.b;}
+    }
+    struct.props.s = {
+      get value() {return rgbToHsv(r, g, b).s}
+      set value(v) {const rgb = hsvToRgb(struct.props.h.value, v, struct.props.v.value); r = rgb.r; g = rgb.g; b = rgb.b;}
+    }
+    struct.props.v = {
+      get value() {return rgbToHsv(r, g, b).v}
+      set value(v) {const rgb = hsvToRgb(struct.props.h.value, struct.props.s.value, v); r = rgb.r; g = rgb.g; b = rgb.b;}
+    }
+
+    return struct;
+  }
+
+  _globalEnv.__env.set("Color", {
+    get value() {return createColorStruct}
+  })
+  _globalEnv.__env.set("Colour", {
+    get value() {return createColorStruct}
+  })
 
   customObjectTypes.sprite = (v: any) => v instanceof Scratch.vm.exports.RenderedTarget; // create a sprite type.
   
