@@ -1590,7 +1590,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
   })
 
   _globalEnv.__env.set("askAndWait", {
-    get value() {return askAndWait}
+    get value() {return ask}
   })
   
   _globalEnv.__env.set("RegExp", {
@@ -1709,28 +1709,28 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     }
 
     struct.props.r = {
-      get value() {return r}
-      set value(v) {return r = v}
+      get value() {return r},
+      set value(v) {r = v}
     }
     struct.props.g = {
-      get value() {return g}
-      set value(v) {return g = v}
+      get value() {return g},
+      set value(v) {g = v}
     }
     struct.props.b = {
-      get value() {return b}
-      set value(v) {return b = v}
+      get value() {return b},
+      set value(v) {b = v}
     }
 
     struct.props.h = {
-      get value() {return rgbToHsv(r, g, b).h}
+      get value() {return rgbToHsv(r, g, b).h},
       set value(v) {const rgb = hsvToRgb(v, struct.props.s.value, struct.props.v.value); r = rgb.r; g = rgb.g; b = rgb.b;}
     }
     struct.props.s = {
-      get value() {return rgbToHsv(r, g, b).s}
+      get value() {return rgbToHsv(r, g, b).s},
       set value(v) {const rgb = hsvToRgb(struct.props.h.value, v, struct.props.v.value); r = rgb.r; g = rgb.g; b = rgb.b;}
     }
     struct.props.v = {
-      get value() {return rgbToHsv(r, g, b).v}
+      get value() {return rgbToHsv(r, g, b).v},
       set value(v) {const rgb = hsvToRgb(struct.props.h.value, struct.props.s.value, v); r = rgb.r; g = rgb.g; b = rgb.b;}
     }
 
