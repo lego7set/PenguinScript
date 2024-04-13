@@ -1184,6 +1184,29 @@ if ((typeof window === "object" && window && typeof window.document === "object"
     return null
   }
 
+  function* broadcastAndWait(util, message: any) {
+    const msg = String(message);
+    const started = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
+      BROADCAST_OPTION: msg
+    });
+    while (yield* wait(util, 15) && started.some(thread => Scratch.vm.runtime.threads.indexOf(thread) !== -1)) { // prevent freezing.
+      if (!util.isWarp || util.isStuck()) yield;
+    }
+    return null
+  }
+
+  function* broadcastToSpriteAndWait(util, message: any, target: any) {
+    if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot broadcast to a non-sprite")
+    const msg = String(message);
+    const started = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
+      BROADCAST_OPTION: msg
+    }, target);
+    while (yield* wait(util, 15) && started.some(thread => Scratch.vm.runtime.threads.indexOf(thread) !== -1)) { // prevent freezing.
+      if (!util.isWarp || util.isStuck()) yield;
+    }
+    return null
+  }
+  
   function* isSprite(util, value: any) {
     return value instanceof Scratch.vm.exports.RenderedTarget;
   }
@@ -1194,6 +1217,14 @@ if ((typeof window === "object" && window && typeof window.document === "object"
 
   _globalEnv.__env.set("broadcastToSprite", {
     get value() {return broadcastToSprite}
+  })
+
+  _globalEnv.__env.set("broadcastAndWait", {
+    get value() {return broadcastAndWait}
+  })
+
+  _globalEnv.__env.set("broadcastToSpriteAndWait", {
+    get value() {return broadcastToSpriteAndWait}
   })
 
   _globalEnv.__env.set("isSprite", {
