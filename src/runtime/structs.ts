@@ -535,4 +535,6 @@ package.createMethod = function* createMethod(util, struct, storedFunc) {
   };
 };
 
+package.RegExp = null;
+
 export default package;
