@@ -13,6 +13,9 @@ class Loader {
       });
     }
   }
+  public loadRaw(index, item) {
+    trueEnv.set(index, item);
+  }
   public loadPenguinModPackage(package) {
     if (!IsPenguinMod) return;
     for (const globalIndex of package) {
