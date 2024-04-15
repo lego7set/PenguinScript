@@ -644,6 +644,30 @@ package.Colour = createColorStruct; // please respect the british
 
 // -----------------------Misc-------------------------------
 
+export const customObjectTypes: Record<string, (v) => boolean> = {}; // format: type: test
+
+export function* type(util, value: any) {
+  if (value == null) return "null"; // use == purposefully so that undefined also returns null.
+  if (typeof value === "object") { // its not null, so its an actual object
+    for (const Type in customObjectTypes) {
+      const works = customObjectTypes[Type](value);
+      if (works) return Type;
+    }
+    if (value.isStruct && value.props) {
+      if (value.isError) return "error";
+      if (value.isObject) return "object";
+      if (value.isArray) return "array";
+      if (value.isComplex) return "complex";
+      if (value.isColor) return "color"; // sorry british people i cant create a string thats both color and colour
+      return "struct";
+    };
+    return "unknown";
+  }
+  return typeof value;
+}
+
+package.typeof = type;
+
 package.deepClone = function* deepClone(util, structToClone) {
   const typeToClone = yield* type(util, structToClone)
   switch (typeToClone) {
