@@ -534,6 +534,12 @@ package.createMethod = function* createMethod(util, struct, storedFunc) {
   };
 };
 
+// -------------------Reserved---------------
 package.RegExp = null;
+package.Map = null;
+package.Set = null;
+package.WeakMap = null;
+package.WeakSet = null;
+package.WeakRef = null;
 
 export default package;
