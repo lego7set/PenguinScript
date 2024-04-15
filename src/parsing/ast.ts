@@ -31,7 +31,8 @@ export enum NodeType {
   Array,
   RegExp, // unused as of now
   Complex,
-  ErrorLiteral
+  ErrorLiteral,
+  Color
 }
 
 export enum OutputType { // going to be unused
@@ -262,4 +263,12 @@ export interface ErrorLiteral extends Expr {
   kind: NodeType.ErrorLiteral; // [er; type, msg]
   msg: Expr;
   type: Expr;
+}
+
+export interface Color extends Expr {
+  kind: NodeType.Color;
+  format: "rgb" | "hsv";
+  first: Expr;
+  second: Expr;
+  third: Expr;
 }
