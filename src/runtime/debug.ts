@@ -26,3 +26,5 @@ package.EnterDebugMode = function debug(util, ...listOfThingsForAccess) {
   delete glboalThis.PenguinScriptDebugMode;
   return true;
 }
+
+export default package;
