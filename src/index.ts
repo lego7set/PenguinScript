@@ -6,7 +6,7 @@ import JSGenerator, { _globalEnv } from "./transpile/jsGen";
 
 import loader from "./runtime/loader";
 
-import structsPackage from "./runtime/structs"; // move all this stuff into the runtime folder cuz its looking like a lot of code here. 
+import structsPackage, { customObjectTypes } from "./runtime/structs"; // move all this stuff into the runtime folder cuz its looking like a lot of code here. 
 
 function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
@@ -86,31 +86,6 @@ _globalEnv.__env.set("charFromCodePoint", {
 
 _globalEnv.__env.set("charToCodePoint", {
   get value() {return charToCodePoint}
-})
-
-const customObjectTypes: Record<string, (v) => boolean> = {}; // format: type: test
-
-function* type(util, value: any) {
-  if (value == null) return "null"; // use == purposefully so that undefined also returns null.
-  if (typeof value === "object") { // its not null, so its an actual object
-    for (const Type in customObjectTypes) {
-      const works = customObjectTypes[Type](value);
-      if (works) return Type;
-    }
-    if (value.isStruct && value.props) {
-      if (value.isError) return "error";
-      if (value.isObject) return "object";
-      if (value.isArray) return "array";
-      if (value.isComplex) return "complex";
-      return "struct";
-    };
-    return "unknown";
-  }
-  return typeof value;
-}
-
-_globalEnv.__env.set("typeof", {
-  get value() {return type}
 })
 
 function* exit(util, value: any) {
