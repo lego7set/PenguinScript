@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining, Try, In, Ternary, Object, Array, ComplexLiteral, ErrorLiteral } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining, Try, In, Ternary, Object, Array, ComplexLiteral, ErrorLiteral, Color } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -660,6 +660,17 @@ export default class Parser {
         }
         this.expect(TokenType.CLOSE_BRACKET);
         return ({ kind: NodeType.ErrorLiteral, msg, type } as ErrorLiteral);
+      }
+      case "rgb":
+      case "hsv": {
+        const format = literalType;
+        const first = this.parse_expr();
+        this.expect(TokenType.SEMICOLON);
+        const second = this.parse_expr();
+        this.expect(TokenType.SEMICOLON);
+        const third = this.parse_expr();
+        this.optional(TokenType.SEMICOLON);
+        return ({ kind: NodeType.Color, format, first, second, third } as Color);
       }
       default: {
         throw new SyntaxError("Unknown special literal type: " + literalType);
