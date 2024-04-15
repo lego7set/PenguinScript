@@ -1,4 +1,3 @@
-import loader from "./loader";
 const package = { __proto__: null };
 
 import * as ComplexConstructor from "complex.js"; // i forgor to add to package
