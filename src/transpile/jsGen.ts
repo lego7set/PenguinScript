@@ -174,7 +174,7 @@ export default class JSGenerator {
     debug: new URL(document.location.toString()).searchParams.has("psdebug")
   };
   protected program;
-  protected src: string = "let _;let _2;let _3;let _4;let _5; let _6; let _7;"; // add some variables so we can use them inside expressions
+  protected src: string = "";
   protected scriptName: string;
   protected _variablePool: Generator<string>;
   protected _cachedVariables: Record<string, string>;
@@ -199,7 +199,7 @@ export default class JSGenerator {
     for (const node of program.body) {
       this.descendNode(node);
     }
-    this.src = `try{${this.src}}catch(error){if(error?.isExit)return error?.returnValue;if(error instanceof Error){error.name = "(PenguinScript Evaluation) " + error.name};throw error};`
+    this.src = `let _;let _2;let _3;let _4;let _5;let _6; let_7;util.scriptSrc=${JSON.stringify(this.src)};util.scriptName=${JSON.stringify(this.scriptName)};try{${this.src}}catch(error){if(error?.isExit)return error?.returnValue;if(error instanceof Error){error.name = "(PenguinScript Evaluation) " + error.name};throw error};`
     switch (type) {
       case "string": {
         return this.src;
