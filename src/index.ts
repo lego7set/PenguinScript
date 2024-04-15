@@ -8,6 +8,8 @@ import loader from "./runtime/loader";
 
 import structsPackage, { customObjectTypes } from "./runtime/structs"; // move all this stuff into the runtime folder cuz its looking like a lot of code here. 
 
+import debugPackage from "./runtime/debug";
+
 function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
   const generator = new JSGenerator(program);
@@ -16,38 +18,13 @@ function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
 
 loader.loadPackage(structsPackage); // load the package.
 
+loader.loadPackage(debugPackage);
+
 /*function preCompile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
   const generator = new JSGenerator(program);
   return "(yield* (function*($globalEnv, $target, isStuck){" + generator.transpile("string", true, warpTimer, isWarp) + "})(runtime.ext_vgspenguinscript._globalEnv, {isStuck, target, waitPromise}))";
 }*/ // dont use precompile
-
-function* log(util, ...args) {
-  console.log(...args);
-  return null;
-}
-
-function* warn(util, ...args) {
-  console.warn(...args);
-  return null;
-}
-
-function* error(util, ...args) {
-  console.error(...args);
-  return null;
-}
-
-_globalEnv.__env.set("print", {
-  get value() {return log}
-})
-
-_globalEnv.__env.set("warn", {
-  get value() {return warn}
-})
-
-_globalEnv.__env.set("error", {
-  get value() {return error}
-})
 
 function* convertToString(util, value: any) {
   return String(value);
