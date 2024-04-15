@@ -23,7 +23,7 @@ package.EnterDebugMode = function debug(util, ...listOfThingsForAccess) {
   globalThis.PenguinScriptDebugMode = {__proto__: null, vars: listOfThingsForAccess, util};
   debugger;
   // @ts-ignore
-  delete glboalThis.PenguinScriptDebugMode;
+  delete globalThis.PenguinScriptDebugMode;
   return true;
 }
 
