@@ -134,9 +134,9 @@ function* createComplexStruct(util, x?, y?) {
   } catch {
     throw new TypeError("Invalid arguments passed to Complex")
   }
-  const struct: any = {__proto__: null, isStruct: true, isComplex: true, props: {__proto__: null}};
   let im = complex.im;
   let re = complex.re;
+  const struct: any = {__proto__: null, isStruct: true, isComplex: true, props: {__proto__: null}, get im() {return im}, get re() {return re}}; // people might pass in a complex struct, so this allows you to put it into the complex thingy with erroring
   struct.toString = () => new Complex(struct.props.re.value, struct.props.im.value).toString()
   struct.props.re = {get value(){return re}, set value(v){
     if (typeof v !== "number") throw new TypeError("Can only set real or imaginary part of complex to a number.");
