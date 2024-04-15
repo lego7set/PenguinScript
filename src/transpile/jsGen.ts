@@ -1,4 +1,4 @@
-import type { Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline, Target, Break, Continue, Struct, Chaining, Try, In, Ternary, Object, Array, ComplexLiteral, ErrorLiteral } from "../parsing/ast.ts";
+import type { Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline, Target, Break, Continue, Struct, Chaining, Try, In, Ternary, Object, Array, ComplexLiteral, ErrorLiteral, Color } from "../parsing/ast.ts";
 import { NodeType } from "../parsing/ast";
 
 export enum OutputType {
@@ -485,6 +485,14 @@ export default class JSGenerator {
           const msg = node2.msg ? this.descendExpr(node2.msg).asUnknown() + "," : "";
           const type = node2.type ? this.descendExpr(node2.type).asUnknown() : "";
           return new TypedInput(`/* Error */yield* util.createError(util, ${msg}${type})/* End Error */`, OutputType.TYPE_UNKNOWN);
+        }
+        case NodeType.Color: {
+          const node2 = node as unknown as Color;
+          const first = this.descendExpr(node2.first).asNumber();
+          const second = this.descendExpr(node2.second).asNumber();
+          const third = this.descendExpr(node2.third).asNumber();
+          
+          return new TypedInput(`/* Colo(u)r */yield* util.createColor(util, "${node2.format}", ${first}, ${second}, ${third})/* End Colo(u)r */`);
         }
         case NodeType.Identifier: {
           const node2 = node as unknown as Identifier;
