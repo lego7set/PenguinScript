@@ -497,6 +497,151 @@ package.Error = function* createErrorStruct(util, v, type?) {
   return struct;
 }
 
+// -----------------------Colo(u)rs--------------------------
+
+function hsvToRgb(h, s, v) {
+    // Normalize hue to range [0, 360]
+    h = h % 360;
+  
+    // Calculate chroma
+    const c = v * s;
+  
+    // Calculate hue sector
+    const sector = Math.floor(h / 60);
+  
+    // Calculate fractional part of hue
+    const f = h / 60 - sector;
+  
+    // Calculate x and y
+    const x = c * (1 - f);
+    const y = c * (1 - f * 6);
+    const z = c * (1 - (f * 6 - 1));
+  
+    // Calculate RGB components based on hue sector
+    let r, g, b;
+    switch (sector) {
+      case 0:
+        r = c;
+        g = z;
+        b = 0;
+        break;
+      case 1:
+        r = y;
+        g = c;
+        b = 0;
+        break;
+      case 2:
+        r = 0;
+        g = c;
+        b = x;
+        break;
+      case 3:
+        r = 0;
+        g = y;
+        b = c;
+        break;
+      case 4:
+        r = x;
+        g = 0;
+        b = c;
+        break;
+      case 5:
+        r = c;
+        g = 0;
+        b = z;
+        break;
+    }
+  
+    // Calculate RGB components based on value
+    r = (r + v - c) * 255;
+    g = (g + v - c) * 255;
+    b = (b + v - c) * 255;
+  
+    return { r: Math.round(r), g: Math.round(g), b: Math.round(b) };
+  }
+
+  function rgbToHsv(r, g, b) {
+    // Normalize RGB values to range [0, 1]
+    r = r / 255;
+    g = g / 255;
+    b = b / 255;
+  
+    // Find the maximum and minimum values
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+  
+    // Calculate the hue
+    let h;
+    if (max === min) {
+      h = 0;
+    } else if (max === r) {
+      h = 60 * (0 + (g - b) / (max - min));
+    } else if (max === g) {
+      h = 60 * (2 + (b - r) / (max - min));
+    } else if (max === b) {
+      h = 60 * (4 + (r - g) / (max - min));
+    }
+  
+    // Calculate the saturation
+    const s = max === 0 ? 0 : (max - min) / max;
+  
+    // Calculate the value
+    const v = max;
+  
+    return { h, s, v };
+  }
+
+  function* createColorStruct(util, format?, rh?, gs?, bv?) {
+    const struct: any = {__proto__: null, isStruct: true, isColor: true, props:{__proto__:null}};
+    let r = 0; // default to just black cuz why not
+    let g = 0;
+    let b = 0;
+    format = String(format ?? "null");
+    if (format && rh != undefined && gs != undefined && bv != undefined) {
+      if (format.toLowerCase() === "rgb") {
+        r = rh || 0;
+        g = gs || 0;
+        b = bv || 0;
+      } else if (format.toLowerCase() === "hsv") {
+        const rgb = hsvToRgb(rh || 0, gs || 0, bv || 0);
+        r = rgb.r;
+        g = rgb.g;
+        b = rgb.b;
+      }
+    }
+
+    struct.props.r = {
+      get value() {return r},
+      set value(v) {r = v}
+    }
+    struct.props.g = {
+      get value() {return g},
+      set value(v) {g = v}
+    }
+    struct.props.b = {
+      get value() {return b},
+      set value(v) {b = v}
+    }
+
+    struct.props.h = {
+      get value() {return rgbToHsv(r, g, b).h},
+      set value(v) {const rgb = hsvToRgb(v, struct.props.s.value, struct.props.v.value); r = rgb.r; g = rgb.g; b = rgb.b;}
+    }
+    struct.props.s = {
+      get value() {return rgbToHsv(r, g, b).s},
+      set value(v) {const rgb = hsvToRgb(struct.props.h.value, v, struct.props.v.value); r = rgb.r; g = rgb.g; b = rgb.b;}
+    }
+    struct.props.v = {
+      get value() {return rgbToHsv(r, g, b).v},
+      set value(v) {const rgb = hsvToRgb(struct.props.h.value, struct.props.s.value, v); r = rgb.r; g = rgb.g; b = rgb.b;}
+    }
+
+    return struct;
+  }
+
+package.Color = createColorStruct;
+package.Colour = createColorStruct; // please respect the british
+
 // -----------------------Misc-------------------------------
 
 package.deepClone = function* deepClone(util, structToClone) {
