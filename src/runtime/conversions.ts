@@ -2,7 +2,7 @@ const package = { __proto__: null };
 export function* toString(util, value: any) {
   if (value && value.isStruct && value.props.__toString__ && typeof value.props.__toString__.value === "function") {
     return String(yield* value.props.__toString__.value(util, value)) // custom tostring cuz why not.
-    // i need to allow this for structs so that it shows the string instead of penguisncript struct for blockly stuff
+    // actually no its impossible
   }
   if (value == null) return "null";
   return String(value);
