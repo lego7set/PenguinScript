@@ -16,6 +16,12 @@ class Loader {
   public loadRaw(index, item) {
     trueEnv.set(index, item);
   }
+  public loadRawPackage(package) {
+    for (const globalIndex of package) {
+      const value = package[globalIndex];
+      trueEnv.set(globalIndex, value);
+    }
+  }
   public loadPenguinModPackage(package) {
     if (!IsPenguinMod) return;
     for (const globalIndex of package) {
