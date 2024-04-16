@@ -12,6 +12,8 @@ import debugPackage from "./runtime/debug";
 
 import conversionsPackage from "./runtime/conversions";
 
+import stringUtilsPackage from "./runtime/stringUtils";
+
 function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
   const generator = new JSGenerator(program);
@@ -21,6 +23,8 @@ function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
 loader.loadPackage(structsPackage); // load the package.
 
 loader.loadPackage(conversionsPackage);
+
+loader.loadPackage(stringUtilsPackage);
 
 loader.loadPackage(debugPackage);
 
@@ -49,88 +53,6 @@ _globalEnv.__env.set("exit", {
 _globalEnv.__env.set("getMath", {
   get value() {return getMathForPS}
 })*/
-
-function* join(util, str: any, str2: any) {
-  return String(str ?? "null") + String(str2 ?? "null");
-}
-
-
-_globalEnv.__env.set("join", {
-  get value() {return join}
-})
-
-_globalEnv.__env.set("concat", {
-  get value() {return join}
-})
-
-function* repeatStr(util, str, times) {
-  const times = Number(times) || 0;
-  str = String(str ?? "null");
-  return str.repeat(Math.floor(Math.abs(times)))
-}
-
-_globalEnv.__env.set("repeatString", {
-  get value() {return repeatStr}
-});
-
-function* inStr(util, str1, str2) {
-  str1 = String(str1 ?? "null");
-  str2 = String(str2 ?? "null");
-  return str1.includes(str2);
-}
-
-_globalEnv.__env.set("stringContains", {
-  get value() {return inStr}
-});
-
-_globalEnv.__env.set("stringHas", {
-  get value() {return inStr}
-});
-
-function* strLen(util, str) {
-  str = String(str ?? "null");
-  return str.length;
-}
-
-function* letterOf(util, str, index) {
-  if (typeof index !== "number") throw new TypeError("Invalid letter position passed to letterOf");
-  if (index < 1) throw new TypeError("Letter position must be larger than or equal to 1");
-  str = String(str ?? "null");
-  return str[Math.floor(Math.abs(index)) - 1]; // subtract 1 to mimic scratch behavior
-}
-
-function* lettersOf(util, str, index, index2) {
-  if (typeof index !== "number") throw new TypeError("Invalid letter position passed to lettersOf");
-  if (typeof index2 !== "number") throw new TypeError("Invalid letter position passed to lettersOf");
-  if (index < 1) throw new TypeError("Letter position must be larger than or equal to 1");
-  if (index2 < 1) throw new TypeError("Letter position must be larger than or equal to 1");
-  str = String(str ?? "null");
-  return str.substring(Math.floor(Math.abs(index)) - 1, Math.floor(Math.abs(index2))); // subtract 1 to mimic scratch behavior, and dont subtract 1 for the second one cuz the second one is EXclusive.
-}
-
-_globalEnv.__env.set("lengthOfString", {
-  get value() {return strLen}
-});
-
-_globalEnv.__env.set("strLen", {
-  get value() {return strLen}
-});
-
-_globalEnv.__env.set("letterOf", {
-  get value() {return letterOf}
-});
-
-_globalEnv.__env.set("charAt", {
-  get value() {return letterOf}
-});
-
-_globalEnv.__env.set("lettersOf", {
-  get value() {return lettersOf}
-});
-
-_globalEnv.__env.set("substring", {
-  get value() {return substring}
-});
 
 // NOTE TO SELF: CREATE SERIALIZATION FOLDER WITH MULTIPLE SERIALIZE / DESERIALIZE MODULES THAT WE IMPORT HERE AND IMPLEMENT THE MAIN SERIALIZATION CLASS WHICH ALSO ADDS CUSTOM SERIALIZEATION FOR SPRITES
 _globalEnv.__env.set("Serialization", { // reserve global serialization so that people can serialize object, arrays, errors, complex objects, user-defined structs, and sprite (if used in pm)
