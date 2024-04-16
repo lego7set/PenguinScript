@@ -10,6 +10,8 @@ import structsPackage, { customObjectTypes } from "./runtime/structs"; // move a
 
 import debugPackage from "./runtime/debug";
 
+import conversionsPackage from "./runtime/conversions";
+
 function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
   const generator = new JSGenerator(program);
@@ -18,6 +20,8 @@ function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
 
 loader.loadPackage(structsPackage); // load the package.
 
+loader.loadPackage(conversionsPackage);
+
 loader.loadPackage(debugPackage);
 
 /*function preCompile(code: string, warpTimer: boolean, isWarp: boolean): any {
@@ -25,45 +29,6 @@ loader.loadPackage(debugPackage);
   const generator = new JSGenerator(program);
   return "(yield* (function*($globalEnv, $target, isStuck){" + generator.transpile("string", true, warpTimer, isWarp) + "})(runtime.ext_vgspenguinscript._globalEnv, {isStuck, target, waitPromise}))";
 }*/ // dont use precompile
-
-function* convertToString(util, value: any) {
-  return String(value);
-}
-function* convertToNumber(util, value: any) {
-  return Number(value);
-}
-function* convertToBoolean(util, value: any) {
-  return Boolean(value);
-}
-
-function* charFromCodePoint(util, value: any) {
-  return String.fromCodePoint(Number(value) || 0)
-}
-
-function* charToCodePoint(util, value: any) {
-  if (typeof value !== "string") throw new TypeError("Please pass in a string to charToCodePoint")
-  return value.codePointAt(0) ?? null;
-}
-
-_globalEnv.__env.set("toString", {
-  get value() {return convertToString}
-})
-
-_globalEnv.__env.set("toNumber", {
-  get value() {return convertToNumber}
-})
-
-_globalEnv.__env.set("toBoolean", {
-  get value() {return convertToBoolean}
-})
-
-_globalEnv.__env.set("charFromCodePoint", {
-  get value() {return charFromCodePoint}
-})
-
-_globalEnv.__env.set("charToCodePoint", {
-  get value() {return charToCodePoint}
-})
 
 function* exit(util, value: any) {
   throw {isExit: true, returnValue: value}; // exits
