@@ -4,12 +4,14 @@ export function* toString(util, value: any) {
     return String(yield* value.props.__toString__.value(util, value)) // custom tostring cuz why not.
     // i need to allow this for structs so that it shows the string instead of penguisncript struct for blockly stuff
   }
+  if (value == null) return "null";
   return String(value);
 }
 export function* toNumber(util, value: any) {
   if (value && value.isStruct && value.props.__toNumber__ && typeof value.props.__toNumber__.value === "function") {
     return Number(yield* value.props.__toNumber__.value(util, value)) // same here
   }
+  if (value == null) return 0;
   return Number(value);
 }
 export function* toBoolean(util, value: any) {
