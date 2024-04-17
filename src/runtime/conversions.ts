@@ -21,6 +21,16 @@ export function* toBoolean(util, value: any) {
   return Boolean(value);
 }
 
+export function* degToRad(util, deg: number) {
+  return deg * Math.PI / 180;
+}
+export function* radToDeg(util, rad: number) {
+  return rad * 180 / Math.PI;
+}
+
+package.degToRad = degToRad;
+package.radToDeg = radToDeg
+
 package.toString = toString;
 package.toNumber = toNumber;
 package.toBoolean = toBoolean;
