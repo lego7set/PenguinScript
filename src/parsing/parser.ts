@@ -513,6 +513,7 @@ export default class Parser {
         } as FunctionCall;
         indexing();
       } // parse all function calls first. so we can capture things like x()()()()
+      indexing(); // execute indexing anyways
     }
     function indexing() {
       while (this.at().type === TokenType.OPEN_BRACKET) { // x[]
