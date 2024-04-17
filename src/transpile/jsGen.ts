@@ -1,4 +1,4 @@
-import type { Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline, Target, Break, Continue, Struct, Chaining, Try, In, Ternary, Object, Array, ComplexLiteral, ErrorLiteral, Color } from "../parsing/ast.ts";
+import type { Stmt, NoOp, StmtBody, Program, StmtBlock, IfStatement, ElseStatement, VariableDeclaration, Expr, AssignmentExpr, BinaryExpr, UnaryExpr, Identifier, Global, PrimitiveLiteral, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, ArgsList, ReturnStatement, Function, FunctionCall, Inline, Target, Break, Continue, Struct, Chaining, Try, In, Ternary, Object, Array, ComplexLiteral, ErrorLiteral, Color, Indexing } from "../parsing/ast.ts";
 import { NodeType } from "../parsing/ast";
 
 export enum OutputType {
@@ -199,7 +199,7 @@ export default class JSGenerator {
     for (const node of program.body) {
       this.descendNode(node);
     }
-    this.src = `let _;let _2;let _3;let _4;let _5;let _6; let_7;util.scriptSrc=${JSON.stringify(this.src)};util.scriptName=${JSON.stringify(this.scriptName)};util.debugGlobalEnv=$globalEnv;try{${this.src}}catch(error){if(error?.isExit)return error?.returnValue;if(error instanceof Error){error.name = "(PenguinScript Evaluation) " + error.name};throw error};`
+    this.src = `let _;let _2;let _3;let _4;let _5;let _6; let_7;util.scriptSrc=${JSON.stringify(this.src)};util.scriptName=${JSON.stringify(this.scriptName)};util.debugGlobalEnv=$globalEnv;try{${this.src}}catch(error){if(error?.isExit)return error?.returnValue;if(error instanceof Error){error.name = "(PenguinScript Evaluation) " + error.name;error.message+=" in script "+util.scriptSrc;};throw error};`
     switch (type) {
       case "string": {
         return this.src;
@@ -558,6 +558,12 @@ export default class JSGenerator {
           const checkIsStruct = `(function(){if(!(_3?.props&&_3?.isStruct))throw new TypeError("Can only use chaining operator on struct instances.");if(!_3.props[${JSON.stringify(node2.index)}]){throw new TypeError("Struct does not have property, cannot chain.")};})()`;
           const debug = `(function(){debugger;})(),`
           return new TypedInput(`/* Chaining */${JSGenerator.CompilerSettings.debug ? debug : ""}((_3 = ${item}, ${checkIsStruct}, _3).props[${JSON.stringify(node2.index)}].value)/* End Chaining */`, OutputType.TYPE_UNKNOWN) // work around to allow setting with a chain
+        }
+        case NodeType.Indexing: {
+          const node2 = node as unknown as Indexing;
+          const item = this.descendExpr(node2.left).asUnknown();
+          const index = this.descendExpr(node2.right).asUnknown();
+          return new TypedInput(`/* Indexing */util.index(${item}, ${index})/* End Indexing */`);
         }
         case NodeType.In: {
           const node2 = node as unknown as In;
