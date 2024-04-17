@@ -32,7 +32,8 @@ export enum NodeType {
   RegExp, // unused as of now
   Complex,
   ErrorLiteral,
-  Color
+  Color,
+  Indexing
 }
 
 export enum OutputType { // going to be unused
@@ -271,4 +272,10 @@ export interface Color extends Expr {
   first: Expr;
   second: Expr;
   third: Expr;
+}
+
+export interface Indexing extends Expr {
+  kind: NodeType.Indexing;
+  left: Expr;
+  right: Expr;
 }
