@@ -317,9 +317,58 @@ class Sprite {
         throw new TypeError("Cannot overwrite a sprite's isClone status");
       } 
     }
+    function* getVariable(util, name: any) {
+      return sprite.lookupVariableByNameAndType(yield* toString(name), "", true)?.value ?? null;
+    }
+    function* setVariable(util, name: any, value: any) {
+      const variable = sprite.lookupVariableByNameAndType(yield* toString(name), "", true);
+      if (variable) { 
+        if (value == null) {
+          variable.value = "null";
+          return true;
+        }
+        if (typeof value === "number" || typeof value === "string" || typeof value === "boolean") { 
+          variable.value = value;
+          return true;
+        }
+        variable.value = yield* toString(value);
+        return true;
+      }
+      return null;
+    }
+    props.getVariable = {
+      get value() {
+        return getVariable
+      },
+      set value(v) {throw new TypeError("Cannot change getVariable method on sprite")}
+    }
+    props.setVariable = {
+      get value() {
+        return setVariable
+      },
+      set value(v) {throw new TypeError("Cannot change setVariable method on sprite")}
+    }
+
+    function* broadcast(util, message) {
+      const msg = yield* toString(message);
+      const threads = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
+        BROADCAST_OPTION: msg
+      }, sprite);
+      if (threads.length === 0) return false; // indicate no threads started.
+      return true;
+    }
+    props.broadcast = {
+      get value() {
+        return broadcast
+      },
+      set value(v) {throw new TypeError("Cannot change broadcast method on sprite")}
+    }
   }
   toString() {
     return "<PenguinScript Sprite>";
+  }
+  toJSON() {
+    return ""; // just save as empty string
   }
 }
 
