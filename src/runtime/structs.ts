@@ -65,27 +65,31 @@ package.Array = function* createArrayStruct(util, ...values) {
   struct.toString = () => "<PenguinScript Array>"
   struct.props.get = {value:function*(util, key){
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
-     if (key < 1) throw new TypeError("Key to array must be larger than or equal to 1");
-    key = Math.round(key) || 1;
+    if (key < 1 && key > -1) throw new TypeError("Key to array must be not be between 1 and -1");
+    if (Object.is(NaN, key)) throw new TypeError("Key to array must not be NaN")
+    if (key > 0) key = Math.round(key) || 1;
+    if (key < 0) key = props.length - Math.round(Math.abs(key)) + 1
     return props[key - 1]; // match scratch behavior.
   }}
   struct.props.set = {value:function*(util, key, value) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
-    if (key < 1) throw new TypeError("Key to array must be larger than or equal to 1");
-    key = Math.round(key) || 1;
+    if (key < 1 && key > -1) throw new TypeError("Key to array must be not be between 1 and -1");
+    if (Object.is(NaN, key)) throw new TypeError("Key to array must not be NaN")
+    if (key > 0) key = Math.round(key) || 1;
+    if (key < 0) key = props.length - Math.round(Math.abs(key)) + 1
     return props[key - 1] = value;
   }}
   /*struct.props.has = {value:function*(util, key) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
     key = Math.round(key) || 1;
     return key >= 1 && key <= props.length; 
-  }}*/
+  }}
   struct.props.delete = {value:function*(util, key) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
      if (key < 1) throw new TypeError("Key to array must be larger than or equal to 1");
     key = Math.round(key) || 1;
     return props.length = key;
-  }}
+  }}*/ // also remove delete cuz its useless.
   struct.props.pop = {value:function*() {
     return props.pop();
   }}
