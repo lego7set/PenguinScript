@@ -318,9 +318,6 @@ class Sprite {
       } 
     }
   }
-  getActual() {
-    return this.sprite;
-  }
   toString() {
     return "<PenguinScript Sprite>";
   }
