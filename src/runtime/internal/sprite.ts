@@ -106,6 +106,7 @@ class Sprite {
     const moveStepsBack = (
        function*(util, steps, direction?) {
          if (typeof steps !== "number" || Object.is(NaN, steps)) throw new TypeError("Cannot move non-number or NaN steps");
+         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
          yield* moveSteps(util, 0 - steps, direction);
        })
     props.moveStepsBack = {
@@ -118,6 +119,7 @@ class Sprite {
       function*(util, steps, direction?) {
         if (typeof steps !== "number" || Object.is(NaN, steps)) throw new TypeError("Cannot move non-number or NaN steps");
         if (direction != null && (typeof direction !== "number" || Object.is(NaN, direction))) throw new TypeError("Cannot move steps in non-number or NaN direction");
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         const oldDir = sprite.direction;
         if (direction != null) target.setDirection(direction);
         target.setDirection(sprite.direction - 90);
@@ -128,6 +130,7 @@ class Sprite {
       function*(util, steps, direction?) {
         if (typeof steps !== "number" || Object.is(NaN, steps)) throw new TypeError("Cannot move non-number or NaN steps");
         if (direction != null && (typeof direction !== "number" || Object.is(NaN, direction))) throw new TypeError("Cannot move steps in non-number or NaN direction");
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         const oldDir = sprite.direction;
         if (direction != null) target.setDirection(direction);
         target.setDirection(sprite.direction - 90);
@@ -150,11 +153,13 @@ class Sprite {
     const turnRight = (
       function*(util, direction){
         if (typeof direction !== "number" || Object.is(NaN, direction)) throw new TypeError("Cannot turn right non-number or NaN degrees");
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         target.setDirection(target.direction + direction);
       })
     const turnLeft = (
       function*(util, direction){
         if (typeof direction !== "number" || Object.is(NaN, direction)) throw new TypeError("Cannot turn left non-number or NaN degrees");
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         target.setDirection(target.direction - direction);
       })
     props.turnRight = {
