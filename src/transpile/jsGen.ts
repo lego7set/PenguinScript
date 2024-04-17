@@ -563,7 +563,7 @@ export default class JSGenerator {
           const node2 = node as unknown as Indexing;
           const item = this.descendExpr(node2.left).asUnknown();
           const index = this.descendExpr(node2.right).asUnknown();
-          return new TypedInput(`/* Indexing */(yield* util.index(${item}, ${index}))/* End Indexing */`);
+          return new TypedInput(`/* Indexing */(yield* util.index(${item}, ${index})).value/* End Indexing */`);
         }
         case NodeType.In: {
           const node2 = node as unknown as In;
