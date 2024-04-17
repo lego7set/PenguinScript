@@ -33,35 +33,35 @@ class Sprite {
     
     const props = this.props;
 
-    props.x = {
+    props.xStretch = {
       get value() {
         if (isDisposed()) {
           throw new TypeError("This sprite has been deleted, cannot perform operation")
         }
-        return sprite.x
+        return sprite.stretch[0];
       },
       set value(v) {
         if (isDisposed()) {
           throw new TypeError("This sprite has been deleted, cannot perform operation")
         }
-        if (typeof v !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot set x position of sprite to non-number or NaN");
-        sprite.setXY(v, sprite.y)
+        if (typeof v !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot set x stretch of sprite to non-number or NaN");
+        sprite.setStretch(v, sprite.stretch[1])
       }
     }
     
-    props.y = {
+    props.yStretch = {
       get value() {
         if (isDisposed()) {
           throw new TypeError("This sprite has been deleted, cannot perform operation")
         }
-        return sprite.y
+        return sprite.stretch[1];
       },
       set value(v) {
         if (isDisposed()) {
           throw new TypeError("This sprite has been deleted, cannot perform operation")
         }
-        if (typeof v !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot set y position of sprite to non-number or NaN");
-        sprite.setXY(sprite.x, v)
+        if (typeof v !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot set y stretch of sprite to non-number or NaN");
+        sprite.setXY(sprite.stretc[0], v)
       }
     }
 
@@ -94,7 +94,7 @@ class Sprite {
         const newDir = sprite.direction;
         target.setDirection(oldDir);
         // so newDir is the direction, and numOfSteps is the step count
-        const radians = degToRad(null, newDir).next().value;
+        const radians = yield* degToRad(null, newDir).next().value;
         const dx = steps * Math.cos(radians);
         const dy = steps * Math.sin(radians);
         target.setXY(target.x + dx, target.y + dy); // we're done!
@@ -181,13 +181,13 @@ class Sprite {
 
     function* say(util, text: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-      const msg = toString(text);
+      const msg = yield* toString(text);
       Scratch.vm.runtime.emit("SAY", sprite, 'say', msg);
       return null;
     }
     function* think(util, text: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-      const msg = toString(text);
+      const msg = yield* toString(text);
       Scratch.vm.runtime.emit("SAY", sprite, 'think', msg);
       return null;
     }
@@ -225,7 +225,7 @@ class Sprite {
       }
       set value(v) {
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-        sprite.setVisible(toBoolean(v));
+        sprite.setVisible(yield* toBoolean(v));
       }
     }
 
@@ -249,7 +249,55 @@ class Sprite {
       set value(v) {throw new TypeError("Cannot change hide method on sprite")}
     }
 
-    
+    props.costumeNumber = {
+      get value() {
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+        return sprite.currentCostume + 1;
+      },
+      set value(v) {
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+        if (typeof v !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot set costume number of sprite to non-number or NaN");
+        v = Math.sign(v) * Math.floor(Math.abs(v));
+        target.setCostume(v - 1);
+      }
+    }
+    props.costumeName = {
+      get value() {
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+        return sprite.getCostumes()[sprite.currentCostume].name;
+      },
+      set value(v) {
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+        v = yield* toString(v);
+        const index = target.getCostumeIndexByName(v);
+        if (index !== -1) target.setCostume(index);
+        else throw new TypeError("Costume name " + index + " does not exist");
+      }
+    }
+
+    function* changeCostumeBy(util, v) {
+      if (typeof v !== "number") throw new TypeError("Cannot change costume number by non-number");
+      if (isDisposed()) throw new TypeError("This spriteh as been deleted, cannot perform operation");
+      sprite.setCostume(sprite.currentCostume + v);
+    }
+    function* nextCostume(util) {
+      yield* changeCostumeBy(util, 1);
+    }
+    function* previousCostume(util) {
+      yield* changeCostumeBy(util, -1);
+    }
+    props.nextCostume = {
+      get value() {
+        return nextCostume
+      },
+      set value(v) {throw new TypeError("Cannot change nextCostume method on sprite")}
+    }
+    props.previousCostume = {
+      get value() {
+        return previousCostume
+      },
+      set value(v) {throw new TypeError("Cannot change previousCostume method on sprite")}
+    }
   }
   getActual() {
     return this.sprite;
