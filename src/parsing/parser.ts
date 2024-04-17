@@ -4,7 +4,7 @@ import Lexer, { Token, TokenType } from "./lexer";
 
 import type { TokenList, TokenizeOutput } from "./lexer.ts";
 
-import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining, Try, In, Ternary, Object, Array, ComplexLiteral, ErrorLiteral, Color } from "./ast.ts";
+import type { Stmt, StmtBody, StmtBlock, NoOp, IfStatement, ElseStatement, Program, VariableDeclaration, Expr, BinaryExpr, UnaryExpr, AssignmentExpr, Identifier, Global, NumericLiteral, StringLiteral, BooleanLiteral, True, False, Null, While, Inline, Function, ReturnStatement, ArgsList, FunctionCall, Target, Break, Continue, Struct, Chaining, Try, In, Ternary, Object, Array, ComplexLiteral, ErrorLiteral, Color, Indexing } from "./ast.ts";
 
 export default class Parser {
   public constructor(src: string | TokenList) {
@@ -495,31 +495,7 @@ export default class Parser {
 
   protected parse_chaining_function_call_expr() {
     let primary = this.parse_in_expr();
-    while (this.at().type === TokenType.OPEN_PAREN) {
-      this.expect(TokenType.OPEN_PAREN);
-      const args = [] as Expr[];
-      while (this.at().type !== TokenType.CLOSE_PAREN && this.not_eof()) {
-        const val = this.parse_expr();
-        if (this.at().type !== TokenType.CLOSE_PAREN) this.expect(TokenType.COMMA);
-        else if (this.at().type === TokenType.COMMA) this.eat(); // consume one trailing comma, if it exists
-        args.push(val);
-      }
-      this.expect(TokenType.CLOSE_PAREN);
-      primary = {
-        kind: NodeType.FunctionCall,
-        func: primary,
-        args
-      } as FunctionCall;
-    } // parse all function calls first. so we can capture things like x()()()()
-    
-    while (this.at().type === TokenType.CHAINING) { // handle chaining. so that if -> comes after things like x()()()() we can get values of it.
-      this.eat(); // eat chaining;
-      let ident = this.expect(TokenType.STRING, TokenType.IDENTIFIER).raw;
-      primary = {
-        kind: NodeType.Chaining,
-        item: primary,
-        index: ident
-      } as Chaining;
+    function function_call() {
       while (this.at().type === TokenType.OPEN_PAREN) {
         this.expect(TokenType.OPEN_PAREN);
         const args = [] as Expr[];
@@ -535,7 +511,34 @@ export default class Parser {
           func: primary,
           args
         } as FunctionCall;
-      } // nested loops to catch things like x()()()() -> doStuff()()() -> doStuff(2, 5) -> doStuff(someRandomVar)()
+        indexing();
+      } // parse all function calls first. so we can capture things like x()()()()
+    }
+    function indexing() {
+      while (this.at().type === TokenType.OPEN_BRACKET) { // x[]
+       this.eat();
+       const right = this.parse_expr();
+       this.expect(TokenType.CLOSE_BRACKET);
+       primary = {
+         kind: NodeType.Indexing,
+         left: primary,
+         right
+       } as Indexing;
+        function_call(); // so you can do x()[0][3](1)[6]
+     }
+    }
+
+    function_call();
+    
+    while (this.at().type === TokenType.CHAINING) { // handle chaining. so that if -> comes after things like x()()()() we can get values of it.
+      this.eat(); // eat chaining;
+      let ident = this.expect(TokenType.STRING, TokenType.IDENTIFIER).raw;
+      primary = {
+        kind: NodeType.Chaining,
+        item: primary,
+        index: ident
+      } as Chaining;
+      function_call();
     }
     return primary;
   }
