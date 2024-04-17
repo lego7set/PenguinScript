@@ -16,9 +16,9 @@ export function* toNumber(util, value: any) {
 }
 export function* toBoolean(util, value: any) {
   if (value && value.isStruct && value.props.__toBoolean__ && typeof value.props.__toBoolean__.value === "function") {
-    return Boolean(yield* value.props.__toBoolean__.value(util, value)) // same here
+    return (yield* value.props.__toBoolean__.value(util, value) ?? false) === false // same here
   }
-  return Boolean(value);
+  return (value ?? false) === false;
 }
 
 export function* degToRad(util, deg: number) {
