@@ -1079,10 +1079,10 @@ if ((typeof window === "object" && window && typeof window.document === "object"
       createColor: structsPackage.Color,
       *index(item, index) {
         if (!item || (!(item.isObject) && !(item.isArray))) throw new TypeError("Can only index arrays and objects");
-        const v = item.props.get.value(this, index);
+        const v = yield* item.props.get.value(this, index);
         return {
           get value() {return v},
-          set value(value) {return item.props.set.value(this, index, value)}
+          set value(value) {return yield* item.props.set.value(this, index, value)}
         }
       },
       *negate(a) {
