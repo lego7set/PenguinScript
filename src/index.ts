@@ -1079,27 +1079,36 @@ if ((typeof window === "object" && window && typeof window.document === "object"
       createColor: structsPackage.Color,
       *negate(a) {
         if (a && a.isComplex && a.isStruct) return yield* this.createComplex(this, new Complex(a.props.re.value, a.props.im.value).neg()); // im too lazy to create a new method or check if one already exists
-        return -Number(a);
+        if (typeof a !== "number") throw new TypeError("Incompatible operand");
+        return -a;
       },
       *lt(a, b) {
-        if (a && a.isComplex && a.isStruct) return false;
-        if (b && b.isComplex && b.isStruct) return false;
-        return Number(a) < Number(b)
+        if (a && a.isComplex && a.isStruct) throw new TypeError("Cannot relatively compare complex values");
+        if (b && b.isComplex && b.isStruct) throw new TypeError("Cannot relatively compare complex values");
+        if (typeof a !== "number") throw new TypeError("Cannot relatively compare non-numbers");
+        if (typeof b !== "number") throw new TypeError("Cannot relatively compare non-numbers");
+        return a < b
       },
       *le(a, b) {
-        if (a && a.isComplex && a.isStruct) return false;
-        if (b && b.isComplex && b.isStruct) return false;
-        return Number(a) <= Number(b)
+        if (a && a.isComplex && a.isStruct) throw new TypeError("Cannot relatively compare complex values");
+        if (b && b.isComplex && b.isStruct)throw new TypeError("Cannot relatively compare complex values");
+        if (typeof a !== "number") throw new TypeError("Cannot relatively compare non-numbers");
+        if (typeof b !== "number") throw new TypeError("Cannot relatively compare non-numbers");
+        return a <= b
       },
       *gt(a, b) {
-        if (a && a.isComplex && a.isStruct) return false;
-        if (b && b.isComplex && b.isStruct) return false;
-        return Number(a) > Number(b)
+        if (a && a.isComplex && a.isStruct) throw new TypeError("Cannot relatively compare complex values");
+        if (b && b.isComplex && b.isStruct) throw new TypeError("Cannot relatively compare complex values");
+        if (typeof a !== "number") throw new TypeError("Cannot relatively compare non-numbers");
+        if (typeof b !== "number") throw new TypeError("Cannot relatively compare non-numbers");
+        return a > b
       },
       *ge(a, b) {
-        if (a && a.isComplex && a.isStruct) return false;
-        if (b && b.isComplex && b.isStruct) return false;
-        return Number(a) >= Number(b)
+        if (a && a.isComplex && a.isStruct) throw new TypeError("Cannot relatively compare complex values");
+        if (b && b.isComplex && b.isStruct) throw new TypeError("Cannot relatively compare complex values");
+        if (typeof a !== "number") throw new TypeError("Cannot relatively compare non-numbers");
+        if (typeof b !== "number") throw new TypeError("Cannot relatively compare non-numbers");
+        return a >= b
       },
       *is(a, b) {
         if (a && b && a.isComplex && b.isComplex) return yield* a.props.__equals__.value(this, b);
@@ -1112,36 +1121,50 @@ if ((typeof window === "object" && window && typeof window.document === "object"
         if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__.value(this, a))) return yield* b.props.__add__.value(this, a);
         //if (a.isStruct && typeof a.props.__add__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__add__(this, b);
         //if (b.isStruct && typeof b.props.__add__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__add__(this, b);
-        return Number(a) + Number(b)
+        if ((typeof a === "number" && typeof b === "number") || (typeof a === "string" && typeof b === "string")) { // make everything more strict
+          return a + b
+        }
+        throw new TypeError("Incompatible operands");
       },
       *subtract(a, b) {
         if (a && a.isComplex && a.isStruct && (yield* a.props.__isCompatible__.value(this, b))) return yield* a.props.__subtract__.value(this, b);
         if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__.value(this, a))) return yield* b.props.__subtract__.value(this, a);
         //if (a.isStruct && typeof a.props.__subtract__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__subtract__(this, b);
         //if (b.isStruct && typeof b.props.__subtract__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__subtract__(this, b);
-        return Number(a) - Number(b)
+        if ((typeof a === "number" && typeof b === "number")) {
+          return a - b
+        }
+        throw new TypeError("Incompatible operands");
       },
       *multiply(a, b) {
         if (a && a.isComplex && a.isStruct && (yield* a.props.__isCompatible__.value(this, b))) return yield* a.props.__multiply__.value(this, b);
         if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__.value(this, a))) return yield* b.props.__multiply__.value(this, a);
         //if (a.isStruct && typeof a.props.__multiply__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__multiply__(this, b);
         //if (b.isStruct && typeof b.props.__multiply__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__multiply__(this, b);
-        return Number(a) * Number(b)
+        if ((typeof a === "number" && typeof b === "number")) {
+          return a * b
+        }
+        if ((typeof a === "string" && typeof b === "number")) {
+          return a.repeat(b); // um python does this so why not
+        }
+        throw new TypeError("Incompatible operands");
       },
       *divide(a, b) {
         if (a && a.isComplex && a.isStruct && (yield* a.props.__isCompatible__.value(this, b))) return yield* a.props.__divide__.value(this, b);
         if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__.value(this, a))) return yield* b.props.__divide__.value(this, a);
         //if (a.isStruct && typeof a.props.__divide__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) return yield* a.props.__divide__(this, b);
         // if (b.isStruct && typeof b.props.__divide__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) return yield* a.props.__divide__(this, b);
-        return Number(a) / Number(b)
+        if ((typeof a === "number" && typeof b === "number")) {
+          return a / b
+        }
+        throw new TypeError("Incompatible operands");
       },
       *mod(a, b) {
         if ((a && a.isComplex) || (b && b.isComplex)) throw new TypeError("Complex operation not implemented")
         // this is basically the code from the pm vm
-        const n = Number(a);
-        const modulus = Number(b);
-        let result = n % modulus;
-        if (result / modulus < 0) result += modulus;
+        if (!(typeof a === "number" && typeof b === "number")) throw new TypeErrpr("Incompatible operands")
+        let result = a % b;
+        if (result / b < 0) result += b;
         return result; 
       },
       *power(a, b) {
@@ -1149,7 +1172,10 @@ if ((typeof window === "object" && window && typeof window.document === "object"
         if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__.value(this, a))) return yield* b.props.__power__.value(this, a);
         //if (a.isStruct && typeof a.props.__power__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) return yield* a.props.__power__(this, b);
         //if (b.isStruct && typeof b.props.__power__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) return yield* a.props.__power__(this, b);
-        return Number(a) ** Number(b)
+        if ((typeof a === "number" && typeof b === "number")) {
+          return a ** b
+        }
+        throw new TypeError("Incompatible operands");
       },
     };
   }
