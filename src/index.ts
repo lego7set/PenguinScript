@@ -1077,6 +1077,14 @@ if ((typeof window === "object" && window && typeof window.document === "object"
       createArray: structsPackage.Array,
       createComplex: structsPackage.Complex,
       createColor: structsPackage.Color,
+      *index(item, index) {
+        if (!item || (!(item.isObject) && !(item.isArray))) throw new TypeError("Can only index arrays and objects");
+        const v = item.props.get.value(this, index);
+        return {
+          get value() {return v},
+          set value(value) {return item.props.set.value(this, index, value)}
+        }
+      },
       *negate(a) {
         if (a && a.isComplex && a.isStruct) return yield* this.createComplex(this, new Complex(a.props.re.value, a.props.im.value).neg()); // im too lazy to create a new method or check if one already exists
         if (typeof a !== "number") throw new TypeError("Incompatible operand");
