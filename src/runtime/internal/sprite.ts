@@ -24,6 +24,10 @@ class Sprite {
     props.isDisposed = {
       get value() {
         return isDisposed();
+      },
+      set value() {
+        // dont do anything right now, but allow people to dispose (delete) sprites.
+        
       }
     }
     
