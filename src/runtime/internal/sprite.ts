@@ -4,7 +4,7 @@ import loader from "../loader";
 
 const Scratch = loader.requireScratch() as unknown as any;
 
-import { degToRad } from "../conversions";
+import { degToRad, toString, toBoolean } from "../conversions";
 
 const spriteMap = new WeakMap(); // use weakmap to do stuff
 
@@ -44,7 +44,7 @@ class Sprite {
         if (isDisposed()) {
           throw new TypeError("This sprite has been deleted, cannot perform operation")
         }
-        if (typeof sprite !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot set x position of sprite to non-number or NaN");
+        if (typeof v !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot set x position of sprite to non-number or NaN");
         sprite.setXY(v, sprite.y)
       }
     }
@@ -60,7 +60,7 @@ class Sprite {
         if (isDisposed()) {
           throw new TypeError("This sprite has been deleted, cannot perform operation")
         }
-        if (typeof sprite !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot set y position of sprite to non-number or NaN");
+        if (typeof v !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot set y position of sprite to non-number or NaN");
         sprite.setXY(sprite.x, v)
       }
     }
@@ -76,7 +76,7 @@ class Sprite {
         if (isDisposed()) {
           throw new TypeError("This sprite has been deleted, cannot perform operation")
         }
-        if (typeof sprite !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot set x position of sprite to non-number or NaN");
+        if (typeof v !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot set x position of sprite to non-number or NaN");
         sprite.setDirection(v)
       }
     }
@@ -105,7 +105,7 @@ class Sprite {
       get value() {
         return moveSteps
       },
-      set value() {throw new TypeError("Cannot change moveSteps method on sprite")}
+      set value(v) {throw new TypeError("Cannot change moveSteps method on sprite")}
     }
     const moveStepsBack = (
        function*(util, steps, direction?) {
@@ -117,7 +117,7 @@ class Sprite {
       get value() {
         return moveStepsBack
       },
-      set value() {throw new TypeError("Cannot change moveStepsBack method on sprite")}
+      set value(v) {throw new TypeError("Cannot change moveStepsBack method on sprite")}
     }
     const moveStepsUp = (
       function*(util, steps, direction?) {
@@ -145,13 +145,13 @@ class Sprite {
       get value() {
         return moveStepsUp
       },
-      set value() {throw new TypeError("Cannot change moveStepsUp method on sprite")}
+      set value(v) {throw new TypeError("Cannot change moveStepsUp method on sprite")}
     }
     props.moveStepsDown = {
       get value() {
         return moveStepsDown
       },
-      set value() {throw new TypeError("Cannot change moveStepsDown method on sprite")}
+      set value(v) {throw new TypeError("Cannot change moveStepsDown method on sprite")}
     }
 
     const turnRight = (
@@ -170,14 +170,86 @@ class Sprite {
       get value() {
         return turnRight
       },
-      set value() {throw new TypeError("Cannot change turnRight method on sprite")}
+      set value(v) {throw new TypeError("Cannot change turnRight method on sprite")}
     }
     props.turnLeft = {
       get value() {
         return turnLeft
       },
-      set value() {throw new TypeError("Cannot change turnLeft method on sprite")}
+      set value(v) {throw new TypeError("Cannot change turnLeft method on sprite")}
     }
+
+    function* say(util, text: any) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      const msg = toString(text);
+      Scratch.vm.runtime.emit("SAY", sprite, 'say', msg);
+      return null;
+    }
+    function* think(util, text: any) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      const msg = toString(text);
+      Scratch.vm.runtime.emit("SAY", sprite, 'think', msg);
+      return null;
+    }
+
+    props.say = {
+      get value() {
+        return say
+      },
+      set value(v) {throw new TypeError("Cannot change say method on sprite")}
+    }
+
+    props.think = {
+      get value() {
+        return think
+      },
+      set value(v) {throw new TypeError("Cannot change think method on sprite")}
+    }
+
+    props.size = {
+      get value() {
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+        return sprite.size;
+      }
+      set value(v) {
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+        if (typeof v !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot size of sprite to a non-number or NaN");
+        sprite.setSize(v);
+      }
+    }
+
+    props.visible = {
+      get value() {
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+        return sprite.visible;
+      }
+      set value(v) {
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+        sprite.setVisible(toBoolean(v));
+      }
+    }
+
+    function* show() {
+      props.visible.value = true;
+    }
+    function* hide() {
+      props.visible.value = false;
+    }
+
+    props.show = {
+      get value() {
+        return show
+      },
+      set value(v) {throw new TypeError("Cannot change show method on sprite")}
+    }
+    props.hide = {
+      get value() {
+        return hide
+      },
+      set value(v) {throw new TypeError("Cannot change hide method on sprite")}
+    }
+
+    
   }
   getActual() {
     return this.sprite;
