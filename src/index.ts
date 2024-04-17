@@ -1145,7 +1145,10 @@ if ((typeof window === "object" && window && typeof window.document === "object"
           return a * b
         }
         if ((typeof a === "string" && typeof b === "number")) {
-          return a.repeat(b); // um python does this so why not
+          if (b < 0) throw new TypeError("Cannot multiply string by negative number");
+          if (b > Number.MAX_SAFE_INTEGER) throw new TypeError("Cannot multiply string by anything larger than the maximum safe integer");
+          if (b % 1 !== 0) throw new TypeError("Cannot multiply string by non-integer");
+          return a.repeat(b); // python does this so why not
         }
         throw new TypeError("Incompatible operands");
       },
