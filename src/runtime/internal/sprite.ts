@@ -16,7 +16,8 @@ class Sprite {
     if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) { // this check should not error, as this class is only used if scratch is there
       throw new TypeError("Invalid value passed into Sprite class")
     }
-    this.sprite = sprite;
+    // this.sprite = sprite;
+    // unused
     spriteMap.set(sprite, this);
 
     const isDisposed = () => sprite.isDisposed;
@@ -277,7 +278,7 @@ class Sprite {
 
     function* changeCostumeBy(util, v) {
       if (typeof v !== "number") throw new TypeError("Cannot change costume number by non-number");
-      if (isDisposed()) throw new TypeError("This spriteh as been deleted, cannot perform operation");
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       sprite.setCostume(sprite.currentCostume + v);
     }
     function* nextCostume(util) {
@@ -297,6 +298,24 @@ class Sprite {
         return previousCostume
       },
       set value(v) {throw new TypeError("Cannot change previousCostume method on sprite")}
+    }
+    props.name = {
+      get value() {
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+        return sprite.getName();
+      },
+      set value(v) {
+        throw new TypeError("Cannot overwrite a sprite's name");
+      } 
+    }
+    props.isClone = {
+      get value() {
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+        return !sprite.isOriginal;
+      },
+      set value(v) {
+        throw new TypeError("Cannot overwrite a sprite's isClone status");
+      } 
     }
   }
   getActual() {
