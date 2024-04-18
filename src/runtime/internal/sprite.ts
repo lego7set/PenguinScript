@@ -2,18 +2,19 @@
 
 import loader from "../loader";
 
-const Scratch = loader.requireScratch() as unknown as any;
-
 import { degToRad, toString, toBoolean } from "../conversions";
 
 const spriteMap = new WeakMap(); // use weakmap to do stuff
+
+let Scratch: any;
 
 class Sprite {
   isStruct = true;
   isSprite = true;
   props = {};
   constructor(sprite) {
-    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) { // this check should not error, as this class is only used if scratch is there
+    if (!Scratch) Scratch = loader.requireScratch() as unknown as any; // require it here.
+    if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) {
       throw new TypeError("Invalid value passed into Sprite class")
     }
     // this.sprite = sprite;
@@ -318,9 +319,11 @@ class Sprite {
       } 
     }
     function* getVariable(util, name: any) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       return sprite.lookupVariableByNameAndType(yield* toString(name), "", true)?.value ?? null;
     }
     function* setVariable(util, name: any, value: any) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       const variable = sprite.lookupVariableByNameAndType(yield* toString(name), "", true);
       if (variable) { 
         if (value == null) {
@@ -350,18 +353,56 @@ class Sprite {
     }
 
     function* broadcast(util, message) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       const msg = yield* toString(message);
       const threads = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
         BROADCAST_OPTION: msg
       }, sprite);
-      if (threads.length === 0) return false; // indicate no threads started.
-      return true;
+      return !threads.length === 0; // returns whether or not threads were started
     }
     props.broadcast = {
       get value() {
         return broadcast
       },
       set value(v) {throw new TypeError("Cannot change broadcast method on sprite")}
+    }
+
+    function* broadcastAndWait(util, message: any) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      const msg = String(message ?? "null");
+      const started = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
+        BROADCAST_OPTION: msg
+      }, sprite);
+      while (yield* wait(util, 15) && started.some(thread => Scratch.vm.runtime.threads.indexOf(thread) !== -1)) { // prevent freezing and check if threads are still running
+        if (!util.isWarp || util.isStuck()) yield;
+      }
+      return !started.length === 0;
+    }
+
+    props.broadcastAndWait = {
+      get value() {
+        return broadcastAndWait
+      },
+      set value(v) {throw new TypeError("Cannot change broadcastAndWait method on sprite")}
+    }
+
+    function* isTouchingSprite(util, otherSprite) {
+       if (!otherSprite || !otherSprite.isStruct || !otherSprite.isSprite) throw new TypeError("Please pass in a sprite into isTouchingSprite");
+       if (!Scratch.vm.renderer) return false;
+       return Scratch.vm.renderer.isTouchingDrawables(sprite.drawableID, [otherSprite.drawableID]); // check if sprite is touching othersprite
+    }
+
+    props.isTouchingSprite = {
+      get value() {
+        return isTouchingSprite
+      },
+      set value(v) {throw new TypeError("Cannot change isTouchingSprite method on sprite")}
+    }
+    props.isTouchingOtherSprite = {
+      get value() {
+        return isTouchingSprite
+      },
+      set value(v) {throw new TypeError("Cannot change isTouchingOtherSprite method on sprite")}
     }
   }
   toString() {
