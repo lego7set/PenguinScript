@@ -381,17 +381,17 @@ export default class JSGenerator {
             case "and": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`/* Binary Expression */(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _ : _2)/* End Binary Expression */`, OutputType.TYPE_UNKNOWN)
+              return new TypedInput(`/* Binary Expression */(_ = ${left.asUnknown()}, ((_ ?? false) === false) ? _) : ${right.asUnknown()}/* End Binary Expression */`, OutputType.TYPE_UNKNOWN)
             }
             case "xor": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`/* Binary Expression */(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (((_ ?? false) === false) && !((_2 ?? false) === false)) ? _2 : (((_2 ?? false) === false) && !((_ ?? false) === false)) ? _ : (!((_2 ?? false) === false) && !((_ ?? false) === false)) ? false : _2)/* End Binary Expression */`, OutputType.TYPE_UNKNOWN)
+              return new TypedInput(`/* Binary Expression */(_ = ${left.asUnknown()}, ((_ ?? false) === false) ? ${right.asUnknown()} : (_2 = ${right.asUnknown()}, ((_2 ?? false) === false)) ? _ : _2)/* End Binary Expression */`, OutputType.TYPE_UNKNOWN)
             }
             case "or": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`/* Binary Expression */(_ = ${left.asUnknown()}, _2 = ${right.asUnknown()}, (!((_ ?? false) === false) ? _ : _2))/* End Binary Expression */`, OutputType.TYPE_UNKNOWN)
+              return new TypedInput(`/* Binary Expression */(_ = ${left.asUnknown()}, (!((_ ?? false) === false) ? _ : ${right.asUnknown()}))/* End Binary Expression */`, OutputType.TYPE_UNKNOWN)
             }
             // relational operators
             case "<": {
