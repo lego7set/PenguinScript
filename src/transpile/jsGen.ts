@@ -537,7 +537,7 @@ export default class JSGenerator {
           }
           let name = node2.symbol ?? "";
           if (name) name = this.getVariable(node2.symbol);
-          return new TypedInput(`/* Function Expression */(function*${name}(unusedUtilVar,${list}){${stackSrc}})/* End Function Expression */`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`/* Function Expression */(_7 = (function*${name}(unusedUtilVar,${list}){${stackSrc}}), Object.assign(_7, {toString:()=>"<PenguinScript Function>",toJSON:()=>"penguisncript functions do not save"}), _7)/* End Function Expression */`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.FunctionCall: {
           const node2 = node as unknown as FunctionCall;
