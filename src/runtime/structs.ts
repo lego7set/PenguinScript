@@ -61,28 +61,28 @@ package.Object = nativeFn(function* createObjectStruct(...keysValues) {
 
 // ------------------------------------Array------------------------------
 
-package.Array = nativeFn(function* createArrayStruct(util, ...values) {
+package.Array = nativeFn(function* createArrayStruct(...values) {
   const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
   let props = values;
   struct.getActual = () => props;
   struct.overwriteProps = (v) => props = v;
   struct.toString = () => "<PenguinScript Array>"
-  struct.props.get = {value:function*(util, key){
+  struct.props.get = {value:nativeFn(function*(key){
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
     if (key < 1 && key > -1) throw new TypeError("Key to array must be not be between 1 and -1");
     if (Object.is(NaN, key)) throw new TypeError("Key to array must not be NaN")
     if (key > 0) key = Math.round(key) || 1;
     if (key < 0) key = props.length - Math.round(Math.abs(key)) + 1
     return props[key - 1]; // match scratch behavior.
-  }}
-  struct.props.set = {value:function*(util, key, value) {
+  }, false, true)}
+  struct.props.set = {value:nativeFn(function*(key, value) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
     if (key < 1 && key > -1) throw new TypeError("Key to array must be not be between 1 and -1");
     if (Object.is(NaN, key)) throw new TypeError("Key to array must not be NaN")
     if (key > 0) key = Math.round(key) || 1;
     if (key < 0) key = props.length - Math.round(Math.abs(key)) + 1
     return props[key - 1] = value;
-  }}
+  }, false, true)}
   /*struct.props.has = {value:function*(util, key) {
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
     key = Math.round(key) || 1;
@@ -94,20 +94,20 @@ package.Array = nativeFn(function* createArrayStruct(util, ...values) {
     key = Math.round(key) || 1;
     return props.length = key;
   }}*/ // also remove delete cuz its useless.
-  struct.props.pop = {value:function*() {
+  struct.props.pop = {value:nativeFn(function*() {
     return props.pop();
-  }}
-  struct.props.push = {value:function*(util, value) {
+  }, false, true)}
+  struct.props.push = {value:nativeFn(function*(value) {
     props.push(value);
     return struct;
-  }}
-  struct.props.shift = {value:function*(){
+  }, false, true)}
+  struct.props.shift = {value:nativeFn(function*(){
     return props.shift();
-  }}
-  struct.props.unshift = {value:function*(util, value){
+  }, false, true)}
+  struct.props.unshift = {value:nativeFn(function*(value){
     props.unshift(value);
     return struct;
-  }}
+  }, false, true)}
   struct.props.length = {
     get value() {return props.length;},
     set value(val) {
@@ -116,7 +116,7 @@ package.Array = nativeFn(function* createArrayStruct(util, ...values) {
       props.length = val;
     }
   }
-  struct.props.fromJSON = {value:function*(util, json) {
+  struct.props.fromJSON = {value:nativeFn(function*(json) {
     if (typeof json !== "string") throw new TypeError("Array.fromJSON must be passed a string")
     props.length = 0; // erase all properties
     try {
@@ -126,16 +126,16 @@ package.Array = nativeFn(function* createArrayStruct(util, ...values) {
     } catch(e) {
       throw new TypeError("Invalid JSON")
     }
-  }}
-  struct.props.toJSON = {value:function*(){
+  }, false, true)}
+  struct.props.toJSON = {value:nativeFn(function*(){
     return JSON.stringify(props);
-  }}
+  }, false, true)}
   return struct;
 }, true, true)
 
 // ------------------------------------Complex Numbers-------------------------------
 
-function* createComplexStruct(util, x?, y?) {
+const createComplexStruct = nativeFn(function* createComplexStruct(x?, y?) {
   let complex;
   try {
     complex = new Complex(x, y);
@@ -225,7 +225,7 @@ function* createComplexStruct(util, x?, y?) {
   }
   
   return struct;
-}
+}, true, true)
 
 Object.assign(createComplexStruct, {
   props: {
@@ -475,11 +475,18 @@ package.math = (function(){
     },
     // implement some stuff here later
   };
+  const cachedFns = {__proto__: null};
   struct.props = new Proxy({__proto__: null}, {
     get: (target, prop) =>  Object.hasOwn(overwritten, prop) 
-      ? {get value(){return overwritten[prop]}}
+      ? {get value(){
+        const value = overwritten[prop];
+        if (typeof value === "function") {
+          return cachedFns[prop] || (cachedFns[prop] = nativeFn(value, false, true))
+        }
+        return value;
+      }}
       : Object.hasOwn(target, prop) 
-      ? {get value(){const item = target[prop];return typeof item==="function"?function*(util, ...args){return item(...args)}:item;}} 
+      ? {get value(){const item = target[prop];return typeof item==="function"?cachedFns[prop]||(cachedFns[prop]=nativeFn(function*(util, ...args){return item(...args)}, false)):item;}} 
       : {value: null}
   });
   // that was the longest statement ever also i used a proxy so that i dont have to waste space lol.
@@ -488,7 +495,7 @@ package.math = (function(){
 
 // -------------Errors-------------
 
-package.Error = function* createErrorStruct(util, v, type?) {
+package.Error = nativeFn(function* createErrorStruct(util, v, type?) {
   if (typeof v === "string") v = new Error(v);
   if ((v ?? null) === null) v = new Error("");
   if (!(v instanceof Error)) throw v;
@@ -497,13 +504,13 @@ package.Error = function* createErrorStruct(util, v, type?) {
   struct.toString = () => "<PenguinScript Error>"
   struct.props.msg = {value:v.message || ""};
   struct.props.type = {value:v.name || "Error"};
-  struct.props.throw = {value: function*(){
+  struct.props.throw = {value:nativeFn(function*(){
     const err = new Error(struct.props.msg.value);
     err.name = String(struct.props.type.value);
     throw err; // throws the error.
-  }}
+  }, false)}
   return struct;
-}
+}, true, true)
 
 // -----------------------Colo(u)rs--------------------------
 
@@ -599,7 +606,7 @@ function hsvToRgb(h, s, v) {
     return { h, s, v };
   }
 
-  function* createColorStruct(util, format?, rh?, gs?, bv?) {
+  const createColorStruct = nativeFn(function* createColorStruct(util, format?, rh?, gs?, bv?) {
     const struct: any = {__proto__: null, isStruct: true, isColor: true, props:{__proto__:null}};
     let r = 0; // default to just black cuz why not
     let g = 0;
@@ -645,7 +652,7 @@ function hsvToRgb(h, s, v) {
     }
 
     return struct;
-  }
+  }, true, true)
 
 package.Color = createColorStruct;
 package.Colour = createColorStruct; // please respect the british
@@ -674,9 +681,9 @@ export function* type(util, value: any) {
   return typeof value;
 }
 
-package.typeof = type;
+package.typeof = nativeFn(type, false);
 
-package.deepClone = function* deepClone(util, structToClone) {
+package.deepClone = nativeFn(function* deepClone(util, structToClone) {
   const typeToClone = yield* type(util, structToClone)
   switch (typeToClone) {
     case "error": {
@@ -701,15 +708,15 @@ package.deepClone = function* deepClone(util, structToClone) {
       throw new TypeError("Can only deep clone errors, objects, and arrays.")
     }
   }
-}
+}, false)
 
-package.createMethod = function* createMethod(util, struct, storedFunc) {
+package.createMethod = nativeFn(function* createMethod(struct, storedFunc) {
   if (!struct.isStruct) throw new TypeError("You must pass in a struct to createMethod");
   if (typeof storedFunc !== "function") throw new TypeError("You must pass in a function to createMethod")
   return function*(util, ...args) {
     return yield*(storedFunc)(util, struct, ...args);
   };
-};
+}, false, true);
 
 // -------------------Reserved---------------
 package.RegExp = null;
