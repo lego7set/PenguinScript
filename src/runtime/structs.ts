@@ -4,9 +4,11 @@ import * as ComplexConstructor from "complex.js"; // i forgor to add to package
 
 const Complex = ComplexConstructor as unknown as any;
 
+import nativeFn from "./internal/nativefunc";
+
 // ---------------------------Object------------------------------
 
-package.Object = function* createObjectStruct(util, ...keysValues) {
+package.Object = nativeFn(function* createObjectStruct(...keysValues) {
   if (keysValues.length % 2 !== 0) throw new TypeError("Each key must have a value in object structs");
   const entries = [];
 
@@ -14,30 +16,31 @@ package.Object = function* createObjectStruct(util, ...keysValues) {
     entries.push([keysValues[i], keysValues[i + 1]])
   }
   const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isObject:true};
-  const props: any = {__proto__: null, ...(Object.fromEntries(entries))};
+  let props: any = {__proto__: null, ...(Object.fromEntries(entries))};
   struct.getActual = () => props;
-  struct.toString = () => "<PenguinScript Object>"
-  struct.props.get = {value:function*(util, key){ // an object class, kinda
+  struct.overwriteProps = (v) => props = v;
+  struct.toString = () => "<PenguinScript Object>";
+  struct.props.get = {value:nativeFn(function*(key){ // an object class, kinda
     return props[key];
-  }}
-  struct.props.set = {value:function*(util, key, value) {
+  }, false, true)};
+  struct.props.set = {value:nativeFn(function*(key, value) {
     return props[key] = value;
-  }}
-  struct.props.has = {value:function*(util, key) {
+  }, false, true)};
+  struct.props.has = {value:nativeFn(function*(key) {
     return props[key] != null; // != cuz it looks at undefined too.
-  }}
-  struct.props.delete = {value:function*(util, key) {
+  }, false, true)};
+  struct.props.delete = {value:nativeFn(function*(key) {
     return delete props[key];
-  }}
-  struct.props.remove = {value:function*(util, key) {
+  }, false, true)};
+  struct.props.remove = {value:nativeFn(function*(key) {
     delete props[key];
     return struct;
-  }}
-  struct.props.append = {value:function*(util, key, value) {
+  }, false, true)};
+  struct.props.append = {value:nativeFn(function*(key, value) {
     props[key] = value;
     return struct;
-  }}
-  struct.props.fromJSON = {value:function*(util, json) {
+  }, false, true)};
+  struct.props.fromJSON = {value:nativeFn(function*(json) {
     if (typeof json !== "string") throw new TypeError("Object.fromJSON must be passed a string")
     for (const prop in props) {
       if (Object.hasOwn(props, prop)) delete props[prop];
@@ -49,19 +52,20 @@ package.Object = function* createObjectStruct(util, ...keysValues) {
     } catch(e) {
       throw new TypeError("Invalid JSON")
     }
-  }}
-  struct.props.toJSON = {value:function*(){
+  }, false, true)};
+  struct.props.toJSON = {value:nativeFn(function*(){
     return JSON.stringify(props);
-  }}
+  }, false, true)};
   return struct;
-}
+}, true, true)
 
 // ------------------------------------Array------------------------------
 
-package.Array = function* createArrayStruct(util, ...values) {
+package.Array = nativeFn(function* createArrayStruct(util, ...values) {
   const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
-  const props = values;
+  let props = values;
   struct.getActual = () => props;
+  struct.overwriteProps = (v) => props = v;
   struct.toString = () => "<PenguinScript Array>"
   struct.props.get = {value:function*(util, key){
     if (typeof key !== "number") throw new TypeError("Key to array must be a number.");
@@ -127,7 +131,7 @@ package.Array = function* createArrayStruct(util, ...values) {
     return JSON.stringify(props);
   }}
   return struct;
-}
+}, true, true)
 
 // ------------------------------------Complex Numbers-------------------------------
 
