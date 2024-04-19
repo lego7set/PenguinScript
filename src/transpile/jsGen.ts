@@ -537,7 +537,7 @@ export default class JSGenerator {
           }
           let name = node2.symbol ?? "";
           if (name) name = this.getVariable(node2.symbol);
-          return new TypedInput(`/* Function Expression */(_7 = (function*${name}(unusedUtilVar,${list}){${stackSrc}}), Object.assign(_7, {toString:()=>"<PenguinScript Function>",toJSON:()=>"penguisncript functions do not save"}), _7)/* End Function Expression */`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`/* Function Expression */(_7 = (function*${name}(util,${list}){${stackSrc}}), Object.assign(_7, {toString:()=>"<PenguinScript Function>",toJSON:()=>"penguinscript functions do not save", isFunction:true}), _7)/* End Function Expression */`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.FunctionCall: {
           const node2 = node as unknown as FunctionCall;
@@ -582,7 +582,7 @@ export default class JSGenerator {
           // a struct is just a fancy function.
           // structs give special treatment to functions, as their first argument is passed as the struct instance itself.
           const node2 = node as unknown as Struct;
-          let structSrc = "(function*(){const struct = {__proto__: null,isStruct: true,props:{__proto__:null}};struct.toString=()=>\"<PenguinScript Struct>\"";
+          let structSrc = "(function*(){const struct = {__proto__: null,isStruct: true,props:{__proto__:null}};struct.toString=()=>\"<PenguinScript Struct>\";struct.toJSON=()=>\"penguinscript structs do not save\"";
           for (const item of node2.body) {
             structSrc += `struct.props[${JSON.stringify(item[0])}]={value:`
             let expr = "(null)";
@@ -599,7 +599,7 @@ export default class JSGenerator {
             structSrc += `${expr}};`
           }
           structSrc += "return struct;})";
-          return new TypedInput(`/* Struct */(${structSrc})/* End Struct */`, OutputType.TYPE_UNKNOWN)
+          return new TypedInput(`/* Struct */(_7 = ${structSrc}, Object.assign(_7, {toString:()=>"<PenguinScript Struct Constructor>",toJSON:()=>"penguinscript struct constructors do not save",isFunction:true,isStructConstructor:true}), _7)/* End Struct */`, OutputType.TYPE_UNKNOWN)
         }
         case NodeType.Target: {
           return new TypedInput(`/* Target */(util.target)/* End Target */`, OutputType.TYPE_UNKNOWN)
