@@ -1,7 +1,7 @@
 // @ts-ignore
 const generatorFunc: any = function*(){}.constructor;
 
-export default function createNativeFunction(fn, doesNotUseUtil?: boolean) {
+export default function createNativeFunction(fn, isStructConstructor: boolean, doesNotUseUtil?: boolean) {
   const isGenerator = fn instanceof generatorFunc;
   function* nativeFunction(...args) {
     let result;
@@ -14,7 +14,8 @@ export default function createNativeFunction(fn, doesNotUseUtil?: boolean) {
     toString: ()=>"<PenguinScript Native Function>",
     toJSON: () => "penguinscript functions do not save",
     isFunction: true,
-    isNativeFunction: true
+    isNativeFunction: true,
+    isStructConstructor
   });
   return nativeFunction;
 }
