@@ -1,3 +1,4 @@
+import nativeFn from "./internal/nativefunc";
 const package = { __proto__: null };
 export function* toString(util, value: any) {
   if (value && value.isStruct && value.props.__toString__ && typeof value.props.__toString__.value === "function") {
@@ -28,12 +29,12 @@ export function* radToDeg(util, rad: number) {
   return rad * 180 / Math.PI;
 }
 
-package.degToRad = degToRad;
-package.radToDeg = radToDeg
+package.degToRad = nativeFn(degToRad, false);
+package.radToDeg = nativeFn(radToDeg, false)
 
-package.toString = toString;
-package.toNumber = toNumber;
-package.toBoolean = toBoolean;
+package.toString = nativeFn(toString, false);
+package.toNumber = nativeFn(toNumber, false);
+package.toBoolean = nativeFn(toBoolean, false);
 
 function* charFromCodePoint(util, value: any) {
   return String.fromCodePoint(yield* convertToNumber(value) || 0) // use the new conversion functions instead of the other ones.
@@ -44,7 +45,7 @@ function* charToCodePoint(util, value: any) {
   return value.codePointAt(0) ?? null;
 }
 
-package.charFromCodePoint = charFromCodePoint;
-package.charToCodePoint = charToCodePoint;
+package.charFromCodePoint = nativeFn(charFromCodePoint, false);
+package.charToCodePoint = nativeFn(charToCodePoint, false);
 
 export default package;
