@@ -4,6 +4,8 @@ import loader from "../loader";
 
 import { degToRad, toString, toBoolean } from "../conversions";
 
+import nativeFn from "./nativefunc";
+
 const spriteMap = new WeakMap(); // use weakmap to do stuff
 
 let Scratch: any;
@@ -86,7 +88,7 @@ class Sprite {
     props.direction = directionProp;
 
     const moveSteps = 
-      (function* moveSteps(util, steps: any, direction?: any) {
+      nativeFn(function* moveSteps(util, steps: any, direction?: any) {
         if (typeof steps !== "number" || Object.is(NaN, steps)) throw new TypeError("Cannot move non-number or NaN steps");
         if (direction != null && (typeof direction !== "number" || Object.is(NaN, direction))) throw new TypeError("Cannot move steps in non-number or NaN direction");
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
@@ -100,7 +102,7 @@ class Sprite {
         const dx = steps * Math.cos(radians);
         const dy = steps * Math.sin(radians);
         target.setXY(target.x + dx, target.y + dy); // we're done!
-      })
+      }, false)
 
 
     props.moveSteps = {
@@ -109,19 +111,19 @@ class Sprite {
       },
       set value(v) {throw new TypeError("Cannot change moveSteps method on sprite")}
     }
-    const moveStepsBack = (
+    const moveStepsBack = nativeFn(
        function*(util, steps, direction?) {
          if (typeof steps !== "number" || Object.is(NaN, steps)) throw new TypeError("Cannot move non-number or NaN steps");
          if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
          yield* moveSteps(util, 0 - steps, direction);
-       })
+       }, false)
     props.moveStepsBack = {
       get value() {
         return moveStepsBack
       },
       set value(v) {throw new TypeError("Cannot change moveStepsBack method on sprite")}
     }
-    const moveStepsUp = (
+    const moveStepsUp = nativeFn(
       function*(util, steps, direction?) {
         if (typeof steps !== "number" || Object.is(NaN, steps)) throw new TypeError("Cannot move non-number or NaN steps");
         if (direction != null && (typeof direction !== "number" || Object.is(NaN, direction))) throw new TypeError("Cannot move steps in non-number or NaN direction");
@@ -131,8 +133,8 @@ class Sprite {
         target.setDirection(sprite.direction - 90);
         yield* moveSteps(util, 0 - steps);
         target.setDirection(oldDir);
-      })
-    const moveStepsDown = (
+      }, false)
+    const moveStepsDown = nativeFn(
       function*(util, steps, direction?) {
         if (typeof steps !== "number" || Object.is(NaN, steps)) throw new TypeError("Cannot move non-number or NaN steps");
         if (direction != null && (typeof direction !== "number" || Object.is(NaN, direction))) throw new TypeError("Cannot move steps in non-number or NaN direction");
@@ -142,7 +144,7 @@ class Sprite {
         target.setDirection(sprite.direction - 90);
         yield* moveSteps(util, steps);
         target.setDirection(oldDir);
-      })
+      }, false)
     props.moveStepsUp = {
       get value() {
         return moveStepsUp
@@ -156,18 +158,18 @@ class Sprite {
       set value(v) {throw new TypeError("Cannot change moveStepsDown method on sprite")}
     }
 
-    const turnRight = (
+    const turnRight = nativeFn(
       function*(util, direction){
         if (typeof direction !== "number" || Object.is(NaN, direction)) throw new TypeError("Cannot turn right non-number or NaN degrees");
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         target.setDirection(target.direction + direction);
-      })
-    const turnLeft = (
+      }, false)
+    const turnLeft = nativeFn(
       function*(util, direction){
         if (typeof direction !== "number" || Object.is(NaN, direction)) throw new TypeError("Cannot turn left non-number or NaN degrees");
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         target.setDirection(target.direction - direction);
-      })
+      }, false)
     props.turnRight = {
       get value() {
         return turnRight
@@ -181,18 +183,18 @@ class Sprite {
       set value(v) {throw new TypeError("Cannot change turnLeft method on sprite")}
     }
 
-    function* say(util, text: any) {
+    const say = nativeFn(function* say(util, text: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       const msg = yield* toString(text);
       Scratch.vm.runtime.emit("SAY", sprite, 'say', msg);
       return null;
-    }
-    function* think(util, text: any) {
+    }, false)
+    const think = nativeFn(function* think(util, text: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       const msg = yield* toString(text);
       Scratch.vm.runtime.emit("SAY", sprite, 'think', msg);
       return null;
-    }
+    })
 
     props.say = {
       get value() {
@@ -231,12 +233,12 @@ class Sprite {
       }
     }
 
-    function* show() {
+    const show = nativeFn(function* show() {
       props.visible.value = true;
-    }
-    function* hide() {
+    }, false)
+    const hide = nativeFn(function* hide() {
       props.visible.value = false;
-    }
+    }, false)
 
     props.show = {
       get value() {
@@ -277,17 +279,17 @@ class Sprite {
       }
     }
 
-    function* changeCostumeBy(util, v) {
+    const changeCostumeBy = nativeFn(function* changeCostumeBy(util, v) {
       if (typeof v !== "number") throw new TypeError("Cannot change costume number by non-number");
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       sprite.setCostume(sprite.currentCostume + v);
-    }
-    function* nextCostume(util) {
+    }, false)
+    const nextCostume = nativeFn(function* nextCostume(util) {
       yield* changeCostumeBy(util, 1);
-    }
-    function* previousCostume(util) {
+    }, false)
+    const previousCostume = nativeFn(function* previousCostume(util) {
       yield* changeCostumeBy(util, -1);
-    }
+    }, false)
     props.nextCostume = {
       get value() {
         return nextCostume
@@ -318,11 +320,11 @@ class Sprite {
         throw new TypeError("Cannot overwrite a sprite's isClone status");
       } 
     }
-    function* getVariable(util, name: any) {
+    const getVariable = nativeFn(function* getVariable(util, name: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       return sprite.lookupVariableByNameAndType(yield* toString(name), "", true)?.value ?? null;
-    }
-    function* setVariable(util, name: any, value: any) {
+    }, false)
+    const setVariable nativeFn(function* setVariable(util, name: any, value: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       const variable = sprite.lookupVariableByNameAndType(yield* toString(name), "", true);
       if (variable) { 
@@ -338,7 +340,7 @@ class Sprite {
         return true;
       }
       return null;
-    }
+    }, false)
     props.getVariable = {
       get value() {
         return getVariable
@@ -352,14 +354,14 @@ class Sprite {
       set value(v) {throw new TypeError("Cannot change setVariable method on sprite")}
     }
 
-    function* broadcast(util, message) {
+    const broadcast = nativeFn(function* broadcast(util, message) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       const msg = yield* toString(message);
       const threads = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
         BROADCAST_OPTION: msg
       }, sprite);
       return !threads.length === 0; // returns whether or not threads were started
-    }
+    }, false)
     props.broadcast = {
       get value() {
         return broadcast
@@ -367,7 +369,7 @@ class Sprite {
       set value(v) {throw new TypeError("Cannot change broadcast method on sprite")}
     }
 
-    function* broadcastAndWait(util, message: any) {
+    const broadcastAndWait = nativeFn(function* broadcastAndWait(util, message: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       const msg = String(message ?? "null");
       const started = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
@@ -377,7 +379,7 @@ class Sprite {
         if (!util.isWarp || util.isStuck()) yield;
       }
       return !started.length === 0;
-    }
+    }, false)
 
     props.broadcastAndWait = {
       get value() {
@@ -386,11 +388,11 @@ class Sprite {
       set value(v) {throw new TypeError("Cannot change broadcastAndWait method on sprite")}
     }
 
-    function* isTouchingSprite(util, otherSprite) {
+    const isTouchingSprite = nativeFn(function* isTouchingSprite(util, otherSprite) {
        if (!otherSprite || !otherSprite.isStruct || !otherSprite.isSprite) throw new TypeError("Please pass in a sprite into isTouchingSprite");
        if (!Scratch.vm.renderer) return false;
        return Scratch.vm.renderer.isTouchingDrawables(sprite.drawableID, [otherSprite.drawableID]); // check if sprite is touching othersprite
-    }
+    }, false)
 
     props.isTouchingSprite = {
       get value() {
