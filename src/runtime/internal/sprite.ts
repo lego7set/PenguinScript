@@ -389,6 +389,7 @@ class Sprite {
     }
 
     const isTouchingSprite = nativeFn(function* isTouchingSprite(util, otherSprite) {
+       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
        if (!otherSprite || !otherSprite.isStruct || !otherSprite.isSprite) throw new TypeError("Please pass in a sprite into isTouchingSprite");
        if (!Scratch.vm.renderer) return false;
        return Scratch.vm.renderer.isTouchingDrawables(sprite.drawableID, [otherSprite.drawableID]); // check if sprite is touching othersprite
@@ -405,6 +406,89 @@ class Sprite {
         return isTouchingSprite
       },
       set value(v) {throw new TypeError("Cannot change isTouchingOtherSprite method on sprite")}
+    }
+
+    const isTouchingColor = nativeFn(function* isTouchingColor(color) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      if (!color || !color.isColor) throw new TypeError("Please pass in a colo(u)r into isTouchingColo(u)r");
+      if (!Scratch.vm.renderer) return false;
+      return sprite.isTouchingColor([color.props.r.value, color.props.g.value, color.props.b.value]);
+    }, false, true)
+
+    props.isTouchingColor = {
+      get value() {
+        return isTouchingColor
+      },
+      set value(v) {throw new TypeError("Cannot change isTouchingColor method on sprite")}
+    }
+
+    props.isTouchingColour = {
+      get value() {
+        return isTouchingColor
+      },
+      set value(v) {throw new TypeError("Cannot change isTouchingColour method on sprite")}
+    }
+
+    const colorIsTouchingColor = nativeFn(function* colorIsTouchingColor(color, color2) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      if (!color || !color.isColor) throw new TypeError("Please pass in a colo(u)r into isTouchingColo(u)r");
+      if (!color2 || !color2.isColor) throw new TypeError("Please pass in a colo(u)r into colo(u)rIsTouchingColo(u)r");
+      if (!Scratch.vm.renderer) return false;
+      return sprite.colorIsTouchingColor([color2.props.r.value, color2.props.g.value, color2.props.b.value], [color.props.r.value, color.props.g.value, color.props.b.value]);
+    }, false, true)
+
+    props.colorIsTouchingColor = {
+      get value() {
+        return colorIsTouchingColor
+      },
+      set value(v) {throw new TypeError("Cannot change colorIsTouchingColor method on sprite")}
+    }
+
+    props.colourIsTouchingColour = {
+      get value() {
+        return colorIsTouchingColor
+      },
+      set value(v) {throw new TypeError("Cannot change colourIsTouchingColour method on sprite")}
+    }
+
+    const isTouchingMouse = nativeFn(function* isTouchingMouse() {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      if (!Scratch.vm.renderer) return false;
+      const mouse = Scratch.vm.runtime.ioDevices.mouse;
+      if (!mouse) return false;
+      return Scratch.vm.renderer.drawableTouching(sprite.drawableID, mouse.getClientX(), mouse.getClientY());
+  }, false, true)
+
+    const isTouchingXY = nativeFn(function* isTouchingXY(x, y) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      if (!Scratch.vm.renderer) return false;
+      return Scratch.vm.renderer.drawableTouching(sprite.drawableID, Number(x) || 0, Number(y) || 0);
+  }, false, true)
+
+    const isTouchingEdge = nativeFn(function* isTouchingEdge() {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      return sprite.isTouchingEdge();
+  }, false, true)
+
+    props.isTouchingMouse = {
+      get value() {
+        return isTouchingMouse
+      },
+      set value(v) {throw new TypeError("Cannot change isTouchingMouse method on sprite")}
+    }
+
+    props.isTouchingXY = {
+      get value() {
+        return isTouchingXY
+      },
+      set value(v) {throw new TypeError("Cannot change isTouchingXY method on sprite")}
+    }
+
+    props.isTouchingEdge = {
+      get value() {
+        return isTouchingEdge
+      },
+      set value(v) {throw new TypeError("Cannot change isTouchingEdge method on sprite")}
     }
   }
   toString() {
