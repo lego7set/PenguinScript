@@ -490,6 +490,51 @@ class Sprite {
       },
       set value(v) {throw new TypeError("Cannot change isTouchingEdge method on sprite")}
     }
+
+    const createClone = nativeFn(function* createClone() {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      const clone = sprite.makeClone();
+      if (clone) {
+        Scratch.vm.runtime.addTarget(clone);
+        clone.goBehindOther(sprite);
+      }
+    }, false, true)
+
+    const getCloneWithVar = nativeFn(function* getCloneWithVar(varNme, value) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      const clones = sprite.sprite.clones;
+      // i stole this from clones plus, its not my code.
+      for (let index = 1; index < clones.length; index++) {
+          const cloneVar = clones[index].lookupVariableByNameAndType(varName, "", true);
+          if (
+            cloneVar &&
+            Scratch.Cast.compare(cloneVar.value, value) === 0
+          ) {
+            return clones[index];
+          }
+        }
+        return null;
+    }, false, true);
+
+    props.createClone = {
+      get value() {
+        return createClone
+      },
+      set value(v) {throw new TypeError("Cannot change createClone method on sprite")}
+    }
+    props.clone = {
+      get value() {
+        return createClone
+      },
+      set value(v) {throw new TypeError("Cannot change clone method on sprite")}
+    }
+
+    props.getCloneWithVar = {
+      get value() {
+        return getCloneWithVar
+      },
+      set value(v) {throw new TypeError("Cannot change getCloneWithVar method on sprite")}
+    }
   }
   toString() {
     return "<PenguinScript Sprite>";
