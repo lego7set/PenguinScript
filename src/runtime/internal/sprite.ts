@@ -10,7 +10,15 @@ const spriteMap = new WeakMap(); // use weakmap to do stuff
 
 let Scratch: any;
 
-class Sprite {
+let Sprite;
+
+function CreateSpriteStruct(sprite) {
+  let cached;
+  if (cached = spriteMap.get(sprite)) return cached;
+  return new Sprite(sprite);
+}
+
+Sprite = class Sprite {
   isStruct = true;
   isSprite = true;
   props = {};
@@ -497,7 +505,9 @@ class Sprite {
       if (clone) {
         Scratch.vm.runtime.addTarget(clone);
         clone.goBehindOther(sprite);
+        return CreateSpriteStruct(clone);
       }
+      return null;
     }, false, true)
 
     const getCloneWithVar = nativeFn(function* getCloneWithVar(varNme, value) {
@@ -510,7 +520,7 @@ class Sprite {
             cloneVar &&
             Scratch.Cast.compare(cloneVar.value, value) === 0
           ) {
-            return clones[index];
+            return CreateSpriteStruct(clones[index]);
           }
         }
         return null;
@@ -544,8 +554,4 @@ class Sprite {
   }
 }
 
-export default function CreateSpriteStruct(sprite) {
-  let cached;
-  if (cached = spriteMap.get(sprite)) return cached;
-  return new Sprite(sprite);
-}
+export default CreateSpriteStruct;
