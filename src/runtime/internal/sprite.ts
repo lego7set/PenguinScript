@@ -9,6 +9,7 @@ import nativeFn from "./nativefunc";
 const spriteMap = new WeakMap(); // use weakmap to do stuff
 
 let Scratch: any;
+let soundsCategory: any;
 
 let Sprite;
 
@@ -24,11 +25,11 @@ Sprite = class Sprite {
   props = {};
   constructor(sprite) {
     if (!Scratch) Scratch = loader.requireScratch() as unknown as any; // require it here.
+    if (Scratch && !soundsCategory) soundsCategory = Scratch.vm.runtime.ext_scratch3_sound;
     if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) {
       throw new TypeError("Invalid value passed into Sprite class")
     }
-    // this.sprite = sprite;
-    // unused
+    this.getActual = () => sprite; // bro why am i so dumb i could have just did this
     spriteMap.set(sprite, this);
 
     const isDisposed = () => sprite.isDisposed;
@@ -545,6 +546,62 @@ Sprite = class Sprite {
       },
       set value(v) {throw new TypeError("Cannot change getCloneWithVar method on sprite")}
     }
+
+    const playSound = nativeFn(function* playSound(util, sound, seconds) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
+      if (typeof seconds !== "number") seconds = Number(seconds) || 0;
+      soundsCategory._playSoundAtTimePosition({
+        sound: Scratch.Cast.toString(sound),
+        seconds
+      }, {target: sprite}, true); // dont wait for the promise.
+    }, false)
+
+    const playSoundAndWait = nativeFn(function* playSoundAndWait(util, sound, seconds) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
+      if (typeof seconds !== "number") seconds = Number(seconds) || 0;
+      yield* util.waitPromise(soundsCategory._playSoundAtTimePosition({
+        sound: Scratch.Cast.toString(sound),
+        seconds
+      }, {target: sprite}, true));
+    }, false)
+
+    const playAllSounds = nativeFn(function* playAllSounds(util) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      const v = sprite.sprite;
+      if (!v) return null;
+      for (let i = 0; i < v.sounds.length; i++) {
+        const { soundId } = v.sounds[i];
+        if (v.soundBank) {
+          v.soundBank.playSound(target, soundId);
+          soundsCategory._addWaitingSound(target.id, soundId);
+        }
+      }
+    }, false)
+
+    const playAllSoundsAndWait = nativeFn(function* playAllSoundsAndWait(util) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      const v = sprite.sprite;
+      if (!v) return null;
+      const playedSounds = [];
+      for (let i = 0; i < v.sounds.length; i++) {
+        const { soundId } = v.sounds[i];
+        if (v.soundBank) {
+          playedSounds.push(v.soundBank.playSound(target, soundId));
+          soundsCategory._addWaitingSound(target.id, soundId);
+        }
+      }
+      yield* util.waitPromise(Promise.all(playedSounds));
+    }, false)
+
+    const stopSound = nativeFn(function* stopSound(util, sound) {
+      if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+      if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
+      soundsCategory.stopSpecificSound({
+        SOUND_MENU: sound
+      }, {target: sprite}, true); // dont wait for the promise.
+    }, false)
   }
   toString() {
     return "<PenguinScript Sprite>";
