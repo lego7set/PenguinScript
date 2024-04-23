@@ -2,7 +2,7 @@
 
 import loader from "../loader";
 
-import { degToRad, toString, toBoolean } from "../conversions";
+import { degToRad, toString, toNumber, toBoolean } from "../conversions";
 
 import nativeFn from "./nativefunc";
 
@@ -380,7 +380,7 @@ Sprite = class Sprite {
 
     const broadcastAndWait = nativeFn(function* broadcastAndWait(util, message: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-      const msg = String(message ?? "null");
+      const msg = yield* toString(message);
       const started = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
         BROADCAST_OPTION: msg
       }, sprite);
@@ -471,7 +471,7 @@ Sprite = class Sprite {
     const isTouchingXY = nativeFn(function* isTouchingXY(x, y) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       if (!Scratch.vm.renderer) return false;
-      return Scratch.vm.renderer.drawableTouching(sprite.drawableID, Number(x) || 0, Number(y) || 0);
+      return Scratch.vm.renderer.drawableTouching(sprite.drawableID, yield* toNumber(x) || 0, yield* toNumber(y) || 0);
   }, false, true)
 
     const isTouchingEdge = nativeFn(function* isTouchingEdge() {
@@ -550,22 +550,37 @@ Sprite = class Sprite {
     const playSound = nativeFn(function* playSound(util, sound, seconds) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
-      if (typeof seconds !== "number") seconds = Number(seconds) || 0;
+      if (typeof seconds !== "number") seconds = yield* toNumber(seconds) || 0;
       soundsCategory._playSoundAtTimePosition({
-        sound: Scratch.Cast.toString(sound),
+        sound: yield* toString(sound),
         seconds
       }, {target: sprite}, true); // dont wait for the promise.
     }, false)
 
+    props.playSound = {
+      get value() {
+        return playSound
+      },
+      set value(v) {throw new TypeError("Cannot change playSound method on sprite")}
+    }
+
     const playSoundAndWait = nativeFn(function* playSoundAndWait(util, sound, seconds) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
-      if (typeof seconds !== "number") seconds = Number(seconds) || 0;
+      if (typeof seconds !== "number") seconds = yield* toNumber(seconds) || 0;
       yield* util.waitPromise(soundsCategory._playSoundAtTimePosition({
-        sound: Scratch.Cast.toString(sound),
+        sound: yield* toString(sound),
         seconds
       }, {target: sprite}, true));
     }, false)
+
+    props.playSoundAndWait = {
+      get value() {
+        return playSoundAndWait
+      },
+      set value(v) {throw new TypeError("Cannot change playSoundAndWait method on sprite")}
+    }
+
 
     const playAllSounds = nativeFn(function* playAllSounds(util) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
@@ -579,6 +594,14 @@ Sprite = class Sprite {
         }
       }
     }, false)
+
+    props.playAllSounds = {
+      get value() {
+        return playAllSounds
+      },
+      set value(v) {throw new TypeError("Cannot change playAllSounds method on sprite")}
+    }
+
 
     const playAllSoundsAndWait = nativeFn(function* playAllSoundsAndWait(util) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
@@ -595,13 +618,63 @@ Sprite = class Sprite {
       yield* util.waitPromise(Promise.all(playedSounds));
     }, false)
 
+    props.playAllSoundsAndWait = {
+      get value() {
+        return playAllSoundsAndWait
+      },
+      set value(v) {throw new TypeError("Cannot change playAllSoundsAndWait method on sprite")}
+    }
+
     const stopSound = nativeFn(function* stopSound(util, sound) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
       soundsCategory.stopSpecificSound({
         SOUND_MENU: sound
-      }, {target: sprite}, true); // dont wait for the promise.
+      }, {target: sprite});
     }, false)
+
+    props.stopSound = {
+      get value() {
+        return stopSound
+      },
+      set value(v) {throw new TypeError("Cannot change stopSound method on sprite")}
+    }
+
+    const stopAllSounds = nativeFn(function* stopAllSounds() {
+      soundsCategory._stopAllSoundsFOrTarget(sprite);
+    }, false);
+
+    props.stopAllSounds = {
+      get value() {
+        return stopAllSounds
+      },
+      set value(v) {throw new TypeError("Cannot change stopAllSounds method on sprite")}
+    }
+
+    const setFadeout = nativeFn(function* setFadeout(sound, fadeout) {
+      if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
+      fadeout = yield* toNumber(fadeout) || 0;
+      soundsCategory.setStopFadeout({
+        SOUND_MENU: sound,
+        VALUE: fadeout
+      }, {
+        target: sprite
+      });
+    }, false, true);
+
+    /*
+    let result: string = "";
+    yield* util.waitPromise(async function(){
+      await Scratch.vm.runtime.ext_scratch3_sensing.askAndWait({
+        QUESTION: String(toAsk ?? "null")
+      }, {target: sprite});
+      result = Scratch.vm.runtime.ext_scratch3.sensing._answer;
+      return result; // the return value here is unused but whatever
+    }());
+    return result;
+
+    finish later
+    */
   }
   toString() {
     return "<PenguinScript Sprite>";
