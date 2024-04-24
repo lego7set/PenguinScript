@@ -6,7 +6,7 @@ export default class Console {
   private consoleElement: HTMLDivElement;
   private titleElement: HTMLDivElement;
   private logElement: HTMLDivElement;
-  
+  private closeButton: HTMLImageElement
   private isDragging: boolean;
   private initialMousePos: { x: number; y: number };
   private initialConsolePos: { x: number; y: number };
