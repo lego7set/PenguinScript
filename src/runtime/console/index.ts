@@ -50,7 +50,7 @@ export default class Console {
     this.logElement.classList.add("console-log");
     this.logElement.style.flex = "1";
     this.logElement.style.overflow = "auto";
-    this.logElement.style.backgroundColor = "#7c8ea0"
+    this.logElement.style.backgroundColor = "#2c3e50"
     this.consoleElement.appendChild(this.logElement);
 
     this.consoleElement.addEventListener("mousedown", this.handleMouseDown.bind(this));
