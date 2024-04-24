@@ -63,6 +63,9 @@ export default class Console {
 
   warn(message: string) {
     const logEntry = document.createElement("div");
+    const img = document.createElement("img");
+    img.src = WarningImage;
+    logEntry.appendChild(img);
     const text = document.createTextNode(`Warning: ${message}`);
     logEntry.appendChild(text);
     logEntry.style.color = "#f1c40f";
@@ -72,6 +75,9 @@ export default class Console {
 
   error(message: string) {
     const logEntry = document.createElement("div");
+    const img = document.createElement("img");
+    img.src = ErrorImage;
+    logEntry.appendChild(img);
     const text = document.createTextNode(`Error: ${message}`);
     logEntry.appendChild(text);
     logEntry.style.color = "#e74c3c";
