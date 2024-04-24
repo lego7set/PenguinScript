@@ -33,7 +33,7 @@ export default class Console {
     this.consoleElement.style.position = "fixed";
     this.consoleElement.style.zIndex = "9999";
     this.consoleElement.style.boxShadow = "0 0 20px rgba(0, 0, 0, 0.5)";
-    this.consoleElement.style.width = "30vw";
+    this.consoleElement.style.width = "40vw";
     this.consoleElement.style.height = "40vh";
     this.consoleElement.style.display = "flex";
     this.consoleElement.style.flexDirection = "column";
@@ -44,11 +44,13 @@ export default class Console {
     this.titleElement.style.cursor = "move";
     this.titleElement.style.marginBottom = "10px";
     this.titleElement.style.fontWeight = "bold";
+    this.titleElement.style.backgroundColor = "#7c8ea0"
     this.consoleElement.appendChild(this.titleElement);
 
     this.logElement.classList.add("console-log");
     this.logElement.style.flex = "1";
     this.logElement.style.overflow = "auto";
+    this.logElement.style.backgroundColor = "#7c8ea0"
     this.consoleElement.appendChild(this.logElement);
 
     this.consoleElement.addEventListener("mousedown", this.handleMouseDown.bind(this));
@@ -74,7 +76,12 @@ export default class Console {
     this.consoleElement.style.display = "flex";
   }
 
+  escapeMsg(msg: string) {
+    return msg.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;").replace(/[\n\r]/g, "<br/>").replace(/ /g, "&nbsp;")
+  }
+
   log(message: string) {
+    message = escapeMsg(message);
     const logEntry = document.createElement("div");
     logEntry.textContent = `${message}`;
     this.logElement.appendChild(logEntry);
@@ -82,7 +89,8 @@ export default class Console {
   }
 
   warn(message: string) {
-    const logEntry = document.createElement("div");
+    message = escapeMsg(message);
+    const logEntry = document.createElement("p");
     const img = document.createElement("img");
     img.src = WarningImage;
     img.style.width = "1em"; // cuz text is 1em im pretty sure
@@ -96,7 +104,8 @@ export default class Console {
   }
 
   error(message: string) {
-    const logEntry = document.createElement("div");
+    message = escapeMsg(message);
+    const logEntry = document.createElement("p");
     const img = document.createElement("img");
     img.src = ErrorImage;
     img.style.width = "1em"; // cuz text is 1em im pretty sure
