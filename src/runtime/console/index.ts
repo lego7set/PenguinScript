@@ -31,6 +31,7 @@ export default class Console {
     this.consoleElement.style.height = "40vh";
     this.consoleElement.style.display = "flex";
     this.consoleElement.style.flexDirection = "column";
+    this.consoleElement.style.userSelect = "none";
 
     this.titleElement.classList.add("console-title");
     this.titleElement.textContent = "PenguinScript Console";
