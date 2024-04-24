@@ -81,38 +81,35 @@ export default class Console {
   }
 
   log(message: string) {
-    message = escapeMsg(message);
+    message = this.escapeMsg(message);
     const logEntry = document.createElement("div");
-    logEntry.textContent = `${message}`;
-    this.logElement.appendChild(logEntry);
+    logEntry.innerHTML += message;
     this.logElement.scrollTop = this.logElement.scrollHeight;
   }
 
   warn(message: string) {
-    message = escapeMsg(message);
+    message = this.escapeMsg(message);
     const logEntry = document.createElement("p");
     const img = document.createElement("img");
     img.src = WarningImage;
     img.style.width = "1em"; // cuz text is 1em im pretty sure
     img.style.height = "1em";
     logEntry.appendChild(img);
-    const text = document.createTextNode(`${message}`);
-    logEntry.appendChild(text);
+    logEntry.innerHTML += message;
     logEntry.style.color = "#f1c40f";
     this.logElement.appendChild(logEntry);
     this.logElement.scrollTop = this.logElement.scrollHeight;
   }
 
   error(message: string) {
-    message = escapeMsg(message);
+    message = this.escapeMsg(message);
     const logEntry = document.createElement("p");
     const img = document.createElement("img");
     img.src = ErrorImage;
     img.style.width = "1em"; // cuz text is 1em im pretty sure
     img.style.height = "1em";
     logEntry.appendChild(img);
-    const text = document.createTextNode(`${message}`);
-    logEntry.appendChild(text);
+    logEntry.innerHTML += message;
     logEntry.style.color = "#e74c3c";
     this.logElement.appendChild(logEntry);
     this.logElement.scrollTop = this.logElement.scrollHeight;
