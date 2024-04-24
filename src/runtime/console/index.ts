@@ -58,11 +58,11 @@ export default class Console {
     this.consoleElement.addEventListener("mousemove", this.handleMouseMove.bind(this));
 
     this.closeButton.src = ErrorImage;
-    this.closeButton.style.width = "1.5em";
-    this.closeButton.style.height = "1.5em";
+    this.closeButton.style.width = "1.4em";
+    this.closeButton.style.height = "1.4em";
     this.closeButton.style.position = "absolute";
-    this.closeButton.style.top = "10px";
-    this.closeButton.style.right = "10px";
+    this.closeButton.style.top = "0.15em";
+    this.closeButton.style.right = "0.625em";
     this.closeButton.style.cursor = "pointer";
     this.closeButton.addEventListener("mousedown", this.hide.bind(this));
     this.consoleElement.appendChild(this.closeButton);
