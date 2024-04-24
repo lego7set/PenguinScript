@@ -63,7 +63,8 @@ export default class Console {
 
   warn(message: string) {
     const logEntry = document.createElement("div");
-    logEntry.textContent = `Warning: ${message}`;
+    const text = document.createTextNode(`Warning: ${message}`);
+    logEntry.appendChild(text);
     logEntry.style.color = "#f1c40f";
     this.logElement.appendChild(logEntry);
     this.logElement.scrollTop = this.logElement.scrollHeight;
@@ -71,7 +72,8 @@ export default class Console {
 
   error(message: string) {
     const logEntry = document.createElement("div");
-    logEntry.textContent = `Error: ${message}`;
+    const text = document.createTextNode(`Error: ${message}`);
+    logEntry.appendChild(text);
     logEntry.style.color = "#e74c3c";
     this.logElement.appendChild(logEntry);
     this.logElement.scrollTop = this.logElement.scrollHeight;
