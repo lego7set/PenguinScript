@@ -6,6 +6,7 @@ export default class Console {
   private consoleElement: HTMLDivElement;
   private titleElement: HTMLDivElement;
   private logElement: HTMLDivElement;
+  
   private isDragging: boolean;
   private initialMousePos: { x: number; y: number };
   private initialConsolePos: { x: number; y: number };
@@ -14,6 +15,7 @@ export default class Console {
     this.consoleElement = document.createElement("div");
     this.titleElement = document.createElement("div");
     this.logElement = document.createElement("div");
+    this.closeButton = document.createElement("img");
     this.isDragging = false;
     this.initialMousePos = { x: 0, y: 0 };
     this.initialConsolePos = { x: 0, y: 0 };
@@ -52,6 +54,24 @@ export default class Console {
     this.consoleElement.addEventListener("mousedown", this.handleMouseDown.bind(this));
     this.consoleElement.addEventListener("mouseup", this.handleMouseUp.bind(this));
     this.consoleElement.addEventListener("mousemove", this.handleMouseMove.bind(this));
+
+    this.closeButton.src = ErrorImage;
+    this.closeButton.style.width = "1.5em";
+    this.closeButton.style.height = "1.5em";
+    this.closeButton.style.position = "absolute";
+    this.closeButton.style.top = "10px";
+    this.closeButton.style.right = "10px";
+    this.closeButton.style.cursor = "pointer";
+    this.closeButton.addEventListener("mousedown", this.hide.bind(this));
+    this.consoleElement.appendChild(this.closeButton);
+  }
+
+  hide() {
+    this.consoleElement.style.display = "none";
+  }
+
+  show() {
+    this.consoleElement.style.display = "flex";
   }
 
   log(message: string) {
