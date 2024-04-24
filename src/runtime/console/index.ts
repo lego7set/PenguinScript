@@ -65,6 +65,8 @@ export default class Console {
     const logEntry = document.createElement("div");
     const img = document.createElement("img");
     img.src = WarningImage;
+    img.style.width = "1em"; // cuz text is 1em im pretty sure
+    img.style.height = "1em";
     logEntry.appendChild(img);
     const text = document.createTextNode(`Warning: ${message}`);
     logEntry.appendChild(text);
@@ -77,6 +79,8 @@ export default class Console {
     const logEntry = document.createElement("div");
     const img = document.createElement("img");
     img.src = ErrorImage;
+    img.style.width = "1em"; // cuz text is 1em im pretty sure
+    img.style.height = "1em";
     logEntry.appendChild(img);
     const text = document.createTextNode(`Error: ${message}`);
     logEntry.appendChild(text);
