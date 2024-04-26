@@ -5,7 +5,11 @@ const trueEnv = _globalEnv.__env;
 
 class Loader {
   public loadPackage(package) {
-    for (const globalIndex of package) {
+    if (typeof package.onLoad === "function") {
+      package.onLoad.call(this, package);
+      delete package.onLoad;
+    }
+    for (const globalIndex in package) {
       const value = package[globalIndex];
       trueEnv.set(globalIndex, {
         get value() {return value},
@@ -17,13 +21,17 @@ class Loader {
     trueEnv.set(index, item);
   }
   public loadRawPackage(package) {
-    for (const globalIndex of package) {
+    for (const globalIndex in package) {
       const value = package[globalIndex];
       trueEnv.set(globalIndex, value);
     }
   }
   public loadPenguinModPackage(package) {
     if (!IsPenguinMod) return;
+    if (typeof package.onLoad === "function") {
+      package.onLoad.call(this, package);
+      delete package.onLoad;
+    }
     for (const globalIndex of package) {
       const value = package[globalIndex];
       trueEnv.set(globalIndex, {
