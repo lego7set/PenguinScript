@@ -25,25 +25,41 @@ export interface Input {
  * Stores information about variables
  */
 class Frame {
-  static gen: any;
+  static Insert(gen) {
+    const frame = new Frame(gen.curFrame);
+    gen.curFrame = frame;
+    return frame;
+  }
+  static Restore(gen, frame) {
+    gen.curFrame = gen.curFame.parentFrame || new Frame();
+    return gen.curFrame;
+  }
   protected parentFrame: Frame | null;
   protected variables: Set;
-  constructor(parentFrame) {
+  constructor(parentFrame = null) {
     this.parentFrame = parentFrame;
     this.variables = new Set();
   }
 
-  protected varInScope(var) {
-    return this.variables.has(var)
+  protected varInScope(variable) {
+    return this.variables.has(variable)
   }
 
-  protected varExists(var) {
-    return this.variable.has(var) ? true : this.parentFrame ? this.parentFrame.varExists(var) : false
+  protected varExists(variable) {
+    return this.variable.has(variable) ? true : this.parentFrame ? this.parentFrame.varExists(variable) : false
   }
 
-  protected defineVariable(var) {
-    if (this.varInScope(var)) throw new SyntaxError("Cannot define variable in same scope, please use another scope using { ...code }");
-    this.variables.add(var)
+  public defineVariable(variable) {
+    if (this.varInScope(variable)) throw new SyntaxError("Cannot define variable in same scope, please use another scope using { ...code }");
+    this.variables.add(variable);
+  }
+
+  public findVarScope(variable) {
+    if (this.varInScope(variable)) {
+      return this;
+    }
+    if (this.parentFrame) return this.parentFrame.findVarScope(variable);
+    return null;
   }
 }
 
@@ -204,6 +220,7 @@ export default class JSGenerator {
   protected scriptName: string;
   protected _variablePool: Generator<string>;
   protected _cachedVariables: Record<string, string>;
+  protected curFrame: Frame = new Frame();
   public static _globalEnv: GlobalEnv = _globalEnv;
   public warpTimer: boolean;
   public isWarp: boolean;
