@@ -662,19 +662,31 @@ Sprite = class Sprite {
       });
     }, false, true);
 
-    /*
-    let result: string = "";
-    yield* util.waitPromise(async function(){
-      await Scratch.vm.runtime.ext_scratch3_sensing.askAndWait({
-        QUESTION: String(toAsk ?? "null")
-      }, {target: sprite});
-      result = Scratch.vm.runtime.ext_scratch3.sensing._answer;
-      return result; // the return value here is unused but whatever
-    }());
-    return result;
+    const ask = nativeFn(function* ask(util, toAsk) {
+      const msg = yield* toString(toAsk);
+      let result: string = "";
+      yield* util.waitPromise(async function(){
+        await Scratch.vm.runtime.ext_scratch3_sensing.askAndWait({
+          QUESTION: msg
+        }, {target: sprite});
+        result = Scratch.vm.runtime.ext_scratch3_sensing._answer;
+        return result;
+      })
+      return result;
+    }, false)
 
-    finish later
-    */
+    props.ask = {
+      get value() {
+        return ask
+      },
+      set value(v) {throw new TypeError("Cannot change ask method on sprite")}
+    }
+    props.askAndWait = {
+      get value() {
+        return ask
+      },
+      set value(v) {throw new TypeError("Cannot change askAndWait method on sprite")}
+    }
   }
   toString() {
     return "<PenguinScript Sprite>";
