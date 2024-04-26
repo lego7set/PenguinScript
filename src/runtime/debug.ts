@@ -17,7 +17,7 @@ package.error = nativeFn(function* error(util, ...args) {
   return null;
 }, false)
 
-package.EnterDebugMode = nativeFn(function debug(util, ...listOfThingsForAccess) {
+/* package.EnterDebugMode = nativeFn(function debug(util, ...listOfThingsForAccess) {
   // do stuff.
   if (!window.confirm("Would you like to enter the PenguinScript debug mode? (requires advanced understanding of JS console to use)")) return false; // indicate not successful.
   // window.alert("Go into the console. The arguments passed into this function are accessible through the global variable PenguinScriptDebugMode.vars");
@@ -27,6 +27,6 @@ package.EnterDebugMode = nativeFn(function debug(util, ...listOfThingsForAccess)
   // @ts-ignore
   delete globalThis.PenguinScriptDebugMode;
   return true;
-}, false)
+}, false) */ // idk bro
 
 export default package;
