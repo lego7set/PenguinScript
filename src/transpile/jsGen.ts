@@ -21,6 +21,32 @@ export interface Input {
   isAlwaysString: () => boolean;
 }
 
+/* 
+ * Stores information about variables
+ */
+class Frame {
+  static gen: any;
+  protected parentFrame: Frame | null;
+  protected variables: Set;
+  constructor(parentFrame) {
+    this.parentFrame = parentFrame;
+    this.variables = new Set();
+  }
+
+  protected varInScope(var) {
+    return this.variables.has(var)
+  }
+
+  protected varExists(var) {
+    return this.variable.has(var) ? true : this.parentFrame ? this.parentFrame.varExists(var) : false
+  }
+
+  protected defineVariable(var) {
+    if (this.varInScope(var)) throw new SyntaxError("Cannot define variable in same scope, please use another scope using { ...code }");
+    this.variables.add(var)
+  }
+}
+
 class TypedInput implements Input {
   src: string;
   type: OutputType;
