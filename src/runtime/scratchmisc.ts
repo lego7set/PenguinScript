@@ -4,6 +4,8 @@ import { toString } from "./conversions";
 
 const package = { __proto__: null };
 
+let Scratch: any;
+
 package.broadcast = nativeFn(function* broadcast(util, message: any) {
   const msg = yield* toString(message);
   const list = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
@@ -50,6 +52,7 @@ function mouseClicked() {
 }
 
 package.onLoad = function() {
+  Scratch = this.requireScratch();
   this.loadRaw("mouseDown", {
     get value() {return mouseDown()},
     set value(v) {throw new TypeError("Cannot overwrite mouseDown global value")}
