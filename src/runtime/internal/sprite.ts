@@ -4,6 +4,8 @@ import loader from "../loader";
 
 import { degToRad, toString, toNumber, toBoolean } from "../conversions";
 
+import { customObjectTypes } from "../structs";
+
 import nativeFn from "./nativefunc";
 
 const spriteMap = new WeakMap(); // use weakmap to do stuff
@@ -29,6 +31,7 @@ Sprite = class Sprite {
     if (!(sprite instanceof Scratch.vm.exports.RenderedTarget)) {
       throw new TypeError("Invalid value passed into Sprite class")
     }
+    if (!customObjectTypes.sprite) customObjectTypes.sprite = (v) => v instanceof Sprite; 
     this.getActual = () => sprite; // bro why am i so dumb i could have just did this
     spriteMap.set(sprite, this);
 
