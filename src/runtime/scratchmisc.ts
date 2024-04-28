@@ -1,10 +1,17 @@
 import nativeFn from "./internal/nativefunc";
 
+import makeSprite from "./internal/sprite";
+
 import { toString } from "./conversions";
 
 const package = { __proto__: null };
 
 let Scratch: any;
+
+package.getSprite = nativeFn(function* getSprite(name) {
+  if (typeof name !== "string") throw new TypeError("Attempted to get sprite with name, but name is not a string");
+  return makeSprite(Scratch.vm.runtime.getSpriteTargetByName(name));
+}, true, false)
 
 package.broadcast = nativeFn(function* broadcast(util, message: any) {
   const msg = yield* toString(message);
