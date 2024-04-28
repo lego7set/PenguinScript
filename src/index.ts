@@ -14,6 +14,10 @@ import conversionsPackage from "./runtime/conversions";
 
 import stringUtilsPackage from "./runtime/stringUtils";
 
+import scratchmiscPackage from "./runtime/scratchmisc";
+
+import timePackage from "./runtime/time"
+
 function transpile(code: string, warpTimer: boolean, isWarp: boolean): any {
   const program = new Parser(code).produceAST();
   const generator = new JSGenerator(program);
