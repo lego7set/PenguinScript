@@ -8,7 +8,7 @@ class StructIds {
   private idx = 0;
   add(obj) {
     if (this.map.has(obj)) return;
-    this.map.set(obj, "ref" + this.idx++);
+    this.map.set(obj, "$ref" + this.idx++);
   }
   get(obj) {
     let cached;
@@ -17,7 +17,7 @@ class StructIds {
   }
 }
 
-function* serializeRecursive(stuff: any, seen = new StructIds(), util): string {
+function* serializeRecursive(stuff: any, util, seen = new StructIds()): string {
   // Loop through structs and stuff
   // Add a ref onto everything we encounter.
   // Do not attempt to serialize sprites, and if sprites are encountered just ignore
@@ -46,8 +46,11 @@ function* serializeRecursive(stuff: any, seen = new StructIds(), util): string {
       return `er${JSON.stringify(stuff.props.msg)}${JSON.stringify(stuff.props.type)}` // idk this probably wont look intuitive to people but who cares?
     }
     case "object": {
-      
-      return `o[${Object.entries(stuff.getActual).map([k,v]=>serializeRecursive(k,seen,util)+";"+serializeRecursive(v,seen,util))}]`
+      if (seen.get(stuff)) {
+        return seen.get(stuff)
+      }
+      seen.add(stuff);
+      return `o[${Object.entries(stuff.getActual).map([k,v]=>serializeRecursive(k,util,seen)+";"+serializeRecursive(v,util,seen)+";")}]`;
     }
     case "function": {
       return "null"; // theyre going to expect functions to be not serialized and if they do not they are a dum dum
