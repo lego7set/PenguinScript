@@ -594,10 +594,8 @@ export default class Parser {
   protected parse_complicated_literals(): Expr {
     this.eat(); // consume the opening bracket.
     let literalType = "o";
-    if (this.at().type === TokenType.IDENTIFIER || this.at().type === TokenType.STRING) {
-      literalType = this.eat().raw;
-      this.expect(TokenType.SEMICOLON);
-    }
+    literalType = this.expect(TokenType.IDENTIFIER, TokenType.STRING).raw;
+    this.expect(TokenType.SEMICOLON);
     switch (literalType) {
       case "o": {
         // object
