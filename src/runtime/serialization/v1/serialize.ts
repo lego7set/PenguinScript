@@ -10,7 +10,8 @@ class StructIds {
   private idx = 0;
   add(obj) {
     if (this.map.has(obj)) return;
-    this.map.set(obj, "$ref" + this.idx++);
+    this.map.set(obj, "$ref" + this.idx);
+    return "$ref" + this.idx++;
   }
   get(obj) {
     let cached;
@@ -51,15 +52,13 @@ function serializeRecursive(stuff: any, util, seen = new StructIds()): string {
       if (seen.get(stuff)) {
         return seen.get(stuff)
       }
-      seen.add(stuff);
-      return `o[${Object.entries(stuff.getActual()).map(([k,v])=>serializeRecursive(k,util,seen)+","+serializeRecursive(v,util,seen)).join(";")}]`;
+      return `o[${seen.add(stuff)};${Object.entries(stuff.getActual()).map(([k,v])=>serializeRecursive(k,util,seen)+","+serializeRecursive(v,util,seen)).join(";")}]`;
     }
     case "array": {
       if (seen.get(stuff)) {
         return seen.get(stuff);
       }
-      seen.add(stuff);
-      return `a[${stuff.getActual().map(v=>serializeRecursive(v,util,seen)).join(";")}]`
+      return `a[${seen.add(stuff)};${stuff.getActual().map(v=>serializeRecursive(v,util,seen)).join(";")}]`
     }
     case "complex": {
       const re = stuff.re;
@@ -79,12 +78,11 @@ function serializeRecursive(stuff: any, util, seen = new StructIds()): string {
       if (seen.get(stuff)) {
         return seen.get(stuff);
       }
-      seen.add(stuff);
       const serializedProps = {};
       for (const index in stuff.props) {
         serializedProps[index] = serializeRecursive(stuff.props[index].value, util, seen);
       }
-      return `ilsi[${Object.entries(serializedProps).map(([k, v])=>k+","+v).join(";")}]` // stands for inline struct instance
+      return `ilsi[${seen.add(stuff)};${Object.entries(serializedProps).map(([k, v])=>k+","+v).join(";")}]` // stands for inline struct instance
     }
     case "function": {
       return "null"; // theyre going to expect functions to be not serialized and if they do not they are a dum dum
