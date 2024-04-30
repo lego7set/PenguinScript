@@ -73,32 +73,37 @@ class Lexer { // the deserializer lexer. im going to use regexp cuz its faster a
 class SeenMap {
   private map: Record<string, any> = {};
   private awaitedRefs: Record<string, (v)=>void> = {};
-  seen(ref) {
+  seen(ref: string): boolaen {
     return this.map[ref] !== undefined;
   }
-  get(ref) {
+  get(ref: string): any {
     return this.map[ref];
   }
-  add(ref, obj) {
+  add<T>(ref: string, obj: T): T {
     if (this.awaitedRefs[ref]) {
       this.awaitedRefs[ref](obj);
       delete this.awaitedRefs[ref];
     }
     return this.map[ref] = obj;
   }
-  await(ref, callback) {
+  await(ref: string, callback: (v) => void) {
     this.awaitedRefs[ref] = callback;
+  }
+  expectComplete() {
+    
   }
 }
 
 class Transformer { // convert tokens into structs
   protected tokens: Token[];
   public transformed: any;
+  protected seen: SeenMap;
   constructor(tks: Token[]) {
     this.tks = tokens;
+    this.seen = new SeenMap();
     // process tokens here
   }
-  protected transformRecursive(seen = new SeenMap(), current: {obj: any, add: (v) => void} | null = null): any {
+  protected transformRecursive(seen = this.seen, current: {obj: any, add: (v) => void} | null = null): any {
     if (!this.not_eof()) return;
     switch (this.at().type) {
       case TokenType.STRING: {
@@ -129,7 +134,7 @@ class Transformer { // convert tokens into structs
         if (!current) throw new TypeError("Refs may only appear from within objects, arrays, and structs.")
         if (seen.seen(this.at().raw)) return seen.get(this.at().raw);
         // idk if this will ever happen for invalid refs? everything is l -> r
-        seen.await(this.at().raw, current.add);
+        seen.await(this.at().raw, current.add); // basically what this does is it schedules the assignment of the prop to when the reffed object is there.
       }
     }
   }
