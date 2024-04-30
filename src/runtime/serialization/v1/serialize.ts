@@ -82,7 +82,7 @@ function serializeRecursive(stuff: any, util, seen = new StructIds()): string {
       seen.add(stuff);
       const serializedProps = {};
       for (const index in stuff.props) {
-        serializedProps[index] = serializeRecursive(stuff.props[index], util, seen);
+        serializedProps[index] = serializeRecursive(stuff.props[index].value, util, seen);
       }
       return `ilsi[${Object.entries(serializedProps).map(([k, v])=>k+","+v).join(";")}]` // stands for inline struct instance
     }
