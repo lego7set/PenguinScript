@@ -15,8 +15,16 @@ enum TokenType {
 
 const lexerRegex = {
   REF: /^\$ref[0-9]+/,
+  TRUE: /^true/,
+  FALSE: /^false/,
+  NULL: /^null/,
   TYPEINFO: /^[a-zA-Z]+/,
   STRING: /^"([^"\\]|\\.)*"/,
+  NUMBER: /^(inf)|(-inf)|(NaN)|([-0-9\.e+]+)/,
+  COMMA: /^,/,
+  SEMICOLON: /^;/,
+  OPEN_LIST: /^\[/,
+  CLOSE_LIST: /^]/
 }
 
 class Token {
