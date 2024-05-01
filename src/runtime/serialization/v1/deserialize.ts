@@ -102,13 +102,15 @@ class Transformer { // convert tokens into structs
   constructor(tks: Token[]) {
     this.tokens = tokens;
     this.seen = new SeenMap();
-    // process tokens here
 
-    this.end() // when transform is complete, expect that transform was done.
+    this.transform();
   }
   public setTokens(tks: Token[]) {
     this.tokens = tokens;
-    // process tokens here
+  }
+  public transform() {
+    this.transformed = this.transformRecursive();
+    this.end();
   }
   protected transformRecursive(seen = this.seen, current: {obj: any, add: (v) => void} | null = null): any {
     if (!this.not_eof()) throw new TypeError("Unexpected EOF in Serialization -> v1 -> deserialize");
