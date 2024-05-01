@@ -95,20 +95,28 @@ class SeenMap {
 }
 
 class Transformer { // convert tokens into structs
+  // this thingy is so simple (way more simple than the parser)
   protected tokens: Token[];
   public transformed: any;
   protected seen: SeenMap;
   constructor(tks: Token[]) {
-    this.tks = tokens;
+    this.tokens = tokens;
     this.seen = new SeenMap();
+    // process tokens here
+
+    this.end() // when transform is complete, expect that transform was done.
+  }
+  public setTokens(tks: Token[]) {
+    this.tokens = tokens;
     // process tokens here
   }
   protected transformRecursive(seen = this.seen, current: {obj: any, add: (v) => void} | null = null): any {
-    if (!this.not_eof()) return;
+    if (!this.not_eof()) throw new TypeError("Unexpected EOF in Serialization -> v1 -> deserialize");
     switch (this.at().type) {
       case TokenType.STRING: {
         // simply just json.parse this thingy
-        return JSON.parse(this.eat().raw);
+        const tk = this.eat();
+        return JSON.parse(tk.raw);
       }
       case TokenType.NUMBER: {
         const raw = this.eat().raw;
@@ -129,6 +137,10 @@ class Transformer { // convert tokens into structs
       }
       case TokenType.NULL: {
         return null;
+      }
+      case TokenType.TYPEINFO: {
+        // thingy idk
+        // complete later
       }
       case TokenType.REF: {
         if (!current) throw new TypeError("Refs may only appear from within objects, arrays, and structs.")
@@ -155,5 +167,8 @@ class Transformer { // convert tokens into structs
   protected expect(...types: TokenType[]) {
     if (types.indexOf(this.at().type) === -1) throw new SyntaxError(`Expected token types ${types.map(v=>TokenType[v]).join(", ")}, but got ${TokenType[this.at().type]} instead.`)
     return this.eat();
+  }
+  protected end() {
+    if (this.at().type !== TokenType.EOF) throw new SyntaxError("Expected EOF, but got " + TokenType[this.at().type] + " instead")
   }
 }
