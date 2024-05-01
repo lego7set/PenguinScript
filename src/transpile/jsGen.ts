@@ -243,7 +243,7 @@ export default class JSGenerator {
       this.descendNode(node);
     }
     this.src = `
-    let _;let _2;let _3;let _4;let _5;let _6; let_7;
+    let _;let _2;let _3;let _4;let _5;let _6; let _7;
     util.scriptSrc=${JSON.stringify(this.src)};
     util.scriptName=${JSON.stringify(this.scriptName)};
     util.debugGlobalEnv=$globalEnv;
