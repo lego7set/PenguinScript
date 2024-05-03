@@ -107,6 +107,7 @@ class Transformer { // convert tokens into structs
   }
   public setTokens(tks: Token[]) {
     this.tokens = tokens;
+    this.transform();
   }
   public transform() {
     this.transformed = this.transformRecursive();
