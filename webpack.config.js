@@ -8,7 +8,7 @@ module.exports = {
       {
         test: /\.tsx?$/,
         use: 'ts-loader',
-        exclude: /(node_modules)|(unused)/
+        exclude: /(node_modules)|(work/PenguinScript/PenguinScript/unused)/
       },
     ],
   },
