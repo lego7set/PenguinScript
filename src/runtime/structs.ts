@@ -1,6 +1,6 @@
-const package: any = { __proto__: null };
+const pkg: any = { __proto__: null };
 
-import * as ComplexConstructor from "complex.js"; // i forgor to add to package
+import * as ComplexConstructor from "complex.js";
 
 const Complex = ComplexConstructor as unknown as any;
 
@@ -8,7 +8,7 @@ import nativeFn from "./internal/nativefunc";
 
 // ---------------------------Object------------------------------
 
-package.Object = nativeFn(function* createObjectStruct(...keysValues) {
+pkg.Object = nativeFn(function* createObjectStruct(...keysValues) {
   if (keysValues.length % 2 !== 0) throw new TypeError("Each key must have a value in object structs");
   const entries = [];
 
@@ -61,7 +61,7 @@ package.Object = nativeFn(function* createObjectStruct(...keysValues) {
 
 // ------------------------------------Array------------------------------
 
-package.Array = nativeFn(function* createArrayStruct(...values) {
+pkg.Array = nativeFn(function* createArrayStruct(...values) {
   const struct: any = {__proto__: null, isStruct: true, props:{__proto__:null},isArray:true};
   let props = values;
   struct.getActual = () => props;
@@ -239,7 +239,7 @@ Object.assign(createComplexStruct, {
   isStruct: true
 });
 
-package.Complex = createComplexStruct;
+pkg.Complex = createComplexStruct;
 
 // ---------------------------------------Math------------------------------------------
 
@@ -296,7 +296,7 @@ function* getRandomFloat(util, x, y) {
 }
 
 
-package.math = (function(){
+pkg.math = (function(){
   const struct: any = {isStruct: true, __proto__: null, isMath: true};
   struct.toString = () => "<PenguinScript Math>"
   const overwritten = 
@@ -304,7 +304,7 @@ package.math = (function(){
     __proto__: null,
     random: getRandomFloat,
     randomInt: getRandomInt,
-    complex: createComplexStruct
+    complex: createComplexStruct,
     abs: function* (util, v) {
       if (typeof v !== "number" && (!v || !v.isComplex)) throw new TypeError("Math operations can only be used on complex and numbers");
       return typeof v === "number" ? Math.abs(v) : yield* createComplexStruct(util, new Complex(v.props.re.value, v.props.im.value).abs());
@@ -495,7 +495,7 @@ package.math = (function(){
 
 // -------------Errors-------------
 
-package.Error = nativeFn(function* createErrorStruct(util, v, type?) {
+pkg.Error = nativeFn(function* createErrorStruct(util, v, type?) {
   if (typeof v === "string") v = new Error(v);
   if ((v ?? null) === null) v = new Error("");
   if (!(v instanceof Error)) throw v;
@@ -654,8 +654,8 @@ function hsvToRgb(h, s, v) {
     return struct;
   }, true, true)
 
-package.Color = createColorStruct;
-package.Colour = createColorStruct; // please respect the british
+pkg.Color = createColorStruct;
+pkg.Colour = createColorStruct; // please respect the british
 
 // -----------------------Misc-------------------------------
 
@@ -681,19 +681,19 @@ export function* type(util, value: any) {
   return typeof value;
 }
 
-package.typeof = nativeFn(type, false);
+pkg.typeof = nativeFn(type, false);
 
-package.deepClone = nativeFn(function* deepClone(util, structToClone) {
+pkg.deepClone = nativeFn(function* deepClone(util, structToClone) {
   const typeToClone = yield* type(util, structToClone)
   switch (typeToClone) {
     case "error": {
       let err: any;
       try {yield* structToClone.props.throw.value()} catch(e) {err = e;} // this is guaranteed.
-      return yield* createErrorStruct(util, err);
+      return yield* pkg.Error(util, err);
     }
     case "object": {
       const actualProps = structToClone.getActual();
-      const newStruct = yield* createObjectStruct(util);
+      const newStruct = yield* pkg.Object(util);
       const newProps = { __proto__: null };
       for (const prop in actualProps) {
         newProps[prop] = yield* deepClone(util, actualProps[prop])
@@ -703,13 +703,16 @@ package.deepClone = nativeFn(function* deepClone(util, structToClone) {
     }
     case "array": {
       const actualProps = structToClone.getActual();
-      const newStruct = yield* createArrayStruct(util);
+      const newStruct = yield* pkg.Array(util);
       const newProps = [];
       for (const prop in actualProps) {
         newProps[prop] = yield* deepClone(util, actualProps[prop])
       }
       Object.assign(newStruct.getActual(), newProps);
       return newStruct
+    }
+    case "struct": {
+      throw new TypeError("Deep cloning a user-defined struct is currently unallowed")
     }
     default: {
       // EDIT: just return the thingy
@@ -720,7 +723,7 @@ package.deepClone = nativeFn(function* deepClone(util, structToClone) {
   }
 }, false)
 
-package.createMethod = nativeFn(function* createMethod(struct, storedFunc) {
+pkg.createMethod = nativeFn(function* createMethod(struct, storedFunc) {
   if (!struct.isStruct) throw new TypeError("You must pass in a struct to createMethod");
   if (typeof storedFunc !== "function") throw new TypeError("You must pass in a function to createMethod")
   return function*(util, ...args) {
@@ -729,13 +732,13 @@ package.createMethod = nativeFn(function* createMethod(struct, storedFunc) {
 }, false, true);
 
 // -------------------Reserved---------------
-package.RegExp = null;
-package.Map = null;
-package.Set = null;
-package.WeakMap = null;
-package.WeakSet = null;
-package.WeakRef = null;
+pkg.RegExp = null;
+pkg.Map = null;
+pkg.Set = null;
+pkg.WeakMap = null;
+pkg.WeakSet = null;
+pkg.WeakRef = null;
 
-package.Serialization = null;
+pkg.Serialization = null;
 
-export default package;
+export default pkg;
