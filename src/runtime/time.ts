@@ -7,6 +7,8 @@ package.applicationTime = nativeFn(function*(){
 
 package.daysSince2000 = null;
 
-package.msSince1970 = null;
+package.msSince1970 = nativeFn(function*(){
+  return Date.now();
+}, false);
 
 export default package;
