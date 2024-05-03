@@ -42,8 +42,10 @@ Sprite = class Sprite {
         return isDisposed();
       },
       set value() {
-        // dont do anything right now, but allow people to dispose (delete) sprites.
-        
+        if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
+        if (sprite.isOriginal) throw new TypeError("Cannot delete non-clone sprites");
+        this.runtime.disposeTarget(sprite);
+        this.runtime.stopForTarget(sprite);
       }
     }
     
