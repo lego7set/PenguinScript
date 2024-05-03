@@ -24,7 +24,8 @@ function CreateSpriteStruct(sprite) {
 Sprite = class Sprite {
   isStruct = true;
   isSprite = true;
-  props = {};
+  props: any = { __proto__: null };
+  getActual: () => any;
   constructor(sprite) {
     if (!Scratch) Scratch = loader.requireScratch() as unknown as any; // require it here.
     if (Scratch && !soundsCategory) soundsCategory = Scratch.vm.runtime.ext_scratch3_sound;
@@ -102,7 +103,7 @@ Sprite = class Sprite {
     props.direction = directionProp;
 
     const moveSteps = 
-      nativeFn(function* moveSteps(util, steps: any, direction?: any) {
+      (nativeFn(function* moveSteps(util, steps: any, direction?: any) {
         if (typeof steps !== "number" || Object.is(NaN, steps)) throw new TypeError("Cannot move non-number or NaN steps");
         if (direction != null && (typeof direction !== "number" || Object.is(NaN, direction))) throw new TypeError("Cannot move steps in non-number or NaN direction");
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
@@ -115,8 +116,8 @@ Sprite = class Sprite {
         const radians = yield* degToRad(null, newDir).next().value;
         const dx = steps * Math.cos(radians);
         const dy = steps * Math.sin(radians);
-        target.setXY(target.x + dx, target.y + dy); // we're done!
-      }, false)
+        target.setXY(target.x + dx, sprite.y + dy); // we're done!
+      }, false))
 
 
     props.moveSteps = {
@@ -143,10 +144,10 @@ Sprite = class Sprite {
         if (direction != null && (typeof direction !== "number" || Object.is(NaN, direction))) throw new TypeError("Cannot move steps in non-number or NaN direction");
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         const oldDir = sprite.direction;
-        if (direction != null) target.setDirection(direction);
-        target.setDirection(sprite.direction - 90);
+        if (direction != null) sprite.setDirection(direction);
+        sprite.setDirection(sprite.direction - 90);
         yield* moveSteps(util, 0 - steps);
-        target.setDirection(oldDir);
+        sprite.setDirection(oldDir);
       }, false)
     const moveStepsDown = nativeFn(
       function*(util, steps, direction?) {
@@ -154,10 +155,10 @@ Sprite = class Sprite {
         if (direction != null && (typeof direction !== "number" || Object.is(NaN, direction))) throw new TypeError("Cannot move steps in non-number or NaN direction");
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         const oldDir = sprite.direction;
-        if (direction != null) target.setDirection(direction);
-        target.setDirection(sprite.direction - 90);
+        if (direction != null) sprite.setDirection(direction);
+        sprite.setDirection(sprite.direction - 90);
         yield* moveSteps(util, steps);
-        target.setDirection(oldDir);
+        sprite.setDirection(oldDir);
       }, false)
     props.moveStepsUp = {
       get value() {
@@ -176,13 +177,13 @@ Sprite = class Sprite {
       function*(util, direction){
         if (typeof direction !== "number" || Object.is(NaN, direction)) throw new TypeError("Cannot turn right non-number or NaN degrees");
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-        target.setDirection(target.direction + direction);
+        sprite.setDirection(sprite.direction + direction);
       }, false)
     const turnLeft = nativeFn(
       function*(util, direction){
         if (typeof direction !== "number" || Object.is(NaN, direction)) throw new TypeError("Cannot turn left non-number or NaN degrees");
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-        target.setDirection(target.direction - direction);
+        sprite.setDirection(sprite.direction - direction);
       }, false)
     props.turnRight = {
       get value() {
@@ -228,7 +229,7 @@ Sprite = class Sprite {
       get value() {
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         return sprite.size;
-      }
+      },
       set value(v) {
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         if (typeof v !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot size of sprite to a non-number or NaN");
@@ -240,7 +241,7 @@ Sprite = class Sprite {
       get value() {
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         return sprite.visible;
-      }
+      },
       set value(v) {
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         sprite.setVisible(yield* toBoolean(v));
@@ -276,7 +277,7 @@ Sprite = class Sprite {
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         if (typeof v !== "number" || Object.is(NaN, v)) throw new TypeError("Cannot set costume number of sprite to non-number or NaN");
         v = Math.sign(v) * Math.floor(Math.abs(v));
-        target.setCostume(v - 1);
+        sprite.setCostume(v - 1);
       }
     }
     props.costumeName = {
@@ -287,8 +288,8 @@ Sprite = class Sprite {
       set value(v) {
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         v = yield* toString(v);
-        const index = target.getCostumeIndexByName(v);
-        if (index !== -1) target.setCostume(index);
+        const index = sprite.getCostumeIndexByName(v);
+        if (index !== -1) sprite.setCostume(index);
         else throw new TypeError("Costume name " + index + " does not exist");
       }
     }
@@ -338,7 +339,7 @@ Sprite = class Sprite {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       return sprite.lookupVariableByNameAndType(yield* toString(name), "", true)?.value ?? null;
     }, false)
-    const setVariable nativeFn(function* setVariable(util, name: any, value: any) {
+    const setVariable = nativeFn(function* setVariable(util, name: any, value: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       const variable = sprite.lookupVariableByNameAndType(yield* toString(name), "", true);
       if (variable) { 
@@ -594,8 +595,8 @@ Sprite = class Sprite {
       for (let i = 0; i < v.sounds.length; i++) {
         const { soundId } = v.sounds[i];
         if (v.soundBank) {
-          v.soundBank.playSound(target, soundId);
-          soundsCategory._addWaitingSound(target.id, soundId);
+          v.soundBank.playSound(sprite, soundId);
+          soundsCategory._addWaitingSound(sprite.id, soundId);
         }
       }
     }, false)
@@ -616,8 +617,8 @@ Sprite = class Sprite {
       for (let i = 0; i < v.sounds.length; i++) {
         const { soundId } = v.sounds[i];
         if (v.soundBank) {
-          playedSounds.push(v.soundBank.playSound(target, soundId));
-          soundsCategory._addWaitingSound(target.id, soundId);
+          playedSounds.push(v.soundBank.playSound(sprite, soundId));
+          soundsCategory._addWaitingSound(sprite.id, soundId);
         }
       }
       yield* util.waitPromise(Promise.all(playedSounds));
