@@ -40,7 +40,7 @@ package.Object = nativeFn(function* createObjectStruct(...keysValues) {
     props[key] = value;
     return struct;
   }, false, true)};
-  struct.props.fromJSON = {value:nativeFn(function*(json) {
+  /*struct.props.fromJSON = {value:nativeFn(function*(json) {
     if (typeof json !== "string") throw new TypeError("Object.fromJSON must be passed a string")
     for (const prop in props) {
       if (Object.hasOwn(props, prop)) delete props[prop];
@@ -55,7 +55,7 @@ package.Object = nativeFn(function* createObjectStruct(...keysValues) {
   }, false, true)};
   struct.props.toJSON = {value:nativeFn(function*(){
     return JSON.stringify(props);
-  }, false, true)};
+  }, false, true)};*/
   return struct;
 }, true, true)
 
@@ -116,7 +116,7 @@ package.Array = nativeFn(function* createArrayStruct(...values) {
       props.length = val;
     }
   }
-  struct.props.fromJSON = {value:nativeFn(function*(json) {
+  /*struct.props.fromJSON = {value:nativeFn(function*(json) {
     if (typeof json !== "string") throw new TypeError("Array.fromJSON must be passed a string")
     props.length = 0; // erase all properties
     try {
@@ -129,7 +129,7 @@ package.Array = nativeFn(function* createArrayStruct(...values) {
   }, false, true)}
   struct.props.toJSON = {value:nativeFn(function*(){
     return JSON.stringify(props);
-  }, false, true)}
+  }, false, true)}*/
   return struct;
 }, true, true)
 
