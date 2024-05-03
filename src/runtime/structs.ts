@@ -736,4 +736,6 @@ package.WeakMap = null;
 package.WeakSet = null;
 package.WeakRef = null;
 
+package.Serialization = null;
+
 export default package;
