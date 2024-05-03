@@ -4,7 +4,7 @@ import makeSprite from "./internal/sprite";
 
 import { toString } from "./conversions";
 
-const pkg = { __proto__: null };
+const pkg: any = { __proto__: null };
 
 let Scratch: any;
 
