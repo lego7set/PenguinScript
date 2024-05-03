@@ -1,3 +1,7 @@
+import * as ComplexConstructor from "complex.js";
+
+const Complex = ComplexConstructor as unknown as any;
+
 import Parser from "./parsing/parser";
 
 import Lexer from "./parsing/lexer";
