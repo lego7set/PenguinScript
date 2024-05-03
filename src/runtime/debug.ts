@@ -1,23 +1,23 @@
-const package = { __proto__: null };
+const pkg: any = { __proto__: null };
 
 import nativeFn from "./internal/nativefunc";
 
-package.print = nativeFn(function* log(util, ...args) {
+pkg.print = nativeFn(function* log(util, ...args) {
   console.log(...args);
   return null;
 }, false)
 
-package.warn = nativeFn(function* warn(util, ...args) {
+pkg.warn = nativeFn(function* warn(util, ...args) {
   console.warn(...args);
   return null;
 }, false)
 
-package.error = nativeFn(function* error(util, ...args) {
+pkg.error = nativeFn(function* error(util, ...args) {
   console.error(...args);
   return null;
 }, false)
 
-/* package.EnterDebugMode = nativeFn(function debug(util, ...listOfThingsForAccess) {
+/* pkg.EnterDebugMode = nativeFn(function debug(util, ...listOfThingsForAccess) {
   // do stuff.
   if (!window.confirm("Would you like to enter the PenguinScript debug mode? (requires advanced understanding of JS console to use)")) return false; // indicate not successful.
   // window.alert("Go into the console. The arguments passed into this function are accessible through the global variable PenguinScriptDebugMode.vars");
@@ -29,4 +29,4 @@ package.error = nativeFn(function* error(util, ...args) {
   return true;
 }, false) */ // idk bro
 
-export default package;
+export default pkg;
