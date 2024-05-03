@@ -4,36 +4,36 @@ import { _globalEnv } from "../transpile/jsGen";
 const trueEnv = _globalEnv.__env;
 
 class Loader {
-  public loadPackage(package) {
-    if (typeof package.onLoad === "function") {
-      package.onLoad.call(this, package);
-      delete package.onLoad;
+  public loadPackage(pkg) {
+    if (typeof pkg.onLoad === "function") {
+      pkg.onLoad.call(this, pkg);
+      delete pkg.onLoad;
     }
-    for (const globalIndex in package) {
-      const value = package[globalIndex];
+    for (const globalIndex in pkg) {
+      const value = pkg[globalIndex];
       trueEnv.set(globalIndex, {
         get value() {return value},
-        set value() {throw new TypeError("Cannot overwrite built-in global")}
+        set value(v) {throw new TypeError("Cannot overwrite built-in global")}
       });
     }
   }
   public loadRaw(index, item) {
     trueEnv.set(index, item);
   }
-  public loadRawPackage(package) {
-    for (const globalIndex in package) {
-      const value = package[globalIndex];
+  public loadRawPackage(pkg) {
+    for (const globalIndex in pkg) {
+      const value = pkg[globalIndex];
       trueEnv.set(globalIndex, value);
     }
   }
-  public loadPenguinModPackage(package) {
+  public loadPenguinModPackage(pkg) {
     if (!IsPenguinMod) return;
-    if (typeof package.onLoad === "function") {
-      package.onLoad.call(this, package);
-      delete package.onLoad;
+    if (typeof pkg.onLoad === "function") {
+      pkg.onLoad.call(this, pkg);
+      delete pkg.onLoad;
     }
-    for (const globalIndex of package) {
-      const value = package[globalIndex];
+    for (const globalIndex of pkg) {
+      const value = pkg[globalIndex];
       trueEnv.set(globalIndex, {
         get value() {return value},
         set value() {throw new TypeError("Cannot overwrite built-in global")}
