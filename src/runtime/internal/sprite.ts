@@ -37,12 +37,14 @@ Sprite = class Sprite {
     spriteMap.set(sprite, this);
 
     const isDisposed = () => sprite.isDisposed;
+    
+    const props = this.props;
 
     props.isDisposed = {
       get value() {
         return isDisposed();
       },
-      set value() {
+      set value(v) {
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         if (sprite.isOriginal) throw new TypeError("Cannot delete non-clone sprites");
         this.runtime.disposeTarget(sprite);
@@ -50,8 +52,6 @@ Sprite = class Sprite {
       }
     }
     
-    const props = this.props;
-
     props.xStretch = {
       get value() {
         if (isDisposed()) {
@@ -109,14 +109,14 @@ Sprite = class Sprite {
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
         const dir = direction ?? sprite.direction;
         const oldDir = sprite.direction;
-        target.setDirection(dir); // force dir to be a scratch direction
+        sprite.setDirection(dir); // force dir to be a scratch direction
         const newDir = sprite.direction;
-        target.setDirection(oldDir);
+        sprite.setDirection(oldDir);
         // so newDir is the direction, and numOfSteps is the step count
-        const radians = yield* degToRad(null, newDir).next().value;
+        const radians = yield* degToRad(null, newDir);
         const dx = steps * Math.cos(radians);
         const dy = steps * Math.sin(radians);
-        target.setXY(target.x + dx, sprite.y + dy); // we're done!
+        sprite.setXY(sprite.x + dx, sprite.y + dy); // we're done!
       }, false))
 
 
@@ -200,16 +200,16 @@ Sprite = class Sprite {
 
     const say = nativeFn(function* say(util, text: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-      const msg = yield* toString(text);
+      const msg = yield* toString(util, text);
       Scratch.vm.runtime.emit("SAY", sprite, 'say', msg);
       return null;
     }, false)
     const think = nativeFn(function* think(util, text: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-      const msg = yield* toString(text);
+      const msg = yield* toString(util, text);
       Scratch.vm.runtime.emit("SAY", sprite, 'think', msg);
       return null;
-    })
+    }, false)
 
     props.say = {
       get value() {
