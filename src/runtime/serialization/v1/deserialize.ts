@@ -143,6 +143,15 @@ class Transformer { // convert tokens into structs
       case TokenType.TYPEINFO: {
         // thingy idk
         // complete later
+        const thingy = this.eat().raw;
+        switch (thingy) {
+          case "er": {
+            this.expect(TokenType.OPEN_LIST);
+            const msg = JSON.parse(this.expect(TokenType.STRING).raw);
+            const type = JSON.parse(this.expect(TokenType.STRING).raw);
+            // idk im going to do later cuz im kinda lazy ngl
+          }
+        }
       }
       case TokenType.REF: {
         if (!current) throw new TypeError("Refs may only appear from within objects, arrays, and structs.")
