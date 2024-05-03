@@ -1,14 +1,14 @@
-import nativeFn from ".internal/nativefunc";
-const package = { __proto__: null };
+import nativeFn from "./internal/nativefunc";
+const pkg = { __proto__: null };
 
-package.applicationTime = nativeFn(function*(){
+pkg.applicationTime = nativeFn(function*(){
   return self.performance.now();
 }, false)
 
-package.daysSince2000 = null;
+pkg.daysSince2000 = null;
 
-package.msSince1970 = nativeFn(function*(){
+pkg.msSince1970 = nativeFn(function*(){
   return Date.now();
 }, false);
 
-export default package;
+export default pkg;
