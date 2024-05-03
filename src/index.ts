@@ -242,8 +242,11 @@ if ((typeof window === "object" && window && typeof window.document === "object"
         if (b && b.isComplex && b.isStruct && (yield* b.props.__isCompatible__.value(this, a))) return yield* b.props.__add__.value(this, a);
         //if (a.isStruct && typeof a.props.__add__ === "function" && typeof a.props.__isCompatible__ === "function" && a.props.__isCompatible__(this, b)) yield* return a.props.__add__(this, b);
         //if (b.isStruct && typeof b.props.__add__ === "function" && typeof b.props.__isCompatible__ === "function" && b.props.__isCompatible__(this, a)) yield* return a.props.__add__(this, b);
-        if ((typeof a === "number" && typeof b === "number") || (typeof a === "string" && typeof b === "string")) { // make everything more strict
-          return a + b
+        if (typeof a === "number" && typeof b === "number") { // make everything more strict
+          return a + b;
+        }
+        if (typeof a === "string" && typeof b === "string") {
+          return a + b;
         }
         throw new TypeError("Incompatible operands");
       },
