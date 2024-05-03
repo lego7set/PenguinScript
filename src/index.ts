@@ -191,7 +191,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
         const v = yield* item.props.get.value(this, index);
         return {
           get value() {return v},
-          set value(value) {return yield* item.props.set.value(this, index, value)}
+          set value(value) {for (const h of item.props.set.value(this, index, value));}
         }
       },
       *negate(a) {
