@@ -694,18 +694,28 @@ package.deepClone = nativeFn(function* deepClone(util, structToClone) {
     case "object": {
       const actualProps = structToClone.getActual();
       const newStruct = yield* createObjectStruct(util);
-      const newProps = Object.assign(newStruct.getActual(), actualProps);
+      const newProps = { __proto__: null };
+      for (const prop in actualProps) {
+        newProps[prop] = yield* deepClone(util, actualProps[prop])
+      }
+      Object.assign(newStruct.getActual(), newProps);
       return newStruct
     }
     case "array": {
       const actualProps = structToClone.getActual();
       const newStruct = yield* createArrayStruct(util);
-      const newProps = Object.assign(newStruct.getActual(), actualProps);
+      const newProps = [];
+      for (const prop in actualProps) {
+        newProps[prop] = yield* deepClone(util, actualProps[prop])
+      }
+      Object.assign(newStruct.getActual(), newProps);
       return newStruct
     }
     default: {
+      // EDIT: just return the thingy
+      return structToClone
       // we dont need to let users deepClone complex due to the fact that simply adding zero returns a new instance
-      throw new TypeError("Can only deep clone errors, objects, and arrays.")
+      // throw new TypeError("Can only deep clone errors, objects, and arrays.")
     }
   }
 }, false)
