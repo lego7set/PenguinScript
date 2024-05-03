@@ -35,10 +35,10 @@ class Frame {
     return gen.curFrame;
   }
   protected parentFrame: Frame | null;
-  protected variables: Set;
+  protected variables: Set<any>;
   constructor(parentFrame = null) {
     this.parentFrame = parentFrame;
-    this.variables = new Set();
+    this.variables = new Set<any>();
   }
 
   protected varInScope(variable) {
@@ -46,7 +46,7 @@ class Frame {
   }
 
   protected varExists(variable) {
-    return this.variable.has(variable) ? true : this.parentFrame ? this.parentFrame.varExists(variable) : false
+    return this.variables.has(variable) ? true : this.parentFrame ? this.parentFrame.varExists(variable) : false
   }
 
   public defineVariable(variable) {
@@ -549,7 +549,7 @@ export default class JSGenerator {
           const second = this.descendExpr(node2.second).asNumber();
           const third = this.descendExpr(node2.third).asNumber();
           
-          return new TypedInput(`/* Colo(u)r */yield* util.createColor(util, "${node2.format}", ${first}, ${second}, ${third})/* End Colo(u)r */`);
+          return new TypedInput(`/* Colo(u)r */yield* util.createColor(util, "${node2.format}", ${first}, ${second}, ${third})/* End Colo(u)r */`, Output.TYPE_UNKNOWN); // i should make seperate types for these thingies but like im too lazy and this works so its ok
         }
         case NodeType.Identifier: {
           const node2 = node as unknown as Identifier;
@@ -620,7 +620,7 @@ export default class JSGenerator {
           const node2 = node as unknown as Indexing;
           const item = this.descendExpr(node2.left).asUnknown();
           const index = this.descendExpr(node2.right).asUnknown();
-          return new TypedInput(`/* Indexing */(yield* util.index(${item}, ${index})).value/* End Indexing */`);
+          return new TypedInput(`/* Indexing */(yield* util.index(${item}, ${index})).value/* End Indexing */`, OutputType.TYPE_UNKNOWN);
         }
         case NodeType.In: {
           const node2 = node as unknown as In;
