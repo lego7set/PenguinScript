@@ -1,5 +1,5 @@
 import nativeFn from "./internal/nativefunc";
-const pkg = { __proto__: null };
+const pkg: any = { __proto__: null };
 
 pkg.applicationTime = nativeFn(function*(){
   return self.performance.now();
