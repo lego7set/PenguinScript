@@ -289,7 +289,7 @@ if ((typeof window === "object" && window && typeof window.document === "object"
       *mod(a, b) {
         if ((a && a.isComplex) || (b && b.isComplex)) throw new TypeError("Complex operation not implemented")
         // this is basically the code from the pm vm
-        if (!(typeof a === "number" && typeof b === "number")) throw new TypeErrpr("Incompatible operands")
+        if (!(typeof a === "number" && typeof b === "number")) throw new TypeError("Incompatible operands")
         let result = a % b;
         if (result / b < 0) result += b;
         return result; 
