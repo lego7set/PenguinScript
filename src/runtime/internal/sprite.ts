@@ -244,7 +244,8 @@ Sprite = class Sprite {
       },
       set value(v) {
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-        sprite.setVisible(yield* toBoolean(v));
+        if (typeof v !== "boolean") throw new TypeError("Can only set visibility to a boolean")
+        sprite.setVisible(v);
       }
     }
 
@@ -287,7 +288,7 @@ Sprite = class Sprite {
       },
       set value(v) {
         if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-        v = yield* toString(v);
+        if (typeof v !== "string") throw new TypeError("Can only set costumeName prop to a string")
         const index = sprite.getCostumeIndexByName(v);
         if (index !== -1) sprite.setCostume(index);
         else throw new TypeError("Costume name " + index + " does not exist");
@@ -337,11 +338,11 @@ Sprite = class Sprite {
     }
     const getVariable = nativeFn(function* getVariable(util, name: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-      return sprite.lookupVariableByNameAndType(yield* toString(name), "", true)?.value ?? null;
+      return sprite.lookupVariableByNameAndType(yield* toString(util, name), "", true)?.value ?? null;
     }, false)
     const setVariable = nativeFn(function* setVariable(util, name: any, value: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-      const variable = sprite.lookupVariableByNameAndType(yield* toString(name), "", true);
+      const variable = sprite.lookupVariableByNameAndType(yield* toString(util, name), "", true);
       if (variable) { 
         if (value == null) {
           variable.value = "null";
@@ -371,7 +372,7 @@ Sprite = class Sprite {
 
     const broadcast = nativeFn(function* broadcast(util, message) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-      const msg = yield* toString(message);
+      const msg = yield* toString(util, message);
       const threads = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
         BROADCAST_OPTION: msg
       }, sprite);
@@ -386,7 +387,7 @@ Sprite = class Sprite {
 
     const broadcastAndWait = nativeFn(function* broadcastAndWait(util, message: any) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
-      const msg = yield* toString(message);
+      const msg = yield* toString(util, message);
       const started = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
         BROADCAST_OPTION: msg
       }, sprite);
