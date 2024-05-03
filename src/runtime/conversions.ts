@@ -32,6 +32,7 @@ export function* radToDeg(util, rad: number) {
 pkg.degToRad = nativeFn(degToRad, false);
 pkg.radToDeg = nativeFn(radToDeg, false)
 
+// @ts-ignore
 pkg.toString = nativeFn(toString, false);
 pkg.toNumber = nativeFn(toNumber, false);
 pkg.toBoolean = nativeFn(toBoolean, false);
