@@ -1,4 +1,4 @@
-const package = { __proto__: null };
+const package: any = { __proto__: null };
 
 import * as ComplexConstructor from "complex.js"; // i forgor to add to package
 
