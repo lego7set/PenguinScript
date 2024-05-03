@@ -4,16 +4,16 @@ import makeSprite from "./internal/sprite";
 
 import { toString } from "./conversions";
 
-const package = { __proto__: null };
+const pkg = { __proto__: null };
 
 let Scratch: any;
 
-package.getSprite = nativeFn(function* getSprite(name) {
+pkg.getSprite = nativeFn(function* getSprite(name) {
   if (typeof name !== "string") throw new TypeError("Attempted to get sprite with name, but name is not a string");
   return makeSprite(Scratch.vm.runtime.getSpriteTargetByName(name));
 }, true, false)
 
-package.broadcast = nativeFn(function* broadcast(util, message: any) {
+pkg.broadcast = nativeFn(function* broadcast(util, message: any) {
   const msg = yield* toString(message);
   const list = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
     BROADCAST_OPTION: msg
@@ -21,7 +21,7 @@ package.broadcast = nativeFn(function* broadcast(util, message: any) {
   return list.length;
 }, false)
 
-package.broadcastAndWait = nativeFn(function* broadcastAndWait(util, message: any) {
+pkg.broadcastAndWait = nativeFn(function* broadcastAndWait(util, message: any) {
   const msg = yield* toString(message);
   const started = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
     BROADCAST_OPTION: msg
@@ -32,13 +32,13 @@ package.broadcastAndWait = nativeFn(function* broadcastAndWait(util, message: an
   return started.length;
 }, false)
 
-package.getVariable = nativeFn(function* getVariableForAll(util, name: any) {
+pkg.getVariable = nativeFn(function* getVariableForAll(util, name: any) {
   const target = Scratch.vm.runtime.getTargetForStage();
   if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
   return target.lookupVariableByNameAndType(yield* toString(name), "", true)?.value ?? null;
 }, false)
 
-package.setVariable = nativeFn(function* setVariableForAll(util, name: any, value: any) {
+pkg.setVariable = nativeFn(function* setVariableForAll(util, name: any, value: any) {
   const target = Scratch.vm.runtime.getTargetForStage();
   if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
   const variable = target.lookupVariableByNameAndType(yield* toString(name), "", true);
@@ -58,12 +58,12 @@ function mouseClicked() {
   return Scratch.vm.runtime.ioDevices.mouse.getIsClicked();
 }
 
-package.isKeyDown = nativeFn(function* isKeyDown(util, key) {
+pkg.isKeyDown = nativeFn(function* isKeyDown(util, key) {
   if (!Scratch.vm.runtime.ioDevices.keyboard) return false;
   return Scratch.vm.runtime.ioDevices.keyboard.getKeyIsDown(key);
 }, false)
 
-package.isKeyHit = nativeFn(function* isKeyHit(util, key) {
+pkg.isKeyHit = nativeFn(function* isKeyHit(util, key) {
   if (!Scratch.vm.runtime.ioDevices.keyboard) return false;
   return Scratch.vm.runtime.ioDevices.keyboard.getKeyIsHit(key);
 }, false)
@@ -90,27 +90,27 @@ export function* waitUntil(util, conditionFunction, ...argFuncs) {
   return true; // why would i return false if the condition is true?
 }
 
-package.wait = nativeFn(wait, false)
-package.waitUntil = nativeFn(waitUntil, false)
+pkg.wait = nativeFn(wait, false)
+pkg.waitUntil = nativeFn(waitUntil, false)
 
-package.setTempVar = nativeFn(function* setTempVar(util, name, v) {
+pkg.setTempVar = nativeFn(function* setTempVar(util, name, v) {
   return util.tempVars[String(name)] = v;
 }, false)
 
-package.getTempVar = nativeFn(function* getTempVar(util, name, v) {
+pkg.getTempVar = nativeFn(function* getTempVar(util, name, v) {
   return util.tempVars[String(name)];
 }, false)
 
-package.tempVarExists = nativeFn(function* tempVarExists(util, name, v) {
+pkg.tempVarExists = nativeFn(function* tempVarExists(util, name, v) {
   return !!util.tempVars[String(name)]; // this is literally what the pm compiler uses
 }, false)
 
 let startTime = self.performance.now();
-package.timeSinceBlueFlag = nativeFn(function* timeSinceBlueFlag() {
+pkg.timeSinceBlueFlag = nativeFn(function* timeSinceBlueFlag() {
   return self.performance.now() - startTime;
 }, false)
 
-package.onLoad = function() {
+pkg.onLoad = function() {
   Scratch = this.requireScratch();
   Scratch.vm.runtime.on("PROJECT_START", () => startTime = self.performance.now());
   this.loadRaw("mouseDown", {
@@ -137,4 +137,4 @@ package.onLoad = function() {
   })
 }  
 
-export default package;
+export default pkg;
