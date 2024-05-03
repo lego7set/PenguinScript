@@ -1,6 +1,6 @@
 import nativeFn from "./internal/nativefunc";
 
-const pkg = { __proto__: null };
+const pkg: any = { __proto__: null };
 
 pkg.exit = nativeFn(function* exit(util, value: any) {
   throw {isExit: true, returnValue: value}; // exits
