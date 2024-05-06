@@ -549,7 +549,7 @@ export default class JSGenerator {
           const second = this.descendExpr(node2.second).asNumber();
           const third = this.descendExpr(node2.third).asNumber();
           
-          return new TypedInput(`/* Colo(u)r */yield* util.createColor(util, "${node2.format}", ${first}, ${second}, ${third})/* End Colo(u)r */`, Output.TYPE_UNKNOWN); // i should make seperate types for these thingies but like im too lazy and this works so its ok
+          return new TypedInput(`/* Colo(u)r */yield* util.createColor(util, "${node2.format}", ${first}, ${second}, ${third})/* End Colo(u)r */`, OutputType.TYPE_UNKNOWN); // i should make seperate types for these thingies but like im too lazy and this works so its ok
         }
         case NodeType.Identifier: {
           const node2 = node as unknown as Identifier;
