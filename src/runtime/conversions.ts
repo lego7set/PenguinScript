@@ -38,7 +38,7 @@ pkg.toNumber = nativeFn(toNumber, false);
 pkg.toBoolean = nativeFn(toBoolean, false);
 
 function* charFromCodePoint(util, value: any) {
-  return String.fromCodePoint(yield* toNumber(util, value) || 0) // use the new conversion functions instead of the other ones.
+  return String.fromCodePoint((yield* toNumber(util, value)) || 0) // use the new conversion functions instead of the other ones.
 }
 
 function* charToCodePoint(util, value: any) {
