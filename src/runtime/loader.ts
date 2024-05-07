@@ -36,7 +36,7 @@ class Loader {
       const value = pkg[globalIndex];
       trueEnv.set(globalIndex, {
         get value() {return value},
-        set value() {throw new TypeError("Cannot overwrite built-in global")}
+        set value(v) {throw new TypeError("Cannot overwrite built-in global")}
       });
     }
   }
