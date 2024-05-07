@@ -2,6 +2,8 @@
 
 import loader from "../loader";
 
+import { wait } from "../scratchmisc"; // breh
+
 import { degToRad, toString, toNumber, toBoolean } from "../conversions";
 
 import { customObjectTypes } from "../structs";
@@ -352,7 +354,7 @@ Sprite = class Sprite {
           variable.value = value;
           return true;
         }
-        variable.value = yield* toString(value);
+        variable.value = yield* toString(util, value);
         return true;
       }
       return null;
@@ -394,7 +396,7 @@ Sprite = class Sprite {
       while (yield* wait(util, 15) && started.some(thread => Scratch.vm.runtime.threads.indexOf(thread) !== -1)) { // prevent freezing and check if threads are still running
         if (!util.isWarp || util.isStuck()) yield;
       }
-      return !started.length === 0;
+      return !(started.length === 0); // why am i so dumb???? operator precedence is annoying ngl
     }, false)
 
     props.broadcastAndWait = {
@@ -478,7 +480,7 @@ Sprite = class Sprite {
     const isTouchingXY = nativeFn(function* isTouchingXY(x, y) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       if (!Scratch.vm.renderer) return false;
-      return Scratch.vm.renderer.drawableTouching(sprite.drawableID, yield* toNumber(x) || 0, yield* toNumber(y) || 0);
+      return Scratch.vm.renderer.drawableTouching(sprite.drawableID, yield* toNumber(util, x) || 0, yield* toNumber(util, y) || 0);
   }, false, true)
 
     const isTouchingEdge = nativeFn(function* isTouchingEdge() {
@@ -658,19 +660,19 @@ Sprite = class Sprite {
       set value(v) {throw new TypeError("Cannot change stopAllSounds method on sprite")}
     }
 
-    const setFadeout = nativeFn(function* setFadeout(sound, fadeout) {
+    const setFadeout = nativeFn(function* setFadeout(util, sound, fadeout) {
       if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
-      fadeout = yield* toNumber(fadeout) || 0;
+      fadeout = yield* toNumber(util, fadeout) || 0;
       soundsCategory.setStopFadeout({
         SOUND_MENU: sound,
         VALUE: fadeout
       }, {
         target: sprite
       });
-    }, false, true);
+    }, false);
 
     const ask = nativeFn(function* ask(util, toAsk) {
-      const msg = yield* toString(toAsk);
+      const msg = yield* toString(util, toAsk);
       let result: string = "";
       yield* util.waitPromise(async function(){
         await Scratch.vm.runtime.ext_scratch3_sensing.askAndWait({
