@@ -14,7 +14,7 @@ pkg.getSprite = nativeFn(function* getSprite(name) {
 }, true, false)
 
 pkg.broadcast = nativeFn(function* broadcast(util, message: any) {
-  const msg = yield* toString(message);
+  const msg = yield* toString(util, message);
   const list = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
     BROADCAST_OPTION: msg
   });
@@ -22,7 +22,7 @@ pkg.broadcast = nativeFn(function* broadcast(util, message: any) {
 }, false)
 
 pkg.broadcastAndWait = nativeFn(function* broadcastAndWait(util, message: any) {
-  const msg = yield* toString(message);
+  const msg = yield* toString(util, message);
   const started = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
     BROADCAST_OPTION: msg
   });
@@ -35,13 +35,13 @@ pkg.broadcastAndWait = nativeFn(function* broadcastAndWait(util, message: any) {
 pkg.getVariable = nativeFn(function* getVariableForAll(util, name: any) {
   const target = Scratch.vm.runtime.getTargetForStage();
   if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
-  return target.lookupVariableByNameAndType(yield* toString(name), "", true)?.value ?? null;
+  return target.lookupVariableByNameAndType(yield* toString(util, name), "", true)?.value ?? null;
 }, false)
 
 pkg.setVariable = nativeFn(function* setVariableForAll(util, name: any, value: any) {
   const target = Scratch.vm.runtime.getTargetForStage();
   if (!(target instanceof Scratch.vm.exports.RenderedTarget)) throw new TypeError("Cannot get variable for a non-sprite");
-  const variable = target.lookupVariableByNameAndType(yield* toString(name), "", true);
+  const variable = target.lookupVariableByNameAndType(yield* toString(util, name), "", true);
   if (variable) {
     return variable.value = value // im juts going to use a toJSON method to prevent weird things frmo happening
   }
@@ -94,15 +94,15 @@ pkg.wait = nativeFn(wait, false)
 pkg.waitUntil = nativeFn(waitUntil, false)
 
 pkg.setTempVar = nativeFn(function* setTempVar(util, name, v) {
-  return util.tempVars[String(name)] = v;
+  return util.tempVars[yield* toString(util, name)] = v;
 }, false)
 
 pkg.getTempVar = nativeFn(function* getTempVar(util, name, v) {
-  return util.tempVars[String(name)];
+  return util.tempVars[yield* toString(util, name)];
 }, false)
 
 pkg.tempVarExists = nativeFn(function* tempVarExists(util, name, v) {
-  return !!util.tempVars[String(name)]; // this is literally what the pm compiler uses
+  return !!util.tempVars[yield* toString(util, name)]; // this is literally what the pm compiler uses
 }, false)
 
 let startTime = self.performance.now();
