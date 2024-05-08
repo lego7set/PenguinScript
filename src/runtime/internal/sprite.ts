@@ -378,7 +378,7 @@ Sprite = class Sprite {
       const threads = Scratch.vm.runtime.startHats("event_whenbroadcastreceived", {
         BROADCAST_OPTION: msg
       }, sprite);
-      return !threads.length === 0; // returns whether or not threads were started
+      return (threads.length !== 0); // returns whether or not threads were started
     }, false)
     props.broadcast = {
       get value() {
@@ -396,7 +396,7 @@ Sprite = class Sprite {
       while (yield* wait(util, 15) && started.some(thread => Scratch.vm.runtime.threads.indexOf(thread) !== -1)) { // prevent freezing and check if threads are still running
         if (!util.isWarp || util.isStuck()) yield;
       }
-      return !(started.length === 0); // why am i so dumb???? operator precedence is annoying ngl
+      return (started.length !== 0); // why am i so dumb???? operator precedence is annoying ngl
     }, false)
 
     props.broadcastAndWait = {
@@ -477,11 +477,11 @@ Sprite = class Sprite {
       return Scratch.vm.renderer.drawableTouching(sprite.drawableID, mouse.getClientX(), mouse.getClientY());
   }, false, true)
 
-    const isTouchingXY = nativeFn(function* isTouchingXY(x, y) {
+    const isTouchingXY = nativeFn(function* isTouchingXY(util, x, y) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       if (!Scratch.vm.renderer) return false;
-      return Scratch.vm.renderer.drawableTouching(sprite.drawableID, yield* toNumber(util, x) || 0, yield* toNumber(util, y) || 0);
-  }, false, true)
+      return Scratch.vm.renderer.drawableTouching(sprite.drawableID, (yield* toNumber(util, x)) || 0, (yield* toNumber(util, y)) || 0);
+  }, false)
 
     const isTouchingEdge = nativeFn(function* isTouchingEdge() {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
