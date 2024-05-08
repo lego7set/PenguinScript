@@ -37,6 +37,11 @@ jobs:
       run: |
         sudo mkdir /psout
 
+    - name: See directories
+      run: |
+        sudo find .
+        sudo pwd
+
     - name: Build
       run: |
         sudo npm install
