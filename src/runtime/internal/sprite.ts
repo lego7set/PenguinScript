@@ -559,7 +559,7 @@ Sprite = class Sprite {
     const playSound = nativeFn(function* playSound(util, sound, seconds) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
-      if (typeof seconds !== "number") seconds = yield* toNumber(util, seconds) || 0;
+      if (typeof seconds !== "number") seconds = (yield* toNumber(util, seconds)) || 0;
       soundsCategory._playSoundAtTimePosition({
         sound: yield* toString(util, sound),
         seconds
@@ -576,7 +576,7 @@ Sprite = class Sprite {
     const playSoundAndWait = nativeFn(function* playSoundAndWait(util, sound, seconds) {
       if (isDisposed()) throw new TypeError("This sprite has been deleted, cannot perform operation");
       if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
-      if (typeof seconds !== "number") seconds = yield* toNumber(util, seconds) || 0;
+      if (typeof seconds !== "number") seconds = (yield* toNumber(util, seconds)) || 0;
       yield* util.waitPromise(soundsCategory._playSoundAtTimePosition({
         sound: yield* toString(util, sound),
         seconds
@@ -662,7 +662,7 @@ Sprite = class Sprite {
 
     const setFadeout = nativeFn(function* setFadeout(util, sound, fadeout) {
       if (typeof sound !== "string" && typeof sound !== "number") throw new TypeError("Sound must be a string or number index");
-      fadeout = yield* toNumber(util, fadeout) || 0;
+      fadeout = (yield* toNumber(util, fadeout)) || 0;
       soundsCategory.setStopFadeout({
         SOUND_MENU: sound,
         VALUE: fadeout
