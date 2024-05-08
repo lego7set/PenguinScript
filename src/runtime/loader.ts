@@ -32,7 +32,7 @@ class Loader {
       pkg.onLoad.call(this, pkg);
       delete pkg.onLoad;
     }
-    for (const globalIndex of pkg) {
+    for (const globalIndex in pkg) {
       const value = pkg[globalIndex];
       trueEnv.set(globalIndex, {
         get value() {return value},
