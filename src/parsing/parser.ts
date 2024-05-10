@@ -539,7 +539,7 @@ export default class Parser {
         item: primary,
         index: ident
       } as Chaining;
-      function_call();
+      function_call.call(this); // ehhhhh
     }
     return primary;
   }
