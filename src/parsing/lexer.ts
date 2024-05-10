@@ -170,6 +170,13 @@ export default class Lexer {
           yield token;
           break;
         }
+        case ".": {
+          if (src[1] === ".") {
+            yield* this.yieldToken(new Token(TokenType.RESERVED, src.shift() + src.shift()));
+            break;
+          }
+          yield* this.yieldToken(new Token(TokenType.RESERVED, src.shift()));
+        }
         case "-": {
           // fall through if not chaining operator
           if (src[1] === ">") {
