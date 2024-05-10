@@ -511,9 +511,9 @@ export default class Parser {
           func: primary,
           args
         } as FunctionCall;
-        indexing();
+        indexing.call(this);
       } // parse all function calls first. so we can capture things like x()()()()
-      indexing(); // execute indexing anyways
+      indexing.call(this); // execute indexing anyways
     }
     function indexing() {
       while (this.at().type === TokenType.OPEN_BRACKET) { // x[]
@@ -525,11 +525,11 @@ export default class Parser {
          left: primary,
          right
        } as Indexing;
-        function_call(); // so you can do x()[0][3](1)[6]
+        function_call.call(this); // so you can do x()[0][3](1)[6]
      }
     }
 
-    function_call();
+    function_call.call(this);
     
     while (this.at().type === TokenType.CHAINING) { // handle chaining. so that if -> comes after things like x()()()() we can get values of it.
       this.eat(); // eat chaining;
