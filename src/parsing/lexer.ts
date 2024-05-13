@@ -70,6 +70,7 @@ export default class Lexer {
   public Token: typeof Token = Token;
   public TokenType: typeof TokenType = TokenType;
   public Keywords: Record<string, TokenType> = {
+    __proto__: null, // bruhhh not doing this makes the global toString inaccessible due to the object prototype.
     let: TokenType.LET,
     const: TokenType.CONST,
     and: TokenType.BINARY_OPERATOR,
