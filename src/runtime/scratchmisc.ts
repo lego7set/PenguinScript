@@ -11,7 +11,7 @@ let Scratch: any;
 pkg.getSprite = nativeFn(function* getSprite(name) {
   if (typeof name !== "string") throw new TypeError("Attempted to get sprite with name, but name is not a string");
   return makeSprite(Scratch.vm.runtime.getSpriteTargetByName(name));
-}, true, false)
+}, true, true)
 
 pkg.broadcast = nativeFn(function* broadcast(util, message: any) {
   const msg = yield* toString(util, message);
