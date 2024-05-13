@@ -464,7 +464,7 @@ export default class JSGenerator {
             case "<=": {
               const left = this.descendExpr(node2.left);
               const right = this.descendExpr(node2.right);
-              return new TypedInput(`/* Binary Expression */(yield* util.le(${left.asUnknown()}, ${right.asUnknown()})/* End Binary Expression */`, OutputType.TYPE_BOOLEAN)
+              return new TypedInput(`/* Binary Expression */(yield* util.le(${left.asUnknown()}, ${right.asUnknown()}))/* End Binary Expression */`, OutputType.TYPE_BOOLEAN)
             }
             case ">=": {
               const left = this.descendExpr(node2.left);
