@@ -392,8 +392,8 @@ export default class Parser {
       if (operator === "<" || operator === ">") {
         if (this.at().type === TokenType.EQUALS) {
           this.eat(); // consume equals token, and make a <= or >= token instead (also technically  0 >   = 0 is valid code lol, oh and also its only valid code because it wouldn't make sense of > to be the left hand side of assignment)
+           operator += "="; // bruhhh it needs to be in here.
         }
-        operator += "=";
       }
       const right = this.parse_additive_expr();
       left = {
