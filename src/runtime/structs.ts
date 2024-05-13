@@ -135,7 +135,7 @@ pkg.Array = nativeFn(function* createArrayStruct(...values) {
 
 // ------------------------------------Complex Numbers-------------------------------
 
-const createComplexStruct = nativeFn(function* createComplexStruct(x?, y?) {
+const createComplexStruct = nativeFn(function* createComplexStruct(util, x?, y?) {
   let complex;
   try {
     complex = new Complex(x, y);
@@ -225,7 +225,7 @@ const createComplexStruct = nativeFn(function* createComplexStruct(x?, y?) {
   }
   
   return struct;
-}, true, true)
+}, true)
 
 Object.assign(createComplexStruct, {
   props: {
