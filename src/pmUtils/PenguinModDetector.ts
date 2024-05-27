@@ -1,6 +1,0 @@
-// EDIT: This is useless but we might use it later
-
-// @ts-ignore
-export const SupportsExtensions = typeof window === "object" && window && typeof window.document === "object" && window.document && typeof window.Scratch === "object" && window.Scratch;
-// @ts-ignore
-export const IsPenguinMod = SupportsExtensions && window.Scratch.extensions.isPenguinMod; // we need this for loops later, cuz we need to be able to yield to the compiler if its penguinmod
