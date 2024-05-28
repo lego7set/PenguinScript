@@ -7,7 +7,7 @@ class Lexer {
     ["close_thingy", /^[})\]]/],
     ["increment", /^(++|--)/],
     ["binary_operator", /^([-+*/%^<>]|==|!=)/],
-    ["assignment", /^(=|+=|-=|*=|\/=|%=|^=|?=)/],
+    ["assignment", /^(=|+=|-=|*=|\/=|%=|^=|?=)/], // ?= is binary NOT assignment, which will look something like ?=variable
     ["question_mark", /^\?/],
     ["colon", /^:/]
   ]
