@@ -1,3 +1,18 @@
+enum TokenType {
+  // add some token types later.
+}
+
+class Token {
+  type: TokenType;
+  raw: string;
+  value: string;
+  constructor(type: TokenType, raw: string, processed: string) {
+    this.type = type;
+    this.raw = raw;
+    this.value = processed;
+  }
+}
+
 class Lexer {
   static tokenRegexps: [string, RegExp][] = [
     ["identifierKeyword", /^[a-zA-Z_]+[a-ZA-Z0-9_]*/],
@@ -11,4 +26,7 @@ class Lexer {
     ["question_mark", /^\?/],
     ["colon", /^:/]
   ]
+  static tokenHandlers: Record<string, (matched: string, position?: number, source?: string) => Token> = {
+    
+  }
 }
