@@ -1,6 +1,7 @@
 enum TokenType {
   // add some token types later.
-  IDENTIFIER
+  IDENTIFIER,
+  NUMBER,
 }
 
 const keywords: Record<string, TokenType> = {
@@ -16,6 +17,10 @@ class Token {
     this.raw = raw;
     this.value = processed || raw;
   }
+}
+
+function defaultHandler(type: TokenType) {
+  return (matched: string) => new Token(type, matched);
 }
 
 class Lexer {
@@ -38,5 +43,7 @@ class Lexer {
       if (keywords[matched) return new Token(keywords[matched], matched)
       return new Token(TokenType.IDENTIFIER, matched)
     }
+    number: defaultHandler(TokenType.NUMBER),
+    
   }
 }
