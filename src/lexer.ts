@@ -2,6 +2,7 @@ enum TokenType {
   // add some token types later.
   IDENTIFIER,
   NUMBER,
+  STRING
 }
 
 const keywords: Record<string, TokenType> = {
@@ -42,8 +43,8 @@ class Lexer {
     identifierKeyword: function(matched: string): Token {
       if (keywords[matched) return new Token(keywords[matched], matched)
       return new Token(TokenType.IDENTIFIER, matched)
-    }
+    },
     number: defaultHandler(TokenType.NUMBER),
-    
+    string: defaultHandler(TokenType.STRING),
   }
 }
