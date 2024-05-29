@@ -1,15 +1,20 @@
 enum TokenType {
   // add some token types later.
+  IDENTIFIER
+}
+
+const keywords: Record<string, TokenType> = {
+  
 }
 
 class Token {
   type: TokenType;
   raw: string;
   value: string;
-  constructor(type: TokenType, raw: string, processed: string) {
+  constructor(type: TokenType, raw: string, processed?: string) {
     this.type = type;
     this.raw = raw;
-    this.value = processed;
+    this.value = processed || raw;
   }
 }
 
@@ -28,7 +33,10 @@ class Lexer {
     ["question_mark", /^\?/],
     ["colon", /^:/]
   ]
-  tokenHandlers: Record<string, (this: typeof Lexer, matched: string) => Token> = {
-    
+  tokenHandlers: Record<string, (this: Lexer, matched: string) => Token> = {
+    identifierKeyword: function(matched: string): Token {
+      if (keywords[matched) return new Token(keywords[matched], matched)
+      return new Token(TokenType.IDENTIFIER, matched)
+    }
   }
 }
